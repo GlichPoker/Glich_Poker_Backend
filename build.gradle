@@ -59,9 +59,9 @@ bootJar {
 
 sonar {
     properties {
-        property "sonar.projectKey", "TODO"
-        property "sonar.organization", "TODO"
-        property "sonar.host.url", "TODO"
+        property "sonar.projectKey", "elio42_Glich_Poker_Backend"
+        property "sonar.organization", "elio42"
+        property "sonar.host.url", "https://sonarcloud.io"
     }
 }
 
