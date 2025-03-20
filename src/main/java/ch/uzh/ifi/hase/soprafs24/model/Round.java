@@ -17,7 +17,7 @@ public class Round {
     private int haveNotRaised;
     protected List<Card> communityCards;
 
-    public Round(ArrayList<Player> players, int startPlayer, boolean isTest, GameSettings gameSettings) {
+    public Round(List<Player> players, int startPlayer, boolean isTest, GameSettings gameSettings) {
         this.players = players;
         this.dealer = new Dealer(new Deck());
         this.startPlayer = startPlayer;
@@ -33,7 +33,7 @@ public class Round {
         // notify update
     }
 
-    public Round(ArrayList<Player> players, int startPlayer, GameSettings gameSettings) {
+    public Round(List<Player> players, int startPlayer, GameSettings gameSettings) {
         this(players, startPlayer,false, gameSettings);
     }
 
