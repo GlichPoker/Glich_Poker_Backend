@@ -46,9 +46,9 @@ public class GameController {
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public Long createGame(@RequestBody CreateGameRequest request) {
-        User user = getValidUser(request.userId);
-        Player owner = new Player(user.getId(), user.getUsername(), request.gameSettings.getInitialBalance());
-        Game game = new Game(owner, request.gameSettings);
+        User user = getValidUser(request.getUserId());
+        Player owner = new Player(user.getId(), user.getUsername(), request.getGameSettings().getInitialBalance());
+        Game game = new Game(owner, request.getGameSettings());
         games.put(game.getSessionId(), game);
         return game.getSessionId();
     }
@@ -57,9 +57,9 @@ public class GameController {
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public boolean invitePlayer(@RequestBody GameActionRequest request) {
-        Game game = getValidGame(request.sessionId);
-        User user = getValidUser(request.userId);
-        if (game.containsUser(request.userId)) throw new ResponseStatusException(HttpStatus.CONFLICT, "Player already part of game");
+        Game game = getValidGame(request.getSessionId());
+        User user = getValidUser(request.getUserId());
+        if (game.containsUser(request.getUserId())) throw new ResponseStatusException(HttpStatus.CONFLICT, "Player already part of game");
         game.addPlayer(new Player(user.getId(), user.getUsername(), game.getSettings().getInitialBalance()));
         return true;
     }
@@ -68,10 +68,10 @@ public class GameController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public boolean joinGame(@RequestBody GameActionRequest request) {
-        Game game = getValidGame(request.sessionId);
-        getValidUser(request.userId);
-        if (!game.containsUser(request.userId)) throw new ResponseStatusException(HttpStatus.CONFLICT, "Player was not invited to the game");
-        game.joinSession(request.userId);
+        Game game = getValidGame(request.getSessionId());
+        getValidUser(request.getUserId());
+        if (!game.containsUser(request.getUserId())) throw new ResponseStatusException(HttpStatus.CONFLICT, "Player was not invited to the game");
+        game.joinSession(request.getUserId());
         return true;
     }
 
@@ -79,9 +79,9 @@ public class GameController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public boolean startGame(@RequestBody GameActionRequest request) {
-        Game game = getValidGame(request.sessionId);
-        getValidUser(request.userId);
-        if(game.getOwnerId() != request.userId) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Only host can start");
+        Game game = getValidGame(request.getSessionId());
+        getValidUser(request.getUserId());
+        if(game.getOwnerId() != request.getUserId()) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Only host can start");
         game.startRound();
         return true;
     }
@@ -90,10 +90,10 @@ public class GameController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public boolean foldGame(@RequestBody GameActionRequest request) {
-        Game game = getValidGame(request.sessionId);
-        getValidUser(request.userId);
-        isUserPartOfGame(request.userId, game);
-        game.getRound().handleFold(request.userId);
+        Game game = getValidGame(request.getSessionId());
+        getValidUser(request.getUserId());
+        isUserPartOfGame(request.getUserId(), game);
+        game.getRound().handleFold(request.getUserId());
         return true;
     }
 
@@ -101,10 +101,10 @@ public class GameController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public boolean callGame(@RequestBody GameActionRequest request) {
-        Game game = getValidGame(request.sessionId);
-        getValidUser(request.userId);
-        isUserPartOfGame(request.userId, game);
-        game.getRound().handleCall(request.userId, request.amount);
+        Game game = getValidGame(request.getSessionId());
+        getValidUser(request.getUserId());
+        isUserPartOfGame(request.getUserId(), game);
+        game.getRound().handleCall(request.getUserId(), request.getAmount());
         return true;
     }
 
@@ -112,10 +112,10 @@ public class GameController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public boolean raiseGame(@RequestBody GameActionRequest request) {
-        Game game = getValidGame(request.sessionId);
-        getValidUser(request.userId);
-        isUserPartOfGame(request.userId, game);
-        game.getRound().handleRaise(request.userId, request.amount);
+        Game game = getValidGame(request.getSessionId());
+        getValidUser(request.getUserId());
+        isUserPartOfGame(request.getUserId(), game);
+        game.getRound().handleRaise(request.getUserId(), request.getAmount());
         return true;
     }
 
@@ -123,9 +123,9 @@ public class GameController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public boolean leaveGame(@RequestBody GameActionRequest request) {
-        Game game = getValidGame(request.sessionId);
-        getValidUser(request.userId);
-        Player player = isUserPartOfGame(request.userId, game);
+        Game game = getValidGame(request.getSessionId());
+        getValidUser(request.getUserId());
+        Player player = isUserPartOfGame(request.getUserId(), game);
         isPlayerOnline(player);
         player.setIsOnline(false);
         return true;
@@ -135,7 +135,7 @@ public class GameController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public boolean completeRound(@RequestBody GameActionRequest request) {
-        Game game = getValidGame(request.sessionId);
+        Game game = getValidGame(request.getSessionId());
         game.roundComplete();
         return true;
     }

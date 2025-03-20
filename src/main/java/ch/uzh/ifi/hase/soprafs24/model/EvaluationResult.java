@@ -29,9 +29,9 @@ public class EvaluationResult implements Comparable<EvaluationResult> {
             return rankComparison;
         }
 
-        // Compare high cards lexicographically (assumes Card implements Comparable)
+        // Compare high cards
         for (int i = 0; i < this.highCards.length; i++) {
-            int cardComparison = -this.highCards[i].compareTo(other.highCards[i]);
+            int cardComparison = this.highCards[i].compareTo(other.highCards[i]);
             if (cardComparison != 0) {
                 return cardComparison;
             }
