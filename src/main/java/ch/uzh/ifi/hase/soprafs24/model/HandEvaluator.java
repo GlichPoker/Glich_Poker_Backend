@@ -13,7 +13,7 @@ public class HandEvaluator {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
 
-    public static EvaluationResult evaluateHand(ArrayList<Card> cards) {
+    public static EvaluationResult evaluateHand(List<Card> cards) {
          orderCards(cards);
          // suit never matters for high card comparison so I default to spades
          if(isRoyalFlush(cards)) return new EvaluationResult(HandRank.ROYALFLUSH, new Card[] {new Card(Rank.ACE, Suit.SPADES)}); // high card trivially ace
@@ -78,7 +78,7 @@ public class HandEvaluator {
         return high != null;
     }
 
-    private static Card[] getHighCardFourKind(ArrayList<Card> cards) {
+    private static Card[] getHighCardFourKind(List<Card> cards) {
         Rank pair = findHighPairOfSize(cards, 4);
         Rank[] high = getRemainingHighCards(cards, 1, pair);
         return new Card[]{new Card(pair, Suit.SPADES), new Card(high[0], Suit.SPADES)};
@@ -89,17 +89,17 @@ public class HandEvaluator {
         return new Card[]{new Card(ranks[0], Suit.SPADES), new Card(ranks[1], Suit.SPADES)};
     }
 
-    private static Card[] getHighCardsFlush(ArrayList<Card> cards){
+    private static Card[] getHighCardsFlush(List<Card> cards){
         Suit suit = getFlush(cards);
         return cards.stream().filter(x -> x.getSuit() == suit).limit(5).toArray(Card[]::new);
     }
 
-    private static Card[] getHighCardsStraight(ArrayList<Card> cards) {
+    private static Card[] getHighCardsStraight(List<Card> cards) {
         Rank rank = getStraightRank(cards);
         return new Card[]{new Card(rank, Suit.SPADES)};
     }
 
-    private static Card[] getHighCardThreeKind(ArrayList<Card> cards) {
+    private static Card[] getHighCardThreeKind(List<Card> cards) {
         Rank pair = findHighPairOfSize(cards, 3);
         Rank[] high = getRemainingHighCards(cards, 2, pair);
         return new Card[]{new Card(pair, Suit.SPADES), new Card(high[0], Suit.SPADES), new Card(high[1], Suit.SPADES)};
@@ -111,13 +111,13 @@ public class HandEvaluator {
         return new Card[]{new Card(ranks[0], Suit.SPADES), new Card(ranks[1], Suit.SPADES), new Card(highCardRank, Suit.SPADES)};
     }
 
-    private static Card[] getHighCardTwoKind(ArrayList<Card> cards) {
+    private static Card[] getHighCardTwoKind(List<Card> cards) {
         Rank pair = findHighPairOfSize(cards, 2);
         Rank[] high = getRemainingHighCards(cards, 3, pair);
         return new Card[]{new Card(pair, Suit.SPADES), new Card(high[0], Suit.SPADES), new Card(high[1], Suit.SPADES), new Card(high[2], Suit.SPADES)};
     }
 
-    private static Card[] getHighCards(ArrayList<Card> cards) {
+    private static Card[] getHighCards(List<Card> cards) {
         return cards.stream().limit(5).toArray(Card[]::new);
     }
 
@@ -199,11 +199,11 @@ public class HandEvaluator {
         return ranks;
     }
 
-    private static Rank[] getRemainingHighCards(ArrayList<Card> cards, int take, Rank pair) {
+    private static Rank[] getRemainingHighCards(List<Card> cards, int take, Rank pair) {
         return cards.stream().map(Card::getRank).filter(x -> x != pair).limit(take).toArray(Rank[]::new);
     }
 
-    private static void orderCards(ArrayList<Card> cards) {
+    private static void orderCards(List<Card> cards) {
         cards.sort(Comparator.comparing(Card::getRank).reversed());
     }
 }

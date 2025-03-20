@@ -71,7 +71,6 @@ class RoundTest {
         // Arrange
         Player player1 = new Player(1, "hallo", 1000);
         Player player2 = new Player(2, "hallo2", 1000);
-        Deck deck = new Deck();
         player1.roundBet = 200;
         player2.roundBet = 200;
         ArrayList<Player> players = new ArrayList<>(Arrays.asList(player1, player2));

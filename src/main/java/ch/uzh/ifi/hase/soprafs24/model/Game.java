@@ -5,7 +5,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class Game {
     private final long sessionId;
@@ -16,7 +15,7 @@ public class Game {
     private int currentRoundStartPlayer;
 
     public Game(Player player, GameSettings settings) {
-        this.sessionId = System.nanoTime() + new Random().nextInt(1000);
+        this.sessionId = System.nanoTime();
         this.players = new ArrayList<>();
         this.players.add(player);
         this.ownerId = player.userId;
