@@ -16,6 +16,7 @@ public class HandEvaluator {
     public static EvaluationResult evaluateHand(List<Card> cards) {
          orderCards(cards);
          // suit never matters for high card comparison, so I default to spades
+         // technically royal flush is redundant
          if(isRoyalFlush(cards)) return new EvaluationResult(HandRank.ROYALFLUSH, new Card[] {new Card(Rank.ACE, Suit.SPADES)}); // high card trivially ace
          if(isStraightFlush(cards)) return new EvaluationResult(HandRank.STRAIGHTFLUSH, getHighCardsStraight(cards)); // only high card of straight matters
          if(isFourOfAKind(cards)) return new EvaluationResult(HandRank.FOUROFKIND, getHighCardFourKind(cards)); // high card of fours and high card of general hand
@@ -121,14 +122,14 @@ public class HandEvaluator {
         return cards.stream().limit(5).toArray(Card[]::new);
     }
 
-    private static Rank findHighPairOfSize(List<Card> cards, int count) {
+    private static Rank findHighPairOfSize(List<Card> cards, int size) {
         int c = 1;
         Rank high = null;
         for(int i = 1; i < cards.size(); i++) {
             if(cards.get(i).getRank() == cards.get(i - 1).getRank()) c++;
             else c = 1;
-            if(c == count) {
-                high = cards.get(i - (count - 1)).getRank();
+            if(c == size) {
+                high = cards.get(i).getRank();
                 break;
             }
         }
