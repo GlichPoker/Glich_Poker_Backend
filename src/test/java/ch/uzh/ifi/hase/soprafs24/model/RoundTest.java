@@ -18,8 +18,8 @@ class RoundTest {
         // Arrange
         Player player1 = new Player(1, "hallo", 1000);
         Player player2 = new Player(2, "hallo2", 1000);
-        player1.hand = new Card[] { new Card(Rank.ACE, Suit.CLUBS), new Card(Rank.KING, Suit.HEARTS) };
-        player2.hand = new Card[] { new Card(Rank.QUEEN, Suit.DIAMONDS), new Card(Rank.TEN, Suit.SPADES) };
+        player1.setHand(new Card[] { new Card(Rank.ACE, Suit.CLUBS), new Card(Rank.KING, Suit.HEARTS) });
+        player2.setHand(new Card[] { new Card(Rank.QUEEN, Suit.DIAMONDS), new Card(Rank.TEN, Suit.SPADES)});
         ArrayList<Player> players = new ArrayList<>(Arrays.asList(player1, player2));
         Round round = new Round(players, 0, true, null);
 
@@ -44,8 +44,8 @@ class RoundTest {
         // Arrange
         Player player1 = new Player(1, "hallo", 1000);
         Player player2 = new Player(2, "hallo2", 1000);
-        player1.hand = new Card[] { new Card(Rank.ACE, Suit.CLUBS), new Card(Rank.KING, Suit.HEARTS) };
-        player2.hand = new Card[] { new Card(Rank.ACE, Suit.DIAMONDS), new Card(Rank.KING, Suit.SPADES) };
+        player1.setHand(new Card[] { new Card(Rank.ACE, Suit.CLUBS), new Card(Rank.KING, Suit.HEARTS)});
+        player2.setHand(new Card[] { new Card(Rank.ACE, Suit.DIAMONDS), new Card(Rank.KING, Suit.SPADES)});
         ArrayList<Player> players = new ArrayList<>(Arrays.asList(player1, player2));
         Round round = new Round(players, 0, true, null);
 
@@ -71,8 +71,8 @@ class RoundTest {
         // Arrange
         Player player1 = new Player(1, "hallo", 1000);
         Player player2 = new Player(2, "hallo2", 1000);
-        player1.roundBet = 200;
-        player2.roundBet = 200;
+        player1.setRoundBet(200);
+        player2.setRoundBet(200);
         ArrayList<Player> players = new ArrayList<>(Arrays.asList(player1, player2));
         Round round = new Round(players, 0, true, null);
 
@@ -92,8 +92,8 @@ class RoundTest {
         // Arrange
         Player player1 = new Player(1, "hallo", 1000);
         Player player2 = new Player(2, "hallo2", 1000);
-        player1.roundBet = 300;
-        player2.roundBet = 100;
+        player1.setRoundBet(300);
+        player2.setRoundBet(100);
         ArrayList<Player> players = new ArrayList<>(Arrays.asList(player1, player2));
         Round round = new Round(players, 0, true, null);
 

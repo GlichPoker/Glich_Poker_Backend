@@ -18,7 +18,7 @@ public class Game {
         this.sessionId = System.nanoTime();
         this.players = new ArrayList<>();
         this.players.add(player);
-        this.ownerId = player.userId;
+        this.ownerId = player.getUserId();
         this.currentRoundStartPlayer = 0;
         this.settings = settings;
     }
@@ -28,7 +28,7 @@ public class Game {
     public Round getRound(){return round;}
     public GameSettings getSettings(){return settings;}
     public void addPlayer(Player player){this.players.add(player);}
-    public Player getPlayer(long userId){return players.stream().filter(x -> x.userId == userId).findFirst().orElse(null);}
+    public Player getPlayer(long userId){return players.stream().filter(x -> x.getUserId() == userId).findFirst().orElse(null);}
 
     public void startRound(){
         ArrayList<Player> livePlayers = getOnlinePlayers();
@@ -41,7 +41,7 @@ public class Game {
     }
 
     public boolean containsUser(long userId){
-        return this.players.stream().map(x -> x.userId).anyMatch(x -> x == userId);
+        return this.players.stream().map(Player::getUserId).anyMatch(x -> x == userId);
     }
 
     public void roundComplete(){

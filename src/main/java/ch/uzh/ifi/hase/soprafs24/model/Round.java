@@ -54,7 +54,7 @@ public class Round {
     private ArrayList<Player> updateBalances(Map<Player, Double> winnings) {
         for(Map.Entry<Player, Double> entry : winnings.entrySet()) {
             Player player = entry.getKey();
-            player.balance += entry.getValue();
+            player.increaseBalance(entry.getValue());
         }
         return new ArrayList<>(winnings.keySet().stream().toList());
     }
@@ -62,7 +62,7 @@ public class Round {
     public Map<Player, Double> calculateWinnings(List<Player> winners){
         Map<Player, Double> winnings = new HashMap<>();
         for(Player winner : winners){
-            double amount = (double)winner.roundBet / this.potSize * potSize;
+            double amount = (double)winner.getRoundBet() / this.potSize * potSize;
             winnings.put(winner, amount);
         }
         return winnings;
@@ -72,7 +72,7 @@ public class Round {
     List<Player> winners = new ArrayList<>();
     EvaluationResult winner = null;
     for (Player player : players) {
-        ArrayList<Card> mergedCards = mergeHands(player.hand);
+        ArrayList<Card> mergedCards = mergeHands(player.getHand());
 
         EvaluationResult res = HandEvaluator.evaluateHand(mergedCards);
 
@@ -146,21 +146,21 @@ public class Round {
         do{
         playersTurn = (playersTurn + 1) % players.size();
         haveNotRaised++;}
-        while(!players.get(playersTurn).isActive);
+        while(!players.get(playersTurn).isActive());
         // notify update
         if(haveNotRaised == players.size()) progressRound();
     }
 
     public Player findPlayerById(long userId){
-        boolean found = players.stream().anyMatch(player -> player.userId == userId);
+        boolean found = players.stream().anyMatch(player -> player.getUserId() == userId);
         if(!found) return null;
-        return players.stream().filter(x -> x.userId == userId).findFirst().get();
+        return players.stream().filter(x -> x.getUserId() == userId).findFirst().get();
     }
 
     public void handleFold(long userId){
         Player player = findPlayerById(userId);
         if(player == null) return;
-        if (!player.isActive) throw new ResponseStatusException(HttpStatus.CONFLICT, "user already folded");
+        if (!player.isActive()) throw new ResponseStatusException(HttpStatus.CONFLICT, "user already folded");
         player.fold();
         progressPlayer();
     }
@@ -175,7 +175,7 @@ public class Round {
         do {
             playersTurn = (playersTurn + 1) % players.size();
             haveNotRaised++;
-        } while (!players.get(playersTurn).isActive);
+        } while (!players.get(playersTurn).isActive());
 
         haveNotRaised = 1; // Reset the raise flag since the round progresses after a raise
         // notify update
@@ -184,7 +184,7 @@ public class Round {
     private void handleCallOrRaise(long userId, long balance) {
         Player player = findPlayerById(userId);
         if (player == null) return;
-        if (!player.isActive) throw new ResponseStatusException(HttpStatus.CONFLICT, "user already folded");
+        if (!player.isActive()) throw new ResponseStatusException(HttpStatus.CONFLICT, "user already folded");
         boolean successful = player.call(balance);
 
         if (successful) {

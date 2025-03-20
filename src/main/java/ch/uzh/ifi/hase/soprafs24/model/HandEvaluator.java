@@ -15,7 +15,7 @@ public class HandEvaluator {
 
     public static EvaluationResult evaluateHand(List<Card> cards) {
          orderCards(cards);
-         // suit never matters for high card comparison so I default to spades
+         // suit never matters for high card comparison, so I default to spades
          if(isRoyalFlush(cards)) return new EvaluationResult(HandRank.ROYALFLUSH, new Card[] {new Card(Rank.ACE, Suit.SPADES)}); // high card trivially ace
          if(isStraightFlush(cards)) return new EvaluationResult(HandRank.STRAIGHTFLUSH, getHighCardsStraight(cards)); // only high card of straight matters
          if(isFourOfAKind(cards)) return new EvaluationResult(HandRank.FOUROFKIND, getHighCardFourKind(cards)); // high card of fours and high card of general hand

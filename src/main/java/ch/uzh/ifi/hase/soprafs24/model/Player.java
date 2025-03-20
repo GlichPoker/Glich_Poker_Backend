@@ -1,12 +1,12 @@
 package ch.uzh.ifi.hase.soprafs24.model;
 
 public class Player {
-    public long userId;
-    public String name;
-    public double balance;
-    public boolean isActive;
-    public Card[] hand;
-    public long roundBet;
+    private final long userId;
+    private final String name;
+    private double balance;
+    private boolean isActive;
+    private Card[] hand;
+    private long roundBet;
     private boolean isOnline;
 
     public Player(long userId, String name, long balance){
@@ -18,7 +18,16 @@ public class Player {
         this.roundBet = 0;
         this.isOnline = false;
     }
-
+    public long getRoundBet(){return roundBet;}
+    public void setRoundBet(long roundBet){this.roundBet = roundBet;}
+    public Card[] getHand() {return hand;}
+    public void setHand(Card card, int index){hand[index] = card;}
+    public void setHand(Card[] cards){hand = cards;}
+    public boolean isActive() {return isActive;}
+    public void increaseBalance(double amount){
+        this.balance += amount;
+    }
+    public long getUserId() {return userId;}
     public boolean isOnline() {return isOnline;}
     public void setIsOnline(boolean isOnline) {this.isOnline = isOnline;}
     public void startNewRound(){
