@@ -4,12 +4,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class Game {
-    private long sessionId;
+    private final long sessionId;
     private Round round;
-    private ArrayList<Player> players;
+    private final List<Player> players;
     private GameSettings settings;
     private final long ownerId;
     private int currentRoundStartPlayer;
@@ -31,9 +32,9 @@ public class Game {
     public Player getPlayer(long userId){return players.stream().filter(x -> x.userId == userId).findFirst().orElse(null);}
 
     public void startRound(){
-        ArrayList<Player> players = getOnlinePlayers();
-        if(players.size() < 2) throw new ResponseStatusException(HttpStatus.CONFLICT, "atleast two players required to start a round");
-        this.round = new Round(players, this.currentRoundStartPlayer, this.settings);
+        ArrayList<Player> livePlayers = getOnlinePlayers();
+        if(livePlayers.size() < 2) throw new ResponseStatusException(HttpStatus.CONFLICT, "at least two players required to start a round");
+        this.round = new Round(livePlayers, this.currentRoundStartPlayer, this.settings);
     }
 
     private ArrayList<Player> getOnlinePlayers(){

@@ -5,9 +5,10 @@ import ch.uzh.ifi.hase.soprafs24.constant.Suit;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class Deck {
-    private ArrayList<Card> cards;
+    private final List<Card> cards;
 
     public Deck(){
         cards = new ArrayList<>();
@@ -24,7 +25,7 @@ public class Deck {
         shuffle(cards);
     }
 
-    public void shuffle(ArrayList<Card> cards){
+    public void shuffle(List<Card> cards){
         Collections.shuffle(cards);
     }
 

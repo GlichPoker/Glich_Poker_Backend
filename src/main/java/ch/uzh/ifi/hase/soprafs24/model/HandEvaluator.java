@@ -8,9 +8,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class HandEvaluator {
+
+    private HandEvaluator() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
+
     public static EvaluationResult evaluateHand(ArrayList<Card> cards) {
          orderCards(cards);
-         // suit never matters for high card comparison so i default to spades
+         // suit never matters for high card comparison so I default to spades
          if(isRoyalFlush(cards)) return new EvaluationResult(HandRank.ROYALFLUSH, new Card[] {new Card(Rank.ACE, Suit.SPADES)}); // high card trivially ace
          if(isStraightFlush(cards)) return new EvaluationResult(HandRank.STRAIGHTFLUSH, getHighCardsStraight(cards)); // only high card of straight matters
          if(isFourOfAKind(cards)) return new EvaluationResult(HandRank.FOUROFKIND, getHighCardFourKind(cards)); // high card of fours and high card of general hand

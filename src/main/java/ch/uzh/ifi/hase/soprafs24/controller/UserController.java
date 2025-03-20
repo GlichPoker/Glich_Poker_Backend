@@ -94,10 +94,7 @@ public class UserController {
           token = authHeader.substring(7); // Remove "Bearer " prefix
       }
 
-      System.out.println("------------Printing Tokens:------------");
-      System.out.println(token);
-      System.out.println(userService.findUserById(userId).getToken());
-      
+
       if (token == null || !token.equals(userService.findUserById(userId).getToken())) {
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not authorized to update this user's profile");
       }

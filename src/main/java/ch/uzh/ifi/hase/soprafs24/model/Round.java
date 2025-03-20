@@ -6,20 +6,16 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.*;
 
 public class Round {
-    private ArrayList<Player> players;
+    private List<Player> players;
     protected long potSize;
     protected long roundBet;
     private final Dealer dealer;
     private int playersTurn;
-    private int startPlayer;
+    private final int startPlayer;
     private int betState;
-    private GameSettings gameSettings;
+    private final GameSettings gameSettings;
     private int haveNotRaised;
-    protected ArrayList<Card> communityCards;
-
-    public Round(ArrayList<Player> players,  int startPlayer) {
-        this(players, startPlayer, false, null);
-    }
+    protected List<Card> communityCards;
 
     public Round(ArrayList<Player> players, int startPlayer, boolean isTest, GameSettings gameSettings) {
         this.players = players;
@@ -64,7 +60,7 @@ public class Round {
     }
 
     public Map<Player, Double> calculateWinnings(List<Player> winners){
-        Map<Player, Double> winnings = new Hashtable<>();
+        Map<Player, Double> winnings = new HashMap<>();
         for(Player winner : winners){
             double amount = (double)winner.roundBet / this.potSize * potSize;
             winnings.put(winner, amount);
@@ -79,7 +75,6 @@ public class Round {
         ArrayList<Card> mergedCards = mergeHands(player.hand);
 
         EvaluationResult res = HandEvaluator.evaluateHand(mergedCards);
-        System.out.println("Player: " + player.name + " Result: " + res);
 
         if(winner == null || res.compareTo(winner) < 0){
             winners.clear();
