@@ -7,6 +7,7 @@ public class Player {
     public boolean isActive;
     public Card[] hand;
     public long roundBet;
+    private boolean isOnline;
 
     public Player(long userId, String name, long balance){
         this.userId = userId;
@@ -15,8 +16,11 @@ public class Player {
         this.isActive = true;
         this.hand = new Card[2];
         this.roundBet = 0;
+        this.isOnline = false;
     }
 
+    public boolean isOnline() {return isOnline;}
+    public void setIsOnline(boolean isOnline) {this.isOnline = isOnline;}
     public void startNewRound(){
         roundBet = 0;
         hand = new Card[2];
@@ -37,5 +41,11 @@ public class Player {
             isActive = false;
         }
         return isActive;
+    }
+
+    protected void reset(){
+        isActive = true;
+        roundBet = 0;
+        this.hand = new Card[2];
     }
 }

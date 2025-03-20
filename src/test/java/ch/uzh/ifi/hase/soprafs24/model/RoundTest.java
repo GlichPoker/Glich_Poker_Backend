@@ -21,8 +21,7 @@ class RoundTest {
         player1.hand = new Card[] { new Card(Rank.ACE, Suit.CLUBS), new Card(Rank.KING, Suit.HEARTS) };
         player2.hand = new Card[] { new Card(Rank.QUEEN, Suit.DIAMONDS), new Card(Rank.TEN, Suit.SPADES) };
         ArrayList<Player> players = new ArrayList<>(Arrays.asList(player1, player2));
-        Dealer dealer = new Dealer(new Deck());
-        Round round = new Round(players, dealer, 0);
+        Round round = new Round(players, 0, true, null);
 
         round.communityCards = new ArrayList<>(Arrays.asList(
                 new Card(Rank.EIGHT, Suit.HEARTS),
@@ -48,8 +47,7 @@ class RoundTest {
         player1.hand = new Card[] { new Card(Rank.ACE, Suit.CLUBS), new Card(Rank.KING, Suit.HEARTS) };
         player2.hand = new Card[] { new Card(Rank.ACE, Suit.DIAMONDS), new Card(Rank.KING, Suit.SPADES) };
         ArrayList<Player> players = new ArrayList<>(Arrays.asList(player1, player2));
-        Dealer dealer = new Dealer(new Deck());
-        Round round = new Round(players, dealer, 0);
+        Round round = new Round(players, 0, true, null);
 
         round.communityCards = new ArrayList<>(Arrays.asList(
                 new Card(Rank.TEN, Suit.HEARTS),
@@ -77,8 +75,7 @@ class RoundTest {
         player1.roundBet = 200;
         player2.roundBet = 200;
         ArrayList<Player> players = new ArrayList<>(Arrays.asList(player1, player2));
-        Dealer dealer = new Dealer(deck);
-        Round round = new Round(players, dealer, 0);
+        Round round = new Round(players, 0, true, null);
 
         round.potSize = 400;
 
@@ -99,8 +96,7 @@ class RoundTest {
         player1.roundBet = 300;
         player2.roundBet = 100;
         ArrayList<Player> players = new ArrayList<>(Arrays.asList(player1, player2));
-        Dealer dealer = new Dealer(new Deck());
-        Round round = new Round(players, dealer, 0);
+        Round round = new Round(players, 0, true, null);
 
         round.potSize = 400;
 

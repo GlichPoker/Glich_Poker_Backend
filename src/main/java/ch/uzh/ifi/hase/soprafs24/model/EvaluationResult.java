@@ -2,6 +2,8 @@ package ch.uzh.ifi.hase.soprafs24.model;
 
 import ch.uzh.ifi.hase.soprafs24.constant.HandRank;
 
+import java.util.Arrays;
+
 public class EvaluationResult implements Comparable<EvaluationResult> {
     private final HandRank handRank;
     private final Card[] highCards;
@@ -36,5 +38,10 @@ public class EvaluationResult implements Comparable<EvaluationResult> {
         }
 
         return 0; // Hands are identical
+    }
+
+    @Override
+    public String toString() {
+        return "EvaluationResult [handRank=" + handRank + ", highCards=" + Arrays.toString(highCards) + "]";
     }
 }

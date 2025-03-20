@@ -166,12 +166,12 @@ public class HandEvaluator {
     private static Rank getStraightRank(List<Card> cards) {
         Rank rank = null;
         int consecutive = 1;
-        for(int i = 1; i < cards.size(); i++) {
-            consecutive = cards.get(i).getRank().value + 1 == cards.get(i - 1).getRank().value ?
-                    consecutive + 1 : cards.get(i).getRank().value == cards.get(i - 1).getRank().value ?
-                    consecutive : 1;
+        List<Rank> distinctRanks = cards.stream().map(Card::getRank).distinct().toList();
+        for(int i = 1; i < distinctRanks.size(); i++) {
+            consecutive = distinctRanks.get(i).value + 1 == distinctRanks.get(i - 1).value ?
+                    consecutive + 1 : 1;
             if(consecutive == 5) {
-                rank = cards.get(i - 4).getRank();
+                rank = distinctRanks.get(i - 4);
                 break;
             }
         }
@@ -199,6 +199,6 @@ public class HandEvaluator {
     }
 
     private static void orderCards(ArrayList<Card> cards) {
-        cards.sort(Comparator.reverseOrder());
+        cards.sort(Comparator.comparing(Card::getRank).reversed());
     }
 }

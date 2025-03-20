@@ -1,21 +1,29 @@
 package ch.uzh.ifi.hase.soprafs24.model;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.util.*;
 
 public class Round {
-    public ArrayList<Player> players;
-    public long potSize;
-    public long roundBet;
-    public Dealer dealer;
-    public int playersTurn;
-    public int startPlayer;
-    public int betState;
-    public int haveNotRaised;
-    public ArrayList<Card> communityCards;
+    private ArrayList<Player> players;
+    protected long potSize;
+    protected long roundBet;
+    private final Dealer dealer;
+    private int playersTurn;
+    private int startPlayer;
+    private int betState;
+    private GameSettings gameSettings;
+    private int haveNotRaised;
+    protected ArrayList<Card> communityCards;
 
-    public Round(ArrayList<Player> players, Dealer dealer, int startPlayer) {
+    public Round(ArrayList<Player> players,  int startPlayer) {
+        this(players, startPlayer, false, null);
+    }
+
+    public Round(ArrayList<Player> players, int startPlayer, boolean isTest, GameSettings gameSettings) {
         this.players = players;
-        this.dealer = dealer;
+        this.dealer = new Dealer(new Deck());
         this.startPlayer = startPlayer;
         playersTurn = startPlayer;
         betState = 0;
@@ -23,15 +31,28 @@ public class Round {
         haveNotRaised = 0;
         communityCards = new ArrayList<>();
         roundBet = 0;
-        dealPlayers();
+        this.gameSettings = gameSettings;
+
+        if (!isTest) dealPlayers(); // deal with this for tests
         // notify update
+    }
+
+    public Round(ArrayList<Player> players, int startPlayer, GameSettings gameSettings) {
+        this(players, startPlayer,false, gameSettings);
     }
 
     public void onRoundCompletion(){
         List<Player> winners = roundComplete();
         Map<Player, Double> winnings = calculateWinnings(winners);
         players = updateBalances(winnings);
+        resetPlayers();
         // notify client update
+    }
+
+    private void resetPlayers(){
+        for(Player player : players){
+            player.reset();
+        }
     }
 
     private ArrayList<Player> updateBalances(Map<Player, Double> winnings) {
@@ -58,6 +79,8 @@ public class Round {
         ArrayList<Card> mergedCards = mergeHands(player.hand);
 
         EvaluationResult res = HandEvaluator.evaluateHand(mergedCards);
+        System.out.println("Player: " + player.name + " Result: " + res);
+
         if(winner == null || res.compareTo(winner) < 0){
             winners.clear();
             winner = res;
@@ -142,16 +165,17 @@ public class Round {
     public void handleFold(long userId){
         Player player = findPlayerById(userId);
         if(player == null) return;
+        if (!player.isActive) throw new ResponseStatusException(HttpStatus.CONFLICT, "user already folded");
         player.fold();
         progressPlayer();
     }
 
-    public void handleCall(long userId, int balance) {
+    public void handleCall(long userId, long balance) {
         handleCallOrRaise(userId, balance);
         progressPlayer();
     }
 
-    public void handleRaise(long userId, int balance) {
+    public void handleRaise(long userId, long balance) {
         handleCallOrRaise(userId, balance);
         do {
             playersTurn = (playersTurn + 1) % players.size();
@@ -162,9 +186,10 @@ public class Round {
         // notify update
     }
 
-    private void handleCallOrRaise(long userId, int balance) {
+    private void handleCallOrRaise(long userId, long balance) {
         Player player = findPlayerById(userId);
         if (player == null) return;
+        if (!player.isActive) throw new ResponseStatusException(HttpStatus.CONFLICT, "user already folded");
         boolean successful = player.call(balance);
 
         if (successful) {

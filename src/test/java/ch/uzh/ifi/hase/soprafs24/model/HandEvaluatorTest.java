@@ -67,6 +67,25 @@ class HandEvaluatorTest {
     }
 
     @Test
+    void testStraightWithDuplicate() {
+        ArrayList<Card> straightCards = new ArrayList<>(Arrays.asList(
+                new Card(Rank.THREE, Suit.HEARTS),
+                new Card(Rank.FOUR, Suit.DIAMONDS),
+                new Card(Rank.FIVE, Suit.CLUBS),
+                new Card(Rank.SIX, Suit.SPADES),
+                new Card(Rank.SEVEN, Suit.HEARTS),
+                new Card(Rank.SEVEN, Suit.HEARTS),
+                new Card(Rank.EIGHT, Suit.HEARTS)
+        ));
+
+        EvaluationResult result = HandEvaluator.evaluateHand(straightCards);
+
+        assertEquals(HandRank.STRAIGHT, result.getHandRank());
+
+        assertEquals(Rank.EIGHT, result.getHighCards()[0].getRank());
+    }
+
+    @Test
     void testFourOfAKind() {
         ArrayList<Card> fourOfAKindCards = new ArrayList<>(Arrays.asList(
                 new Card(Rank.ACE, Suit.CLUBS),
@@ -168,7 +187,7 @@ class HandEvaluatorTest {
     }
 
     @Test
-    void testFullThreeOfAKind() {
+    void testThreeOfAKind() {
         ArrayList<Card> fullHouseCards = new ArrayList<>(Arrays.asList(
                 new Card(Rank.ACE, Suit.CLUBS),
                 new Card(Rank.ACE, Suit.HEARTS),
