@@ -51,12 +51,19 @@ public class Round {
         }
     }
 
-    private ArrayList<Player> updateBalances(Map<Player, Double> winnings) {
+    private List<Player> updateBalances(Map<Player, Double> winnings) {
         for(Map.Entry<Player, Double> entry : winnings.entrySet()) {
             Player player = entry.getKey();
             player.increaseBalance(entry.getValue());
         }
         return new ArrayList<>(winnings.keySet().stream().toList());
+    }
+
+    public List<PlayerModel> getPlayerModelsOfOtherParticipants(long userId){
+        List<Player> otherPlayers = players.stream().filter(x -> x.getUserId() != userId).toList();
+        ArrayList<PlayerModel> models = new ArrayList<>();
+        otherPlayers.forEach(player -> models.add(new PlayerModel(player)));
+        return models;
     }
 
     public Map<Player, Double> calculateWinnings(List<Player> winners){
@@ -72,7 +79,7 @@ public class Round {
     List<Player> winners = new ArrayList<>();
     EvaluationResult winner = null;
     for (Player player : players) {
-        ArrayList<Card> mergedCards = mergeHands(player.getHand());
+        List<Card> mergedCards = mergeHands(player.getHand());
 
         EvaluationResult res = HandEvaluator.evaluateHand(mergedCards);
 
@@ -88,7 +95,7 @@ public class Round {
     return winners;
     }
 
-    private ArrayList<Card> mergeHands(Card[] hand){
+    private List<Card> mergeHands(Card[] hand){
         ArrayList<Card> handCards = new ArrayList<>();
         for(int i = 0; i < communityCards.size(); i++){
             if(i < 2){
@@ -192,4 +199,8 @@ public class Round {
             roundBet = Math.max(balance, roundBet);
         }
     }
+    public GameSettings getGameSettings() {return gameSettings;}
+    public int getPlayersTurn(){return playersTurn;}
+    public int getStartPlayer(){return startPlayer;}
+    public List<Player> getPlayers(){return players;}
 }

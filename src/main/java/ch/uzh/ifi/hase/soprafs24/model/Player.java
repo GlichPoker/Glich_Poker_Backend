@@ -18,6 +18,9 @@ public class Player {
         this.roundBet = 0;
         this.isOnline = false;
     }
+
+    public double getBalance() {return balance;}
+    public String getName(){return name;}
     public long getRoundBet(){return roundBet;}
     public void setRoundBet(long roundBet){this.roundBet = roundBet;}
     public Card[] getHand() {return hand;}

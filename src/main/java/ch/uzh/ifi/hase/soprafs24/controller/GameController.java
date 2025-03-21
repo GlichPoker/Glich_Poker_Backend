@@ -45,12 +45,12 @@ public class GameController {
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public Game createGame(@RequestBody CreateGameRequest request) {
+    public GameModel createGame(@RequestBody CreateGameRequest request) {
         User user = getValidUser(request.getUserId());
         Player owner = new Player(user.getId(), user.getUsername(), request.getGameSettings().getInitialBalance());
         Game game = new Game(owner, request.getGameSettings());
         games.put(game.getSessionId(), game);
-        return game;
+        return game.getGameModel(user.getId());
     }
 
     @PostMapping("/invite")
@@ -61,62 +61,74 @@ public class GameController {
         User user = getValidUser(request.getUserId());
         if (game.containsUser(request.getUserId())) throw new ResponseStatusException(HttpStatus.CONFLICT, "Player already part of game");
         game.addPlayer(new Player(user.getId(), user.getUsername(), game.getSettings().getInitialBalance()));
+        // save a request with requestid, sessionId, userID such that the user has possibility to deny
+        return true;
+    }
+
+    @PostMapping("/denyInvitation")
+    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseBody
+    public boolean denyInvitation(@RequestBody DenyInvitationRequest request) {
+        Game game = getValidGame(request.getSessionId());
+        getValidUser(request.getUserId());
+        if (!game.containsUser(request.getUserId())) throw new ResponseStatusException(HttpStatus.CONFLICT, "User was not invited to the game");
+        game.removePlayer(request.getUserId());
         return true;
     }
 
     @PostMapping("/join")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Game joinGame(@RequestBody GameActionRequest request) {
+    public GameModel joinGame(@RequestBody GameActionRequest request) {
         Game game = getValidGame(request.getSessionId());
         getValidUser(request.getUserId());
         if (!game.containsUser(request.getUserId())) throw new ResponseStatusException(HttpStatus.CONFLICT, "Player was not invited to the game");
         game.joinSession(request.getUserId());
-        return game;
+        return game.getGameModel(request.getUserId());
     }
 
     @PostMapping("/start")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Round startGame(@RequestBody GameActionRequest request) {
+    public RoundModel startGame(@RequestBody GameActionRequest request) {
         Game game = getValidGame(request.getSessionId());
         getValidUser(request.getUserId());
         if(game.getOwnerId() != request.getUserId()) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Only host can start");
         game.startRound();
-        return game.getRound();
+        return game.getRoundModel(request.getUserId());
     }
 
     @PostMapping("/fold")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Round foldGame(@RequestBody GameActionRequest request) {
+    public RoundModel foldGame(@RequestBody GameActionRequest request) {
         Game game = getValidGame(request.getSessionId());
         getValidUser(request.getUserId());
         isUserPartOfGame(request.getUserId(), game);
         game.getRound().handleFold(request.getUserId());
-        return game.getRound();
+        return game.getRoundModel(request.getUserId());
     }
 
     @PostMapping("/call")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Round callGame(@RequestBody GameActionRequest request) {
+    public RoundModel callGame(@RequestBody GameActionRequest request) {
         Game game = getValidGame(request.getSessionId());
         getValidUser(request.getUserId());
         isUserPartOfGame(request.getUserId(), game);
         game.getRound().handleCall(request.getUserId(), request.getAmount());
-        return game.getRound();
+        return game.getRoundModel(request.getUserId());
     }
 
     @PostMapping("/raise")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Round raiseGame(@RequestBody GameActionRequest request) {
+    public RoundModel raiseGame(@RequestBody GameActionRequest request) {
         Game game = getValidGame(request.getSessionId());
         getValidUser(request.getUserId());
         isUserPartOfGame(request.getUserId(), game);
         game.getRound().handleRaise(request.getUserId(), request.getAmount());
-        return game.getRound();
+        return game.getRoundModel(request.getUserId());
     }
 
     @PostMapping("/leave")
