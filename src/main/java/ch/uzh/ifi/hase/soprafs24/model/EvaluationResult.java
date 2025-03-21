@@ -4,22 +4,7 @@ import ch.uzh.ifi.hase.soprafs24.constant.HandRank;
 
 import java.util.Arrays;
 
-public class EvaluationResult implements Comparable<EvaluationResult> {
-    private final HandRank handRank;
-    private final Card[] highCards;
-
-    public EvaluationResult(HandRank handRank, Card[] highCards) {
-        this.handRank = handRank;
-        this.highCards = highCards;
-    }
-
-    public HandRank getHandRank() {
-        return handRank;
-    }
-
-    public Card[] getHighCards() {
-        return highCards;
-    }
+public record EvaluationResult(HandRank handRank, Card[] highCards) implements Comparable<EvaluationResult> {
 
     @Override
     public int compareTo(EvaluationResult other) {

@@ -23,9 +23,9 @@ class HandEvaluatorTest {
 
         EvaluationResult result = HandEvaluator.evaluateHand(royalFlushCards);
 
-        assertEquals(HandRank.ROYALFLUSH, result.getHandRank());
+        assertEquals(HandRank.ROYALFLUSH, result.handRank());
 
-        assertEquals(Rank.ACE, result.getHighCards()[0].getRank());
+        assertEquals(Rank.ACE, result.highCards()[0].rank());
     }
 
     @Test
@@ -42,9 +42,9 @@ class HandEvaluatorTest {
 
         EvaluationResult result = HandEvaluator.evaluateHand(royalFlushCards);
 
-        assertEquals(HandRank.STRAIGHTFLUSH, result.getHandRank());
+        assertEquals(HandRank.STRAIGHTFLUSH, result.handRank());
 
-        assertEquals(Rank.KING, result.getHighCards()[0].getRank());
+        assertEquals(Rank.KING, result.highCards()[0].rank());
     }
 
     @Test
@@ -61,9 +61,9 @@ class HandEvaluatorTest {
 
         EvaluationResult result = HandEvaluator.evaluateHand(straightCards);
 
-        assertEquals(HandRank.STRAIGHT, result.getHandRank());
+        assertEquals(HandRank.STRAIGHT, result.handRank());
 
-        assertEquals(Rank.EIGHT, result.getHighCards()[0].getRank());
+        assertEquals(Rank.EIGHT, result.highCards()[0].rank());
     }
 
     @Test
@@ -80,9 +80,9 @@ class HandEvaluatorTest {
 
         EvaluationResult result = HandEvaluator.evaluateHand(straightCards);
 
-        assertEquals(HandRank.STRAIGHT, result.getHandRank());
+        assertEquals(HandRank.STRAIGHT, result.handRank());
 
-        assertEquals(Rank.EIGHT, result.getHighCards()[0].getRank());
+        assertEquals(Rank.EIGHT, result.highCards()[0].rank());
     }
 
     @Test
@@ -97,10 +97,10 @@ class HandEvaluatorTest {
 
         EvaluationResult result = HandEvaluator.evaluateHand(fourOfAKindCards);
 
-        assertEquals(HandRank.FOUROFKIND, result.getHandRank());
+        assertEquals(HandRank.FOUROFKIND, result.handRank());
 
-        assertEquals(Rank.ACE, result.getHighCards()[0].getRank());
-        assertEquals(Rank.KING, result.getHighCards()[1].getRank());
+        assertEquals(Rank.ACE, result.highCards()[0].rank());
+        assertEquals(Rank.KING, result.highCards()[1].rank());
     }
 
     @Test
@@ -117,10 +117,10 @@ class HandEvaluatorTest {
 
         EvaluationResult result = HandEvaluator.evaluateHand(fullHouseCards);
 
-        assertEquals(HandRank.FULLHOUSE, result.getHandRank());
+        assertEquals(HandRank.FULLHOUSE, result.handRank());
 
-        assertEquals(Rank.ACE, result.getHighCards()[0].getRank());
-        assertEquals(Rank.KING, result.getHighCards()[1].getRank());
+        assertEquals(Rank.ACE, result.highCards()[0].rank());
+        assertEquals(Rank.KING, result.highCards()[1].rank());
     }
 
     @Test
@@ -137,10 +137,10 @@ class HandEvaluatorTest {
 
         EvaluationResult result = HandEvaluator.evaluateHand(fullHouseCards);
 
-        assertEquals(HandRank.FULLHOUSE, result.getHandRank());
+        assertEquals(HandRank.FULLHOUSE, result.handRank());
 
-        assertEquals(Rank.KING, result.getHighCards()[0].getRank());
-        assertEquals(Rank.ACE, result.getHighCards()[1].getRank());
+        assertEquals(Rank.KING, result.highCards()[0].rank());
+        assertEquals(Rank.ACE, result.highCards()[1].rank());
     }
 
     @Test
@@ -157,10 +157,10 @@ class HandEvaluatorTest {
 
         EvaluationResult result = HandEvaluator.evaluateHand(fullHouseCards);
 
-        assertEquals(HandRank.FULLHOUSE, result.getHandRank());
+        assertEquals(HandRank.FULLHOUSE, result.handRank());
 
-        assertEquals(Rank.ACE, result.getHighCards()[0].getRank());
-        assertEquals(Rank.KING, result.getHighCards()[1].getRank());
+        assertEquals(Rank.ACE, result.highCards()[0].rank());
+        assertEquals(Rank.KING, result.highCards()[1].rank());
     }
 
     @Test
@@ -177,13 +177,13 @@ class HandEvaluatorTest {
 
         EvaluationResult result = HandEvaluator.evaluateHand(straightCards);
 
-        assertEquals(HandRank.FLUSH, result.getHandRank());
+        assertEquals(HandRank.FLUSH, result.handRank());
 
-        assertEquals(Rank.TEN, result.getHighCards()[0].getRank());
-        assertEquals(Rank.EIGHT, result.getHighCards()[1].getRank());
-        assertEquals(Rank.SEVEN, result.getHighCards()[2].getRank());
-        assertEquals(Rank.SIX, result.getHighCards()[3].getRank());
-        assertEquals(Rank.FIVE, result.getHighCards()[4].getRank());
+        assertEquals(Rank.TEN, result.highCards()[0].rank());
+        assertEquals(Rank.EIGHT, result.highCards()[1].rank());
+        assertEquals(Rank.SEVEN, result.highCards()[2].rank());
+        assertEquals(Rank.SIX, result.highCards()[3].rank());
+        assertEquals(Rank.FIVE, result.highCards()[4].rank());
     }
 
     @Test
@@ -200,11 +200,11 @@ class HandEvaluatorTest {
 
         EvaluationResult result = HandEvaluator.evaluateHand(fullHouseCards);
 
-        assertEquals(HandRank.THREEOFKIND, result.getHandRank());
+        assertEquals(HandRank.THREEOFKIND, result.handRank());
 
-        assertEquals(Rank.ACE, result.getHighCards()[0].getRank());
-        assertEquals(Rank.KING, result.getHighCards()[1].getRank());
-        assertEquals(Rank.QUEEN, result.getHighCards()[2].getRank());
+        assertEquals(Rank.ACE, result.highCards()[0].rank());
+        assertEquals(Rank.KING, result.highCards()[1].rank());
+        assertEquals(Rank.QUEEN, result.highCards()[2].rank());
     }
 
     @Test
@@ -221,11 +221,11 @@ class HandEvaluatorTest {
 
         EvaluationResult result = HandEvaluator.evaluateHand(fullHouseCards);
 
-        assertEquals(HandRank.TWOPAIR, result.getHandRank());
+        assertEquals(HandRank.TWOPAIR, result.handRank());
 
-        assertEquals(Rank.ACE, result.getHighCards()[0].getRank());
-        assertEquals(Rank.QUEEN, result.getHighCards()[1].getRank());
-        assertEquals(Rank.KING, result.getHighCards()[2].getRank());
+        assertEquals(Rank.ACE, result.highCards()[0].rank());
+        assertEquals(Rank.QUEEN, result.highCards()[1].rank());
+        assertEquals(Rank.KING, result.highCards()[2].rank());
     }
 
     @Test
@@ -242,12 +242,12 @@ class HandEvaluatorTest {
 
         EvaluationResult result = HandEvaluator.evaluateHand(fullHouseCards);
 
-        assertEquals(HandRank.ONEPAIR, result.getHandRank());
+        assertEquals(HandRank.ONEPAIR, result.handRank());
 
-        assertEquals(Rank.ACE, result.getHighCards()[0].getRank());
-        assertEquals(Rank.KING, result.getHighCards()[1].getRank());
-        assertEquals(Rank.QUEEN, result.getHighCards()[2].getRank());
-        assertEquals(Rank.JACK, result.getHighCards()[3].getRank());
+        assertEquals(Rank.ACE, result.highCards()[0].rank());
+        assertEquals(Rank.KING, result.highCards()[1].rank());
+        assertEquals(Rank.QUEEN, result.highCards()[2].rank());
+        assertEquals(Rank.JACK, result.highCards()[3].rank());
     }
 
     @Test
@@ -264,12 +264,12 @@ class HandEvaluatorTest {
 
         EvaluationResult result = HandEvaluator.evaluateHand(fullHouseCards);
 
-        assertEquals(HandRank.HIGHCARD, result.getHandRank());
+        assertEquals(HandRank.HIGHCARD, result.handRank());
 
-        assertEquals(Rank.ACE, result.getHighCards()[0].getRank());
-        assertEquals(Rank.KING, result.getHighCards()[1].getRank());
-        assertEquals(Rank.QUEEN, result.getHighCards()[2].getRank());
-        assertEquals(Rank.JACK, result.getHighCards()[3].getRank());
-        assertEquals(Rank.NINE, result.getHighCards()[4].getRank());
+        assertEquals(Rank.ACE, result.highCards()[0].rank());
+        assertEquals(Rank.KING, result.highCards()[1].rank());
+        assertEquals(Rank.QUEEN, result.highCards()[2].rank());
+        assertEquals(Rank.JACK, result.highCards()[3].rank());
+        assertEquals(Rank.NINE, result.highCards()[4].rank());
     }
 }

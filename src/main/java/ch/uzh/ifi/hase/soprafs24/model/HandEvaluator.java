@@ -32,11 +32,11 @@ public class HandEvaluator {
     private static boolean isRoyalFlush(List<Card> cards) {
         List<Rank> royalFlushRanks = Arrays.asList(Rank.TEN, Rank.JACK, Rank.QUEEN, Rank.KING, Rank.ACE);
         long count = cards.stream()
-                .filter(card -> royalFlushRanks.contains(card.getRank()))
-                .map(Card::getSuit)
+                .filter(card -> royalFlushRanks.contains(card.rank()))
+                .map(Card::suit)
                 .distinct()
                 .count();
-        return count == 1 && cards.stream().filter(card -> royalFlushRanks.contains(card.getRank())).count() == 5;
+        return count == 1 && cards.stream().filter(card -> royalFlushRanks.contains(card.rank())).count() == 5;
     }
 
     private static boolean isStraightFlush(List<Card> cards) {
@@ -92,7 +92,7 @@ public class HandEvaluator {
 
     private static Card[] getHighCardsFlush(List<Card> cards){
         Suit suit = getFlush(cards);
-        return cards.stream().filter(x -> x.getSuit() == suit).limit(5).toArray(Card[]::new);
+        return cards.stream().filter(x -> x.suit() == suit).limit(5).toArray(Card[]::new);
     }
 
     private static Card[] getHighCardsStraight(List<Card> cards) {
@@ -108,7 +108,7 @@ public class HandEvaluator {
 
     private static Card[] getHighCardsTwoPair(List<Card> cards) {
         Rank[] ranks = findTwoPairRanks(cards);
-        Rank highCardRank = cards.stream().filter(x -> x.getRank() != ranks[0] && x.getRank() != ranks[1]).findFirst().get().getRank();
+        Rank highCardRank = cards.stream().filter(x -> x.rank() != ranks[0] && x.rank() != ranks[1]).findFirst().get().rank();
         return new Card[]{new Card(ranks[0], Suit.SPADES), new Card(ranks[1], Suit.SPADES), new Card(highCardRank, Suit.SPADES)};
     }
 
@@ -126,10 +126,10 @@ public class HandEvaluator {
         int c = 1;
         Rank high = null;
         for(int i = 1; i < cards.size(); i++) {
-            if(cards.get(i).getRank() == cards.get(i - 1).getRank()) c++;
+            if(cards.get(i).rank() == cards.get(i - 1).rank()) c++;
             else c = 1;
             if(c == size) {
-                high = cards.get(i).getRank();
+                high = cards.get(i).rank();
                 break;
             }
         }
@@ -141,16 +141,16 @@ public class HandEvaluator {
         Rank pairR = null;
         Rank tripsR = null;
         for(int i = 1; i < cards.size(); i++) {
-            if(cards.get(i).getRank() == cards.get(i - 1).getRank()) c++;
+            if(cards.get(i).rank() == cards.get(i - 1).rank()) c++;
             else c = 1;
             if(c == 2 && pairR == null) {
-                pairR = cards.get(i).getRank();
+                pairR = cards.get(i).rank();
             }
-            else if(c == 3 && tripsR == null && (pairR == null || pairR != cards.get(i).getRank())) {
-                tripsR = cards.get(i).getRank();
+            else if(c == 3 && tripsR == null && (pairR == null || pairR != cards.get(i).rank())) {
+                tripsR = cards.get(i).rank();
             }
-            else if(c == 3 && pairR == cards.get(i).getRank() && tripsR == null){
-                tripsR = cards.get(i).getRank();
+            else if(c == 3 && pairR == cards.get(i).rank() && tripsR == null){
+                tripsR = cards.get(i).rank();
                 pairR = null;
             }
         }
@@ -159,7 +159,7 @@ public class HandEvaluator {
 
     private static Suit getFlush(List<Card> cards) {
         Suit flush = null;
-        Map<Suit, List<Card>> distribution = cards.stream().collect(Collectors.groupingBy(Card::getSuit));
+        Map<Suit, List<Card>> distribution = cards.stream().collect(Collectors.groupingBy(Card::suit));
         for(Map.Entry<Suit, List<Card>> entry : distribution.entrySet()) {
             if(entry.getValue().size() > 4) {
                 flush = entry.getKey();
@@ -172,7 +172,7 @@ public class HandEvaluator {
     private static Rank getStraightRank(List<Card> cards) {
         Rank rank = null;
         int consecutive = 1;
-        List<Rank> distinctRanks = cards.stream().map(Card::getRank).distinct().toList();
+        List<Rank> distinctRanks = cards.stream().map(Card::rank).distinct().toList();
         for(int i = 1; i < distinctRanks.size(); i++) {
             consecutive = distinctRanks.get(i).value + 1 == distinctRanks.get(i - 1).value ?
                     consecutive + 1 : 1;
@@ -189,10 +189,10 @@ public class HandEvaluator {
         int currentIdx = 0;
         Rank[] ranks = new Rank[2];
         for(int i = 1; i < cards.size(); i++) {
-            if(cards.get(i).getRank() == cards.get(i - 1).getRank()) c++;
+            if(cards.get(i).rank() == cards.get(i - 1).rank()) c++;
             else c = 1;
             if(c == 2) {
-                ranks[currentIdx] = cards.get(i).getRank();
+                ranks[currentIdx] = cards.get(i).rank();
                 currentIdx++;
             }
             if(currentIdx > 1) break;
@@ -201,10 +201,10 @@ public class HandEvaluator {
     }
 
     private static Rank[] getRemainingHighCards(List<Card> cards, int take, Rank pair) {
-        return cards.stream().map(Card::getRank).filter(x -> x != pair).limit(take).toArray(Rank[]::new);
+        return cards.stream().map(Card::rank).filter(x -> x != pair).limit(take).toArray(Rank[]::new);
     }
 
     private static void orderCards(List<Card> cards) {
-        cards.sort(Comparator.comparing(Card::getRank).reversed());
+        cards.sort(Comparator.comparing(Card::rank).reversed());
     }
 }
