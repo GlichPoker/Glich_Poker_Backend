@@ -42,6 +42,13 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     }
 
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        System.out.println("AuthenticationFilter: " + request.getRequestURI() + " " + request.getMethod());
+        // Allow WebSocket connections to pass through without authentication
+        if (request.getRequestURI().startsWith("/ws")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         // Add CORS headers to ALL responses
         response.setHeader("Access-Control-Allow-Origin", "*");
         response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
