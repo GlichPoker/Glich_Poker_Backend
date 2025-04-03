@@ -19,6 +19,16 @@ public class Player {
         this.isOnline = false;
     }
 
+    public Player(ch.uzh.ifi.hase.soprafs24.entity.Player player){
+        this.userId = player.getUserId();
+        this.name = player.getName();
+        this.balance = player.getBalance();
+        this.isActive = player.isActive();
+        this.hand = new Card[2];
+        this.roundBet = 0;
+        this.isOnline = player.isOnline();
+    }
+
     public double getBalance() {return balance;}
     public String getName(){return name;}
     public long getRoundBet(){return roundBet;}

@@ -1,67 +1,45 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
-import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.model.*;
-import ch.uzh.ifi.hase.soprafs24.service.UserService;
+import ch.uzh.ifi.hase.soprafs24.service.GameService;
+import ch.uzh.ifi.hase.soprafs24.service.GameSettingsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-
 import java.util.concurrent.ConcurrentHashMap;
-@CrossOrigin(origins = "*")
+
 @RestController
 public class GameController {
-    private final ConcurrentHashMap<Long, Game> games;
-    private final UserService userService;
 
-    public GameController(UserService userService) {
-        this.games = new ConcurrentHashMap<>();
-        this.userService = userService;
+    // TODO: push update to all clients of session after every action
+    private final ConcurrentHashMap<Long, ch.uzh.ifi.hase.soprafs24.model.Game> activeGames = new ConcurrentHashMap<>();
+    private final GameService gameService;
+    private final GameSettingsService gameSettingsService;
+
+    @Autowired
+    public GameController(GameService gameService, GameSettingsService gameSettingsService) {
+        this.gameService = gameService;
+        this.gameSettingsService = gameSettingsService;
     }
-
-    private Game getValidGame(long sessionId) {
-        Game game = games.get(sessionId);
-        if (game == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
-        return game;
-    }
-
-    private User getValidUser(long userId) {
-        User user = userService.getUserById(userId);
-        if (user == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
-        return user;
-    }
-
-    private Player isUserPartOfGame(long userId, Game game) {
-        if(!game.containsUser(userId)) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not part of game");
-        return game.getPlayer(userId);
-    }
-
-    private void isPlayerOnline(Player player) {
-        if(!player.isOnline()) throw new ResponseStatusException(HttpStatus.CONFLICT, "Cannot leave if not part of game");
-    }
-
 
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public GameModel createGame(@RequestBody CreateGameRequest request) {
-        User user = getValidUser(request.userId());
-        Player owner = new Player(user.getId(), user.getUsername(), request.gameSettings().initialBalance());
-        Game game = new Game(owner, request.gameSettings());
-        games.put(game.getSessionId(), game);
-        return game.getGameModel(user.getId());
+    public Game createGame(@RequestBody CreateGameRequest request) {
+        // Delegate game creation to the GameService
+        ch.uzh.ifi.hase.soprafs24.entity.GameSettings settings = this.gameSettingsService.createGameSettings(request.gameSettings());
+        return gameService.createGame(request.userId(), settings.getId());
     }
 
     @PostMapping("/invite")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public boolean invitePlayer(@RequestBody GameActionRequest request) {
-        Game game = getValidGame(request.sessionId());
-        User user = getValidUser(request.userId());
-        if (game.containsUser(request.userId())) throw new ResponseStatusException(HttpStatus.CONFLICT, "Player already part of game");
-        game.addPlayer(new Player(user.getId(), user.getUsername(), game.getSettings().initialBalance()));
-        // save a request with requestid, sessionId, userID such that the user has possibility to deny
+        Game game = gameService.getGameBySessionId(request.sessionId());
+        gameService.addPlayerToGame(game, request.userId(), game.getSettings().getInitialBalance());
         return true;
     }
 
@@ -69,53 +47,61 @@ public class GameController {
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public boolean denyInvitation(@RequestBody DenyInvitationRequest request) {
-        Game game = getValidGame(request.sessionId());
-        getValidUser(request.userId());
-        if (!game.containsUser(request.userId())) throw new ResponseStatusException(HttpStatus.CONFLICT, "User was not invited to the game");
-        game.removePlayer(request.userId());
+        Game game = gameService.getGameBySessionId(request.sessionId());
+        gameService.removePlayerFromGame(game, request.userId());
         return true;
     }
 
     @PostMapping("/join")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public GameModel joinGame(@RequestBody GameActionRequest request) {
-        Game game = getValidGame(request.sessionId());
-        getValidUser(request.userId());
-        if (!game.containsUser(request.userId())) throw new ResponseStatusException(HttpStatus.CONFLICT, "Player was not invited to the game");
-        game.joinSession(request.userId());
-        return game.getGameModel(request.userId());
+    public Game joinGame(@RequestBody GameActionRequest request) {
+        Game game = gameService.getGameBySessionId(request.sessionId());
+        gameService.addPlayerToGame(game,request.userId(), game.getSettings().getInitialBalance());
+        return game;
     }
 
     @PostMapping("/start")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public RoundModel startGame(@RequestBody GameActionRequest request) {
-        Game game = getValidGame(request.sessionId());
-        getValidUser(request.userId());
-        if(game.getOwnerId() != request.userId()) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Only host can start");
-        game.startRound();
-        return game.getRoundModel(request.userId());
+        Game game = gameService.getGameBySessionId(request.sessionId());
+        gameService.startRound(game);
+        ch.uzh.ifi.hase.soprafs24.model.Game newGame = new ch.uzh.ifi.hase.soprafs24.model.Game(game);
+        activeGames.put(request.sessionId(), newGame);
+        return activeGames.get(request.sessionId()).getGameModel(request.userId()).getRound();
     }
 
     @PostMapping("/fold")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public RoundModel foldGame(@RequestBody GameActionRequest request) {
-        Game game = getValidGame(request.sessionId());
-        getValidUser(request.userId());
-        isUserPartOfGame(request.userId(), game);
+        ch.uzh.ifi.hase.soprafs24.model.Game game = activeGames.get(request.sessionId());
+        if (game == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
+        }
         game.getRound().handleFold(request.userId());
         return game.getRoundModel(request.userId());
     }
+
+    @PostMapping("/roundComplete")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public ch.uzh.ifi.hase.soprafs24.model.Game completeRound(@RequestBody GameActionRequest request) {
+        ch.uzh.ifi.hase.soprafs24.model.Game game = activeGames.get(request.sessionId());
+        gameService.completeRound(game);
+        return game;
+    }
+
 
     @PostMapping("/call")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public RoundModel callGame(@RequestBody GameActionRequest request) {
-        Game game = getValidGame(request.sessionId());
-        getValidUser(request.userId());
-        isUserPartOfGame(request.userId(), game);
+        ch.uzh.ifi.hase.soprafs24.model.Game game = activeGames.get(request.sessionId());
+        if (game == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
+        }
         game.getRound().handleCall(request.userId(), request.amount());
         return game.getRoundModel(request.userId());
     }
@@ -124,9 +110,10 @@ public class GameController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public RoundModel raiseGame(@RequestBody GameActionRequest request) {
-        Game game = getValidGame(request.sessionId());
-        getValidUser(request.userId());
-        isUserPartOfGame(request.userId(), game);
+        ch.uzh.ifi.hase.soprafs24.model.Game game = activeGames.get(request.sessionId());
+        if (game == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
+        }
         game.getRound().handleRaise(request.userId(), request.amount());
         return game.getRoundModel(request.userId());
     }
@@ -135,20 +122,18 @@ public class GameController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public boolean leaveGame(@RequestBody GameActionRequest request) {
-        Game game = getValidGame(request.sessionId());
-        getValidUser(request.userId());
-        Player player = isUserPartOfGame(request.userId(), game);
-        isPlayerOnline(player);
-        player.setIsOnline(false);
+        Game game = gameService.getGameBySessionId(request.sessionId());
+        gameService.setPlayerOffline(game, request.userId());
         return true;
     }
 
-    @PostMapping("/roundComplete")
+    @PostMapping("/save")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public boolean completeRound(@RequestBody GameActionRequest request) {
-        Game game = getValidGame(request.sessionId());
-        game.roundComplete();
+    public boolean saveGame(@RequestParam long sessionId) {
+        Game game = gameService.getGameBySessionId(sessionId);
+        activeGames.remove(sessionId);
+        gameService.saveSession(game);
         return true;
     }
 }

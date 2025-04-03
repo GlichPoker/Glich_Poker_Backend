@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class Game {
@@ -21,6 +22,14 @@ public class Game {
         this.ownerId = player.getUserId();
         this.currentRoundStartPlayer = 0;
         this.settings = settings;
+    }
+
+    public Game(ch.uzh.ifi.hase.soprafs24.entity.Game game) {
+        this.sessionId = game.getSessionId();
+        this.players = new ArrayList<Player>((Collection<? extends Player>) game.getPlayers().stream().map(x -> new Player(x)));
+        this.ownerId = game.getOwner().getId();
+        this.currentRoundStartPlayer = game.getStartPlayer();
+        this.settings = new GameSettings(game.getSettings());
     }
 
     public int getCurrentRoundStartPlayer() {return currentRoundStartPlayer;}
