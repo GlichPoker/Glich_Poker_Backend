@@ -38,6 +38,7 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.postgresql:postgresql:42.5.5'
 
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'com.h2database:h2'
@@ -70,7 +71,9 @@ jacocoTestReport {
         xml.enabled true
     }
 }
-
+bootRun {
+    args = ["--spring.profiles.active=${project.hasProperty('profile') ? project.profile : 'prod'}"]
+}
 test {
     useJUnitPlatform()
     testLogging.showStandardStreams = true
