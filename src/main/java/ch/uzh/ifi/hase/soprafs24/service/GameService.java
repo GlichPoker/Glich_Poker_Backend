@@ -68,6 +68,7 @@ public class GameService {
                 .findFirst().ifPresent(player -> playerService.savePlayer(player.setIsOnline(false)));
 
         gameRepository.save(game);
+
     }
 
     // Start a round in the game
@@ -91,7 +92,7 @@ public class GameService {
         gameRepository.save(gameEntity);
     }
 
-    public void saveSession(Game game) {
+    public boolean saveSession(Game game) {
         List<Player> players = game.getPlayers();
         for (Player player : players) {
             player.setIsOnline(false);
@@ -100,5 +101,6 @@ public class GameService {
         game.setRoundRunning(false);
         gameRepository.save(game);
         gameRepository.flush();
+        return true;
     }
 }

@@ -2,10 +2,13 @@ package ch.uzh.ifi.hase.soprafs24.service;
 
 import ch.uzh.ifi.hase.soprafs24.constant.FriendRequestState;
 import ch.uzh.ifi.hase.soprafs24.entity.Friends;
+import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.FriendsRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class FriendsService {
@@ -62,5 +65,13 @@ public class FriendsService {
             return true;
         }
         return false;
+    }
+
+    public List<User> getAllFriends(long userId) {
+        return friendsRepository.findAllFriends(userId);
+    }
+
+    public List<User> getAllPendingFriendRequests(long userId) {
+        return friendsRepository.findAllPendingRequests(userId);
     }
 }

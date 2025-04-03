@@ -6,6 +6,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Game {
     private final long sessionId;
@@ -26,7 +27,8 @@ public class Game {
 
     public Game(ch.uzh.ifi.hase.soprafs24.entity.Game game) {
         this.sessionId = game.getSessionId();
-        this.players = new ArrayList<Player>((Collection<? extends Player>) game.getPlayers().stream().map(x -> new Player(x)));
+        this.players = game.getPlayers().stream()
+                .map(Player::new).collect(Collectors.toList());
         this.ownerId = game.getOwner().getId();
         this.currentRoundStartPlayer = game.getStartPlayer();
         this.settings = new GameSettings(game.getSettings());

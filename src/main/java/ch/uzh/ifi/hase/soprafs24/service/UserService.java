@@ -113,7 +113,7 @@ public class UserService {
     if (updatedData.getStatus() != null) {
         existingUser.setStatus(updatedData.getStatus());
     }
-    
+    userRepository.save(existingUser);
     return existingUser;
   }
 }

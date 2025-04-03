@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.context.annotation.Profile;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -16,14 +17,15 @@ import java.io.IOException;
 
 @CrossOrigin(origins = "*")
 @Component
+@Profile("!test")  // The filter will not be loaded when the "test" profile is active
 public class AuthenticationFilter extends OncePerRequestFilter {
     private final String[][] publicPaths = {
-        {"/users/login", null}, //null = all
-        {"/users", "POST"}
+            {"/users/login", null}, //null = all
+            {"/users", "POST"}
     };
 
     private final UserService userService;
-    
+
     @Autowired
     public AuthenticationFilter(UserService userService) {
         this.userService = userService;
@@ -41,8 +43,10 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         return false;
     }
 
+    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         System.out.println("AuthenticationFilter: " + request.getRequestURI() + " " + request.getMethod());
+
         // Allow WebSocket connections to pass through without authentication
         if (request.getRequestURI().startsWith("/ws")) {
             filterChain.doFilter(request, response);

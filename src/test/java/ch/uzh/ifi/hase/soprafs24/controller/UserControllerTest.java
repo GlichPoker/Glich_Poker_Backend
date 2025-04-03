@@ -2,7 +2,6 @@ package ch.uzh.ifi.hase.soprafs24.controller;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.filters.AuthenticationFilter;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
@@ -11,15 +10,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -30,13 +29,12 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import org.springframework.http.HttpHeaders;
-import org.springframework.context.annotation.FilterType;
 
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserProfileUpdatePutDTO;
+
 import java.time.LocalDate;
 
 
@@ -47,9 +45,9 @@ import java.time.LocalDate;
  * request without actually sending them over the network.
  * This tests if the UserController works.
  */
-@WebMvcTest(controllers = UserController.class, 
-    excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, 
-    classes = AuthenticationFilter.class))
+@SpringBootTest
+@AutoConfigureMockMvc
+@ActiveProfiles("test")
 public class UserControllerTest {
 
   @Autowired
@@ -58,9 +56,10 @@ public class UserControllerTest {
   @MockBean
   private UserService userService;
 
+
   @MockBean
   private UserRepository userRepository;
-/*
+
   @Test
   public void givenUsers_whenGetUsers_thenReturnJsonArray() throws Exception {
     // given
@@ -251,7 +250,7 @@ public class UserControllerTest {
       mockMvc.perform(putRequest)
           .andExpect(status().isNotFound());
   }
-*/
+
   /**
    * Helper Method to convert userPostDTO into a JSON string such that the input
    * can be processed
