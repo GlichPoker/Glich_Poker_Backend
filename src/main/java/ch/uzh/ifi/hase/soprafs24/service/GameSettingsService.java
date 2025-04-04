@@ -33,5 +33,11 @@ public class GameSettingsService {
         gameSettingsRepository.flush();
         return newSettings;
     }
+
+    public void deleteSettings(GameSettings gameSettings)
+    {
+        gameSettingsRepository.delete(gameSettings);
+        gameSettingsRepository.flush();
+    }
 }
 

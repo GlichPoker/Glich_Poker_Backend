@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
+import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
@@ -102,4 +103,11 @@ public class UserController {
       User updatedUser = userService.updateUserProfile(payload, userId);
       return DTOMapper.INSTANCE.convertEntityToUserGetDTO(updatedUser);
   }
+    @GetMapping("/owned/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Game> getAllOwnedGames(@RequestParam long userId) {
+      User user = userService.getUserById(userId);
+      return user.getGames();
+    }
+
 }

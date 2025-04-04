@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
+import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import org.slf4j.Logger;
@@ -29,10 +30,12 @@ public class UserService {
   private final Logger log = LoggerFactory.getLogger(UserService.class);
 
   private final UserRepository userRepository;
+  private final GameService gameService;
 
   @Autowired
-  public UserService(@Qualifier("userRepository") UserRepository userRepository) {
+  public UserService(@Qualifier("userRepository") UserRepository userRepository, GameService gameService) {
     this.userRepository = userRepository;
+    this.gameService = gameService;
   }
 
   public List<User> getUsers() {
@@ -82,12 +85,15 @@ public class UserService {
   }
 
   public User getUserById(Long userId){
-    return userRepository.findById(userId)
+    User user = userRepository.findById(userId)
       .orElseThrow(() -> new ResponseStatusException(
         HttpStatus.NOT_FOUND, 
         "User not found with ID: " + userId
       )
     );
+    List<Game> games = gameService.getGamesOwnedByUser(userId);
+    user.setGames(games);
+    return user;
   }
 
   public User findUserById(Long userId) {

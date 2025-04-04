@@ -20,12 +20,13 @@ public class Player {
     @JoinColumn(name = "gameId", referencedColumnName = "id")
     private Game game;
 
-    public Player(long userId, String name, double balance) {
+    public Player(long userId, String name, double balance, Game game) {
         this.userId = userId;
         this.name = name;
         this.balance = balance;
         this.isActive = true;
         this.isOnline = false;
+        this.game = game;
     }
 
     public Player() {}
@@ -35,7 +36,7 @@ public class Player {
     public double getBalance() { return balance; }
     public boolean isActive() { return isActive; }
     public boolean isOnline() { return isOnline; }
-
+    public void setIsActive(boolean isActive) { this.isActive = isActive; }
     public void setBalance(double balance) { this.balance = balance; }
     public Player setIsOnline(boolean isOnline) { this.isOnline = isOnline; return this; }
     public void increaseBalance(double amount) { this.balance += amount; }

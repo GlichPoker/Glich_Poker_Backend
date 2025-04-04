@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
+import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.model.*;
 import ch.uzh.ifi.hase.soprafs24.service.GameService;
 import ch.uzh.ifi.hase.soprafs24.service.GameSettingsService;
@@ -9,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
@@ -29,9 +31,8 @@ public class GameController {
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public Game createGame(@RequestBody CreateGameRequest request) {
-        // Delegate game creation to the GameService
-        ch.uzh.ifi.hase.soprafs24.entity.GameSettings settings = this.gameSettingsService.createGameSettings(request.gameSettings());
-        return gameService.createGame(request.userId(), settings.getId());
+        ch.uzh.ifi.hase.soprafs24.entity.GameSettings settings = gameSettingsService.createGameSettings(request.gameSettings());
+        return gameService.createGame(request.userId(), settings.getId(), request.isPublic());
     }
 
     @PostMapping("/invite")
@@ -44,7 +45,7 @@ public class GameController {
     }
 
     @PostMapping("/denyInvitation")
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public boolean denyInvitation(@RequestBody DenyInvitationRequest request) {
         Game game = gameService.getGameBySessionId(request.sessionId());
@@ -135,5 +136,21 @@ public class GameController {
         activeGames.remove(sessionId);
         gameService.saveSession(game);
         return true;
+    }
+
+    @PostMapping("/delete")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public boolean deleteGame(@RequestParam long sessionId) {
+        Game game = gameService.getGameBySessionId(sessionId);
+        activeGames.remove(sessionId);
+        gameService.deleteSession(game);
+        return true;
+    }
+
+    @GetMapping("/allGames")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Game> getAllOwnedGames() {
+        return gameService.getAllGames();
     }
 }
