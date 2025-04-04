@@ -94,16 +94,16 @@ I added profiles for all of you.
 1. **Locate `appsettings-user.properties`** in your project directory.
 
 2. **Update the Connection Details**:
-    - Modify the URL, username, and password in `appsettings-user.properties`:
+    - Modify the URL, username in `appsettings-user.properties`:
    ```properties
    spring.datasource.url=jdbc:postgresql://localhost:5432/glitchpoker
    spring.datasource.username=gianandreagerber
-   spring.datasource.password=yourpassword
 ---
 
 ### 4. Run Application
 Now all you need to do is run the application.
+Since we dont want to compromise our passwords when we publish the settings, we have to enter it manually before the run
 Note that the profile is only the part after the '-', hence for Gian Andrea it is gga.
 ```bash
-./gradlew bootRun -Pprofile=user
+DB_PASSWORD=yourpassword ./gradlew bootRun -Pprofile=user
  ```

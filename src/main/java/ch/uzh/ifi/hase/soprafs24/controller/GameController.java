@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
+@RequestMapping("/game")
 public class GameController {
 
     // TODO: push update to all clients of session after every action

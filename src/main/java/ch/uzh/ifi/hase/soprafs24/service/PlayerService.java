@@ -2,7 +2,6 @@ package ch.uzh.ifi.hase.soprafs24.service;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
-import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.PlayerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -52,6 +51,7 @@ public class PlayerService {
             throw new IllegalArgumentException("Player with id " + userId + " not found");
         }
         Player player = p.get();
+        game.removePlayer(player.getUserId());
         playerRepository.delete(player);
         playerRepository.flush();
     }

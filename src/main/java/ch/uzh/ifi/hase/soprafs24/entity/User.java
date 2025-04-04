@@ -1,6 +1,8 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
+
+import java.io.Serial;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 import javax.persistence.*;
@@ -21,6 +23,7 @@ import java.util.List;
 @Table(name = "\"USER\"")
 public class User implements Serializable {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   @Id
@@ -39,10 +42,10 @@ public class User implements Serializable {
   @Column(nullable = false)
   private UserStatus status;
 
-  @Column(nullable = true)
+  @Column
   private LocalDateTime creationDate;
 
-  @Column(nullable = true)
+  @Column
   private LocalDate birthDate;
 
   @Transient
