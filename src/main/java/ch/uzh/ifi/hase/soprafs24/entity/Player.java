@@ -17,7 +17,7 @@ public class Player {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "gameId", referencedColumnName = "sessionId")
+    @JoinColumn(name = "gameId", referencedColumnName = "id")
     private Game game;
 
     public Player(long userId, String name, double balance) {

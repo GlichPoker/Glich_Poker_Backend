@@ -13,9 +13,6 @@ public class GameSettings {
     private long smallBlind;
     private long bigBlind;
 
-    @OneToOne
-    @JoinColumn(name = "sessionId")
-    private Game game;
     public GameSettings(long initialBalance, long smallBlind, long bigBlind) {
         this.initialBalance = initialBalance;
         this.smallBlind = smallBlind;

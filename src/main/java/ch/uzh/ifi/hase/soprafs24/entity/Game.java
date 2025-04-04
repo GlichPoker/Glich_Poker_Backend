@@ -8,9 +8,9 @@ import java.util.List;
 public class Game {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long sessionId;
+    private long id;
 
-    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL)
+    @Transient
     private List<Player> players;
 
     @Column(nullable = false)
@@ -20,13 +20,12 @@ public class Game {
     private boolean roundRunning;
 
     @OneToOne
-    @JoinColumn(name = "id", updatable = false, insertable = false)
+    @JoinColumn(name = "ownerId", referencedColumnName = "id", updatable = false, insertable = false)
     private User owner;
 
     @OneToOne
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "gameSettingId", referencedColumnName = "id")
     private GameSettings settings;
-
 
     public Game(User owner, GameSettings settings) {
         this.players = new ArrayList<>();
@@ -37,7 +36,7 @@ public class Game {
 
     public Game() {}
 
-    public long getSessionId() { return sessionId; }
+    public long getSessionId() { return id; }
     public User getOwner() { return owner; }
     public List<Player> getPlayers() { return players; }
     public Player getPlayer(long userId){return this.players.stream().filter(player -> player.getUserId() == userId).findFirst().orElse(null);}

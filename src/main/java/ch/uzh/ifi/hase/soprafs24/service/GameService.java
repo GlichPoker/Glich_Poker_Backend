@@ -40,7 +40,7 @@ public class GameService {
 
     // Get a game by session ID
     public Game getGameBySessionId(long sessionId) {
-        Optional<Game> game = gameRepository.findBySessionId(sessionId);
+        Optional<Game> game = gameRepository.findById(sessionId);
         if (game.isEmpty()) {
             throw new IllegalArgumentException("Game not found");
         }

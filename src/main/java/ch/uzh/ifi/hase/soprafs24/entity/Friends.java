@@ -15,11 +15,13 @@ public class Friends implements Serializable {
     @GeneratedValue
     private Long id;
 
-    @Column(nullable = false)
-    private Long user1Id;
+    @ManyToOne
+    @JoinColumn(name = "user1Id", referencedColumnName = "id", insertable = false, updatable = false)
+    private User user1;
 
-    @Column(nullable = false)
-    private Long user2Id;
+    @ManyToOne
+    @JoinColumn(name = "user2Id", referencedColumnName = "id", insertable = false, updatable = false)
+    private User user2;
 
     @Column(nullable = false)
     private FriendRequestState status;
@@ -32,19 +34,14 @@ public class Friends implements Serializable {
         this.id = id;
     }
 
+    public void setUser1Id(Long user1Id) {user1.setId(user1Id);}
+    public void setUser2Id(Long user2Id) {user2.setId(user2Id);}
     public Long getUser1Id() {
-        return user1Id;
+        return user1.getId();
     }
 
-    public void setUser1Id(Long id) {
-        this.user1Id = id;
-    }
     public Long getUser2Id() {
-        return user2Id;
-    }
-
-    public void setUser2Id(Long id) {
-        this.user2Id = id;
+        return user2.getId();
     }
 
     public FriendRequestState getRequestStatus() {

@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.LocalDate;
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Internal User Representation
@@ -43,6 +44,9 @@ public class User implements Serializable {
 
   @Column(nullable = true)
   private LocalDate birthDate;
+
+  @Transient
+  private List<Game> games;
 
   public Long getId() {
     return id;
@@ -99,4 +103,5 @@ public class User implements Serializable {
   public LocalDate getBirthDate(){
     return this.birthDate;
   }
+  public List<Game> getGames() {return games;}
 }

@@ -15,24 +15,24 @@ import java.util.List;
 public interface FriendsRepository extends JpaRepository<Friends, Long> {
     List<Friends> findAll();
     @Query(value = "SELECT u FROM User u " +
-            "JOIN Friends f ON u.id = f.user1Id OR u.id = f.user2Id " +
-            "WHERE (f.user1Id = :userId OR f.user2Id = :userId) " +
+            "JOIN Friends f ON u.id = f.user1.id OR u.id = f.user2.id " +
+            "WHERE (f.user1.id = :userId OR f.user2.id = :userId) " +
             "AND f.status = 1 " +
             "AND u.id <> :userId")
     List<User> findAllFriends(@Param("userId") long userId);
     @Query(value = "SELECT u FROM User u " +
-            "JOIN Friends f ON u.id = f.user1Id OR u.id = f.user2Id " +
-            "WHERE (f.user1Id = :userId OR f.user2Id = :userId) " +
+            "JOIN Friends f ON u.id = f.user1.id OR u.id = f.user2.id " +
+            "WHERE (f.user1.id = :userId OR f.user2.id = :userId) " +
             "AND f.status = 0 " +
             "AND u.id <> :userId")
     List<User> findAllPendingRequests(@Param("userId") long userId);
     @Query("SELECT f FROM Friends f " +
-            "WHERE (f.user1Id = :userId AND f.user2Id = :friendId OR f.user1Id = :friendId AND f.user2Id = :userId)" +
+            "WHERE (f.user1.id = :userId AND f.user2.id = :friendId OR f.user1.id = :friendId AND f.user2.id = :userId)" +
             " AND f.status = :status")
     Friends findByUser1IdAndUser2IdAndStatus(@Param("userId") Long userId, @Param("friendId") Long friendId, @Param("status") FriendRequestState status);
 
     @Query("SELECT COUNT(f) > 0 FROM Friends f " +
-            "WHERE (f.user1Id = :userId AND f.user2Id = :friendId OR f.user1Id = :friendId AND f.user2Id = :userId) " +
+            "WHERE (f.user1.id = :userId AND f.user2.id = :friendId OR f.user1.id = :friendId AND f.user2.id = :userId) " +
             "AND f.status = :status")
     boolean existsByUser1IdAndUser2IdAndStatus(@Param("userId") Long userId, @Param("friendId") Long friendId, @Param("status") FriendRequestState status);
 }
