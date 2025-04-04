@@ -102,7 +102,10 @@ I added profiles for all of you.
 
 ### 4. Run Application
 Now all you need to do is run the application.
-Since we dont want to compromise our passwords when we publish the settings, we have to enter it manually before the run
+Since we dont want to compromise our passwords when we publish the settings, we have to enter it manually before the run. Or set it in your env :
+"
+export DB_PASSWORD=yourSecretPassword
+"
 Note that the profile is only the part after the '-', hence for Gian Andrea it is gga.
 ```bash
 DB_PASSWORD=yourpassword ./gradlew bootRun -Pprofile=user
