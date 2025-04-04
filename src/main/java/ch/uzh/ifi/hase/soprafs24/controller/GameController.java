@@ -5,6 +5,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.model.*;
 import ch.uzh.ifi.hase.soprafs24.service.GameService;
 import ch.uzh.ifi.hase.soprafs24.service.GameSettingsService;
+import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -20,11 +21,13 @@ public class GameController {
     private final ConcurrentHashMap<Long, ch.uzh.ifi.hase.soprafs24.model.Game> activeGames = new ConcurrentHashMap<>();
     private final GameService gameService;
     private final GameSettingsService gameSettingsService;
+    private final UserService userService;
 
     @Autowired
-    public GameController(GameService gameService, GameSettingsService gameSettingsService) {
+    public GameController(GameService gameService, GameSettingsService gameSettingsService, UserService userService) {
         this.gameService = gameService;
         this.gameSettingsService = gameSettingsService;
+        this.userService = userService;
     }
 
     @PostMapping("/create")
@@ -32,7 +35,8 @@ public class GameController {
     @ResponseBody
     public Game createGame(@RequestBody CreateGameRequest request) {
         ch.uzh.ifi.hase.soprafs24.entity.GameSettings settings = gameSettingsService.createGameSettings(request.gameSettings());
-        return gameService.createGame(request.userId(), settings.getId(), request.isPublic());
+        User user = userService.getUserById(request.userId());
+        return gameService.createGame(user, settings.getId(), request.isPublic());
     }
 
     @PostMapping("/invite")
@@ -150,7 +154,13 @@ public class GameController {
 
     @GetMapping("/allGames")
     @ResponseStatus(HttpStatus.OK)
-    public List<Game> getAllOwnedGames() {
+    public List<Game> getAllGames() {
         return gameService.getAllGames();
+    }
+
+    @GetMapping("/owned/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Game> getAllOwnedGames(@RequestParam long userId) {
+        return gameService.getGamesOwnedByUser(userId);
     }
 }

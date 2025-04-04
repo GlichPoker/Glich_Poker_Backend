@@ -103,11 +103,5 @@ public class UserController {
       User updatedUser = userService.updateUserProfile(payload, userId);
       return DTOMapper.INSTANCE.convertEntityToUserGetDTO(updatedUser);
   }
-    @GetMapping("/owned/{userId}")
-    @ResponseStatus(HttpStatus.OK)
-    public List<Game> getAllOwnedGames(@RequestParam long userId) {
-      User user = userService.getUserById(userId);
-      return user.getGames();
-    }
 
 }

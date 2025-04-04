@@ -17,22 +17,19 @@ public class GameService {
     private final GameRepository gameRepository;
     private final PlayerService playerService;
     private final GameSettingsService gameSettingsService;
-    private final UserService userService;
 
     @Autowired
-    public GameService(GameRepository gameRepository, PlayerService playerService, GameSettingsService gameSettingsService, UserService userService) {
+    public GameService(GameRepository gameRepository, PlayerService playerService, GameSettingsService gameSettingsService) {
         this.gameRepository = gameRepository;
         this.playerService = playerService;
         this.gameSettingsService = gameSettingsService;
-        this.userService = userService;
     }
 
     // Create a new game with a player as the owner
-    public Game createGame(long ownerId, long gameSettingsId, boolean isPublic) {
-        User owner = userService.getUserById(ownerId);
+    public Game createGame(User owner, long gameSettingsId, boolean isPublic) {
         GameSettings gameSettings = gameSettingsService.getGameSettings(gameSettingsId);
         Game game = new Game(owner, gameSettings, isPublic);
-        addPlayerToGame(game, ownerId, gameSettings.getInitialBalance());
+        addPlayerToGame(game, owner.getId(), gameSettings.getInitialBalance());
         Game newGame = gameRepository.save(game);
         gameRepository.flush();
         return newGame;
