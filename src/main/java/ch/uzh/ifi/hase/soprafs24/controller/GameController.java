@@ -145,8 +145,11 @@ public class GameController {
     @PostMapping("/delete")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public boolean deleteGame(@RequestParam long sessionId) {
+    public boolean deleteGame(@RequestParam long sessionId, @RequestParam long userId) {
         Game game = gameService.getGameBySessionId(sessionId);
+        if (game.getOwner().getId() != userId) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not the owner of this game");
+        }
         activeGames.remove(sessionId);
         gameService.deleteSession(game);
         return true;
@@ -160,7 +163,7 @@ public class GameController {
 
     @GetMapping("/owned/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public List<Game> getAllOwnedGames(@RequestParam long userId) {
+    public List<Game> getAllOwnedGames(@PathVariable long userId) {
         return gameService.getGamesOwnedByUser(userId);
     }
 }
