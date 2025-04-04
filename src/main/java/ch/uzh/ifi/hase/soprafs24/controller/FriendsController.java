@@ -6,9 +6,9 @@ import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/friends")
@@ -22,40 +22,67 @@ public class FriendsController {
         this.friendshipService = friendshipService;
         this.userService = userService;
     }
-    // Endpoint to add a friend request
-    @PostMapping("/addFriend")
+
+    private void checkIdExists(long id) {
+        User u = userService.getUserById(id);
+        if (u == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("User with id %d not found", id));
+    }
+
+    private void checkIdsExists(long id, long friendId){
+        User u = userService.getUserById(id);
+        User u2 = userService.getUserById(friendId);
+        if(u == null || u2 == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+    }
+
+    @PostMapping("/add")
     @ResponseStatus(HttpStatus.CREATED)
     public boolean addFriend(@RequestParam Long userId, @RequestParam Long friendId) {
+        checkIdsExists(userId, friendId);
         return friendshipService.addFriend(userId, friendId);
     }
 
-    // Endpoint to accept a friend request
-    @PostMapping("/acceptFriendRequest")
+    @PostMapping("/accept")
     @ResponseStatus(HttpStatus.OK)
     public boolean acceptFriendRequest(@RequestParam Long userId, @RequestParam Long friendId) {
+        checkIdsExists(userId, friendId);
         return friendshipService.acceptFriendRequest(userId, friendId);
     }
 
-    // Endpoint to deny a friend request
-    @PostMapping("/denyFriendRequest")
+    @PostMapping("/deny")
     @ResponseStatus(HttpStatus.OK)
     public boolean denyFriendRequest(@RequestParam Long userId, @RequestParam Long friendId) {
+        checkIdsExists(userId, friendId);
         return friendshipService.denyFriendRequest(userId, friendId);
     }
 
-    @GetMapping("/getAllFriends/{userId}")
+    @GetMapping("/allFriends/{userId}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public List<User> getAllFriends(@PathVariable("userId") Long userId) {
-        User user = userService.getUserById(userId);
+        checkIdExists(userId);
         return friendshipService.getAllFriends(userId);
     }
 
-    @GetMapping("/getAllPendingRequests/{userId}")
+    @GetMapping("/pendingRequests/{userId}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public List<User> getAllPendingRequests(@PathVariable("userId") Long userId) {
-        User user = userService.getUserById(userId);
+        checkIdExists(userId);
         return friendshipService.getAllPendingFriendRequests(userId);
+    }
+
+    @GetMapping("/availableUsers/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public List<User> getAllFriendsWhichCanBeAdded(@PathVariable("userId") Long userId) {
+        checkIdExists(userId);
+        return friendshipService.getAllUsersWhichAreNotFriends(userId);
+    }
+
+    @PostMapping("/remove")
+    @ResponseStatus(HttpStatus.OK)
+    public boolean removeFriend(@RequestParam Long userId, @RequestParam Long friendId) {
+        checkIdsExists(userId, friendId);
+        return friendshipService.ifFriendsRemove(userId, friendId);
     }
 }

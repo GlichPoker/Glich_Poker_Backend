@@ -8,18 +8,20 @@ import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.*;
 
 @Service
 public class FriendsService {
     private final FriendsRepository friendsRepository;
 
     private final UserRepository userRepository;
+    private final UserService userService;
 
     @Autowired
-    public FriendsService(FriendsRepository friendsRepository, UserRepository userRepository) {
+    public FriendsService(FriendsRepository friendsRepository, UserRepository userRepository, UserService userService) {
         this.friendsRepository = friendsRepository;
         this.userRepository = userRepository;
+        this.userService = userService;
     }
 
     public boolean addFriend(Long userId, Long friendId) {
@@ -73,5 +75,26 @@ public class FriendsService {
 
     public List<User> getAllPendingFriendRequests(long userId) {
         return friendsRepository.findAllPendingRequests(userId);
+    }
+
+    public List<User> getAllUsersWhichAreNotFriends(long userId) {
+        List<User> allUsers = userService.getAllUsersExceptSelf(userId);
+        Set<Long> allFriends = new HashSet<>(friendsRepository.findAllFriends(userId).stream().map(User::getId).toList());
+        allFriends.addAll(friendsRepository.findAllPendingRequests(userId).stream().map(User::getId).toList());
+        List<User> result = new ArrayList<>();
+        for (User user : allUsers) {
+            if (!allFriends.contains(user.getId())) {
+                result.add(user);
+            }
+        }
+        return result;
+    }
+
+    public boolean ifFriendsRemove(long userId, long friendId) {
+        Friends friendship = friendsRepository.findByUser1IdAndUser2IdAndStatus(userId, friendId, FriendRequestState.ACCEPTED);
+        if (friendship == null) throw new IllegalArgumentException("Friendship not found");
+
+        friendsRepository.delete(friendship);
+        return true;
     }
 }
