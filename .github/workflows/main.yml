@@ -53,3 +53,15 @@ jobs:
 
       - name: Test
         run: curl "${{ steps.deploy.outputs.url }}"
+
+  print:
+    name: Deploying to Google Cloud
+    runs-on: ubuntu-latest
+    
+    env:
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+
+    steps:
+      - name: print
+        run: echo "${DB_PASSWORD}"
+      
