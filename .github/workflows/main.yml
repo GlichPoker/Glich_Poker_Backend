@@ -38,7 +38,6 @@ jobs:
     
     env:
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      DB_USERNAME: ${{ secrets.DB_USERNAME }}
 
     steps:
       - name: Checkout
