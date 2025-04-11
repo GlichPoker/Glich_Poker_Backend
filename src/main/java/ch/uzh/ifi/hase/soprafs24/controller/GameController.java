@@ -35,7 +35,6 @@ public class GameController {
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public ch.uzh.ifi.hase.soprafs24.model.Game createGame(@RequestBody CreateGameRequest request) {
-        System.out.println("userId" + request.userId());
         ch.uzh.ifi.hase.soprafs24.entity.GameSettings settings = gameSettingsService.createGameSettings(request.gameSettings());
         User user = userService.getUserById(request.userId());
         Game newGame =  gameService.createGame(user, settings.getId(), request.isPublic());
@@ -67,8 +66,9 @@ public class GameController {
     public ch.uzh.ifi.hase.soprafs24.model.Game joinGame(@RequestBody GameActionRequest request) {
         Game game = gameService.getGameBySessionId(request.sessionId());
         User user = userService.getUserById(request.userId());
-        gameService.addPlayerToGame(game,user, game.getSettings().getInitialBalance());
-        return new ch.uzh.ifi.hase.soprafs24.model.Game(game, false);
+        gameService.handlePlayerJoin(game,user);
+        Game updatedGame = gameService.getGameBySessionId(request.sessionId());
+        return new ch.uzh.ifi.hase.soprafs24.model.Game(updatedGame, false);
     }
 
     @PostMapping("/start")
@@ -77,7 +77,7 @@ public class GameController {
     public RoundModel startGame(@RequestBody GameActionRequest request) {
         Game game = gameService.getGameBySessionId(request.sessionId());
         gameService.startRound(game);
-        ch.uzh.ifi.hase.soprafs24.model.Game newGame = new ch.uzh.ifi.hase.soprafs24.model.Game(game,false);
+        ch.uzh.ifi.hase.soprafs24.model.Game newGame = new ch.uzh.ifi.hase.soprafs24.model.Game(game,true);
         activeGames.put(request.sessionId(), newGame);
         return activeGames.get(request.sessionId()).getGameModel(request.userId()).getRound();
     }
@@ -155,6 +155,9 @@ public class GameController {
         if (game.getOwner().getId() != userId) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not the owner of this game");
         }
+        if(game.isRoundRunning())
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Game is still running");
+
         activeGames.remove(sessionId);
         gameService.deleteSession(game);
         return true;
