@@ -45,10 +45,28 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        System.out.println("AuthenticationFilter: " + request.getRequestURI() + " " + request.getMethod());
 
-        // Allow WebSocket connections to pass through without authentication
+        // Handle WebSocket connections with token authentication
         if (request.getRequestURI().startsWith("/ws")) {
+            String token = request.getParameter("token");
+            
+            // Check if token exists and is valid
+            if (token == null) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("{\"error\": \"WebSocket authentication token required\"}");
+                response.setContentType("application/json");
+                return;
+            }
+            
+            // Verify token against repository
+            if (userRepository.findByToken(token) == null) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("{\"error\": \"Invalid WebSocket authentication token\"}");
+                response.setContentType("application/json");
+                return;
+            }
+            
+            // Token is valid, allow connection
             filterChain.doFilter(request, response);
             return;
         }
