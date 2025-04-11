@@ -51,17 +51,29 @@ public class GameService {
     }
 
     // Add a player to an existing game
-    public void addPlayerToGame(Game game, User user, long startBalance) {
+    public boolean addPlayerToGame(Game game, User user, long startBalance) {
+        if(game.containsPlayer(user.getId())) throw new ResponseStatusException(HttpStatus.CONFLICT, String.format("Player with id %d already exists", user.getId()));
         Player player = playerService.createPlayer(user,  startBalance, game);
         game.addPlayer(player);
         gameRepository.save(game);
+        return true;
     }
 
+    public boolean handlePlayerJoin(Game game, User user) {
+        if(!game.containsPlayer(user.getId())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, String.format("Player with id %d was not invited to game", user.getId()));
+        }
+        Player player = game.getPlayer(user.getId());
+        player.setIsOnline(true);
+        playerService.savePlayer(player);
+        return true;
+    }
 
-    public void removePlayerFromGame(Game game, long userId) {
-        playerService.removePlayer(userId, game);
+    public boolean removePlayerFromGame(Game game, long userId) {
         game.removePlayer(userId);
+        playerService.removePlayer(userId, game);
         gameRepository.save(game);
+        return true;
     }
 
     public void setPlayerOffline(Game game, long userId) {
@@ -85,7 +97,7 @@ public class GameService {
     }
 
     // Complete a round in the game
-    public void completeRound(ch.uzh.ifi.hase.soprafs24.model.Game game) {
+    public Game completeRound(ch.uzh.ifi.hase.soprafs24.model.Game game) {
         Game gameEntity = getGameBySessionId(game.getSessionId());
         gameEntity.setRoundRunning(false);
         gameEntity.setStartPlayer((game.getCurrentRoundStartPlayer() + 1) % game.getPlayers().size());
@@ -96,7 +108,9 @@ public class GameService {
             player.setIsActive(true);
             playerService.savePlayer(player);
         }
+        game.roundComplete();
         gameRepository.save(gameEntity);
+        return gameEntity;
     }
 
     public boolean saveSession(Game game) {

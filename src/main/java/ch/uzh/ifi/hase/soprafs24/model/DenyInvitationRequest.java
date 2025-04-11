@@ -1,5 +1,9 @@
 package ch.uzh.ifi.hase.soprafs24.model;
 
-public record DenyInvitationRequest(long sessionId, long userId, long requestId) {
+import com.fasterxml.jackson.annotation.JsonProperty;
 
+public record DenyInvitationRequest(
+        @JsonProperty("sessionId") long sessionId,
+        @JsonProperty("userId") long userId,
+        @JsonProperty("requestId") long requestId) {
 }

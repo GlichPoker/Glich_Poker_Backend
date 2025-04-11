@@ -1,5 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.constant;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum Rank {
     TWO(0),
     THREE(1),
@@ -16,7 +18,13 @@ public enum Rank {
     ACE(12);
 
     public final int value;
+
     Rank(int value) {
         this.value = value;
+    }
+
+    @JsonValue
+    public int getValue() {
+        return value;
     }
 }

@@ -36,6 +36,7 @@ public class Player {
 
     public Player() {}
 
+    public long getSessionId(){return this.game.getSessionId();}
     public long getUserId() { return userId; }
     public String getName() { return name; }
     public double getBalance() { return balance; }

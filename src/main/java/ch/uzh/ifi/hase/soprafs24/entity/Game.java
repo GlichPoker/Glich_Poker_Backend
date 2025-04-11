@@ -45,10 +45,21 @@ public class Game {
     public long getSessionId() { return id; }
     public User getOwner() { return owner; }
     public List<Player> getPlayers() { return players.stream().filter(Player::isOnline).toList(); }
+    public List<Player> getAllPlayers() { return players; }
     public Player getPlayer(long userId){return this.players.stream().filter(player -> player.getUserId() == userId).findFirst().orElse(null);}
     public void addPlayer(Player player) { this.players.add(player); }
     public Player removePlayer(long userId) {
-        return this.players.stream().filter(x -> x.getUserId() == userId).findFirst().orElse(null);
+        Player player = this.players.stream()
+                .filter(x -> x.getUserId() == userId)
+                .findFirst()
+                .orElse(null);
+        if (player != null) {
+            this.players.remove(player); // This line actually removes them
+        }
+        return player;
+    }
+    public boolean containsPlayer(long userId) {
+        return this.players.stream().anyMatch(x -> x.getUserId() == userId);
     }
     public int getStartPlayer() { return startPlayer; }
     public void setStartPlayer(int startPlayer) { this.startPlayer = startPlayer; }

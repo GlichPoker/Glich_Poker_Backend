@@ -4,7 +4,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,7 +13,7 @@ public class Game {
     private final List<Player> players;
     private GameSettings settings;
     private final long ownerId;
-    private int currentRoundStartPlayer;
+    private final int currentRoundStartPlayer;
 
     public Game(Player player, GameSettings settings) {
         this.sessionId = System.nanoTime();
@@ -25,13 +24,14 @@ public class Game {
         this.settings = settings;
     }
 
-    public Game(ch.uzh.ifi.hase.soprafs24.entity.Game game) {
+    public Game(ch.uzh.ifi.hase.soprafs24.entity.Game game, boolean start) {
         this.sessionId = game.getSessionId();
         this.players = game.getPlayers().stream()
                 .map(Player::new).collect(Collectors.toList());
         this.ownerId = game.getOwner().getId();
         this.currentRoundStartPlayer = game.getStartPlayer();
         this.settings = new GameSettings(game.getSettings());
+        if (start) startRound();
     }
 
     public int getCurrentRoundStartPlayer() {return currentRoundStartPlayer;}
@@ -62,7 +62,6 @@ public class Game {
 
     public void roundComplete(){
         this.round = null;
-        this.currentRoundStartPlayer = (this.currentRoundStartPlayer + 1) % this.players.size();
     }
 
     public void joinSession(long userId){

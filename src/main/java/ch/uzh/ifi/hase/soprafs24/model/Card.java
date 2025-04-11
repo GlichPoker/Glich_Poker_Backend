@@ -2,7 +2,9 @@ package ch.uzh.ifi.hase.soprafs24.model;
 
 import ch.uzh.ifi.hase.soprafs24.constant.Rank;
 import ch.uzh.ifi.hase.soprafs24.constant.Suit;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+@JsonSerialize
 public record Card(Rank rank, Suit suit) implements Comparable<Card> {
 
     @Override

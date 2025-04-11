@@ -30,7 +30,7 @@ public class GameSettings {
     public void setSmallBlind(long smallBlind) { this.smallBlind = smallBlind; }
     public void setBigBlind(long bigBlind) { this.bigBlind = bigBlind; }
 
-    public GameSettings toModel() {
-        return new GameSettings(initialBalance, smallBlind, bigBlind);
+    public ch.uzh.ifi.hase.soprafs24.model.GameSettings toModel() {
+        return new ch.uzh.ifi.hase.soprafs24.model.GameSettings(initialBalance, smallBlind, bigBlind);
     }
 }

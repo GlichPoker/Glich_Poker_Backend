@@ -36,7 +36,7 @@ public class PlayerService {
     // create a player
     public Player createPlayer(User user, long balance, Game game) {
         Player p = new Player(user, balance, game);
-        p.setIsOnline(true);
+        p.setIsOnline(false);
         p.setBalance(balance);
         playerRepository.save(p);
         playerRepository.flush();
