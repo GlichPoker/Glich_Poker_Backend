@@ -19,20 +19,18 @@ import java.util.concurrent.ConcurrentHashMap;
 @RestController
 @RequestMapping("/game")
 public class GameController {
-
-    // TODO: push update to all clients of session after every action
     private final ConcurrentHashMap<Long, ch.uzh.ifi.hase.soprafs24.model.Game> activeGames = new ConcurrentHashMap<>();
     private final GameService gameService;
     private final GameSettingsService gameSettingsService;
     private final UserService userService;
-    //private final WS_Handler wsHandler;
+    private final WS_Handler wsHandler;
 
     @Autowired
-    public GameController(GameService gameService, GameSettingsService gameSettingsService, UserService userService) {
+    public GameController(GameService gameService, GameSettingsService gameSettingsService, UserService userService, WS_Handler wsHandler) {
         this.gameService = gameService;
         this.gameSettingsService = gameSettingsService;
         this.userService = userService;
-        //this.wsHandler = wsHandler;
+        this.wsHandler = wsHandler;
     }
 
     @PostMapping("/create")
@@ -79,6 +77,7 @@ public class GameController {
         gameService.startRound(game);
         ch.uzh.ifi.hase.soprafs24.model.Game newGame = new ch.uzh.ifi.hase.soprafs24.model.Game(game);
         activeGames.put(request.sessionId(), newGame);
+        wsHandler.sendRoundModelToAll(Long.toString(newGame.getSessionId()), newGame);
         return activeGames.get(request.sessionId()).getGameModel(request.userId()).getRound();
         // push round model
     }
@@ -92,8 +91,8 @@ public class GameController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
         }
         game.getRound().handleFold(request.userId());
+        wsHandler.sendRoundModelToAll(Long.toString(game.getSessionId()), game);
         return game.getRoundModel(request.userId());
-        // push round model
     }
 
     @PostMapping("/roundComplete")
@@ -102,8 +101,8 @@ public class GameController {
     public ch.uzh.ifi.hase.soprafs24.model.Game completeRound(@RequestBody GameActionRequest request) {
         ch.uzh.ifi.hase.soprafs24.model.Game game = activeGames.get(request.sessionId());
         gameService.completeRound(game);
+        wsHandler.sendRoundModelToAll(Long.toString(game.getSessionId()), game);
         return game;
-        // push game model
     }
 
 
@@ -116,8 +115,8 @@ public class GameController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
         }
         game.getRound().handleCall(request.userId(), request.amount());
+        wsHandler.sendRoundModelToAll(Long.toString(game.getSessionId()), game);
         return game.getRoundModel(request.userId());
-        // push round model
     }
 
     @PostMapping("/raise")
@@ -129,8 +128,8 @@ public class GameController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
         }
         game.getRound().handleRaise(request.userId(), request.amount());
+        wsHandler.sendRoundModelToAll(Long.toString(game.getSessionId()), game);
         return game.getRoundModel(request.userId());
-        // push round model
     }
 
     @PostMapping("/leave")

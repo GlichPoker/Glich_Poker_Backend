@@ -5,6 +5,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.stereotype.Component;
 import org.springframework.lang.NonNull;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -16,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import ch.uzh.ifi.hase.soprafs24.model.RoundModel;
 import ch.uzh.ifi.hase.soprafs24.model.Game;
 
+@Component
 public class WS_Handler extends TextWebSocketHandler{
     private final Map<String, CopyOnWriteArraySet<WebSocketSession>> gameSessions = new ConcurrentHashMap<>();
     private final Map<String, CopyOnWriteArraySet<WebSocketSession>> chatSessions = new ConcurrentHashMap<>();
@@ -23,7 +25,6 @@ public class WS_Handler extends TextWebSocketHandler{
     @Override
     public void handleTextMessage(@NonNull WebSocketSession session, @NonNull TextMessage message) throws Exception {
         String clientMessage = message.getPayload();
-        System.out.println("Received message: " + clientMessage);
 
         if (session.getUri().getPath().equals("/ws/chat")) {
             handleChatMessage(session, clientMessage);
@@ -161,7 +162,7 @@ public class WS_Handler extends TextWebSocketHandler{
         return null;
     }
 
-    public void sendRoundModel(String gameId, Game game) {
+    public void sendRoundModelToAll(String gameId, Game game) {
         CopyOnWriteArraySet<WebSocketSession> sessions = gameSessions.get(gameId);
         if (sessions == null || game == null) {
             System.err.println("No sessions found for game " + gameId + " or game is null");
