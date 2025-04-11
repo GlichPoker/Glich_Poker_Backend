@@ -99,8 +99,12 @@ public class GameController {
     @ResponseBody
     public ch.uzh.ifi.hase.soprafs24.model.Game completeRound(@RequestBody GameActionRequest request) {
         ch.uzh.ifi.hase.soprafs24.model.Game game = activeGames.get(request.sessionId());
-        gameService.completeRound(game);
-        return game;
+        if (game == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
+        }
+        Game gameEntity = gameService.completeRound(game);
+        return new ch.uzh.ifi.hase.soprafs24.model.Game(gameEntity, false);
+
     }
 
 
@@ -166,7 +170,6 @@ public class GameController {
     @GetMapping("/allGames")
     @ResponseStatus(HttpStatus.OK)
     public List<Game> getAllGames() {
-        System.out.println("Received");
         return gameService.getAllGames();
     }
 
