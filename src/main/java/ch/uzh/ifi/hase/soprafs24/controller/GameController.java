@@ -6,6 +6,8 @@ import ch.uzh.ifi.hase.soprafs24.model.*;
 import ch.uzh.ifi.hase.soprafs24.service.GameService;
 import ch.uzh.ifi.hase.soprafs24.service.GameSettingsService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
+import ch.uzh.ifi.hase.soprafs24.websockets.WS_Handler;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -23,12 +25,14 @@ public class GameController {
     private final GameService gameService;
     private final GameSettingsService gameSettingsService;
     private final UserService userService;
+    //private final WS_Handler wsHandler;
 
     @Autowired
     public GameController(GameService gameService, GameSettingsService gameSettingsService, UserService userService) {
         this.gameService = gameService;
         this.gameSettingsService = gameSettingsService;
         this.userService = userService;
+        //this.wsHandler = wsHandler;
     }
 
     @PostMapping("/create")
@@ -76,6 +80,7 @@ public class GameController {
         ch.uzh.ifi.hase.soprafs24.model.Game newGame = new ch.uzh.ifi.hase.soprafs24.model.Game(game);
         activeGames.put(request.sessionId(), newGame);
         return activeGames.get(request.sessionId()).getGameModel(request.userId()).getRound();
+        // push round model
     }
 
     @PostMapping("/fold")
@@ -88,6 +93,7 @@ public class GameController {
         }
         game.getRound().handleFold(request.userId());
         return game.getRoundModel(request.userId());
+        // push round model
     }
 
     @PostMapping("/roundComplete")
@@ -97,6 +103,7 @@ public class GameController {
         ch.uzh.ifi.hase.soprafs24.model.Game game = activeGames.get(request.sessionId());
         gameService.completeRound(game);
         return game;
+        // push game model
     }
 
 
@@ -110,6 +117,7 @@ public class GameController {
         }
         game.getRound().handleCall(request.userId(), request.amount());
         return game.getRoundModel(request.userId());
+        // push round model
     }
 
     @PostMapping("/raise")
@@ -122,6 +130,7 @@ public class GameController {
         }
         game.getRound().handleRaise(request.userId(), request.amount());
         return game.getRoundModel(request.userId());
+        // push round model
     }
 
     @PostMapping("/leave")

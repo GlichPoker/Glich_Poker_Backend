@@ -11,7 +11,10 @@ public class WS_Config implements WebSocketConfigurer {
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         // Register your handler here
-        registry.addHandler(new WS_Handler(), "/ws")
-                .setAllowedOrigins("*"); // You can adjust origins for security reasons
+        registry.addHandler(new WS_Handler(), "/ws/game")
+                .setAllowedOrigins("*");
+        
+        registry.addHandler(new WS_Handler(), "/ws/chat")
+                .setAllowedOrigins("*");
     }
 }

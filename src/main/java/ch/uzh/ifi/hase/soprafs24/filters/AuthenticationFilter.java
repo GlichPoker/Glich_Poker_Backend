@@ -45,7 +45,6 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        System.out.println("AuthenticationFilter: " + request.getRequestURI() + " " + request.getMethod());
 
         // Handle WebSocket connections with token authentication
         if (request.getRequestURI().startsWith("/ws")) {
