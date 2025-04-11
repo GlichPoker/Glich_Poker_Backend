@@ -43,6 +43,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Add database variables to application properties
+        run: echo 'spring.datasource.password=${{ secrets.DB_PASSWORD }}' >> src/main/resources/application-prod.properties
+
       - name: Deploy to App Engine
         id: deploy
         uses: google-github-actions/deploy-appengine@v0.2.0
@@ -53,3 +56,4 @@ jobs:
 
       - name: Test
         run: curl "${{ steps.deploy.outputs.url }}"
+

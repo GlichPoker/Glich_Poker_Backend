@@ -55,9 +55,10 @@ public class Player {
 
     // can be used for raise, call and check since its called from controller and there we decide on action not here
     public boolean call(long amount){
-        if(amount < balance && isActive){
-            balance -= amount;
-            roundBet += amount;
+        long differnce = amount - roundBet;
+        if(differnce <= balance && isActive){
+            balance -= differnce;
+            roundBet += differnce;
         }
         else{
             isActive = false;
