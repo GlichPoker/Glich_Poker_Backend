@@ -31,9 +31,9 @@ public class GameService {
     public Game createGame(User owner, long gameSettingsId, boolean isPublic) {
         GameSettings gameSettings = gameSettingsService.getGameSettings(gameSettingsId);
         Game game = new Game(owner, gameSettings, isPublic);
-        addPlayerToGame(game, owner.getId(), gameSettings.getInitialBalance());
         Game newGame = gameRepository.save(game);
         gameRepository.flush();
+        addPlayerToGame(newGame, owner, gameSettings.getInitialBalance());
         return newGame;
     }
 
@@ -51,9 +51,8 @@ public class GameService {
     }
 
     // Add a player to an existing game
-    public void addPlayerToGame(Game game, long userId, long startBalance) {
-        Player activePlayer = game.getPlayer(userId);
-        Player player = playerService.createPlayer(userId, activePlayer.getName(), startBalance, game);
+    public void addPlayerToGame(Game game, User user, long startBalance) {
+        Player player = playerService.createPlayer(user,  startBalance, game);
         game.addPlayer(player);
         gameRepository.save(game);
     }

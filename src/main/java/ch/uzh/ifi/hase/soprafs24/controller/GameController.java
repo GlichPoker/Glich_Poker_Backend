@@ -34,10 +34,12 @@ public class GameController {
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public Game createGame(@RequestBody CreateGameRequest request) {
+    public ch.uzh.ifi.hase.soprafs24.model.Game createGame(@RequestBody CreateGameRequest request) {
+        System.out.println("userId" + request.userId());
         ch.uzh.ifi.hase.soprafs24.entity.GameSettings settings = gameSettingsService.createGameSettings(request.gameSettings());
         User user = userService.getUserById(request.userId());
-        return gameService.createGame(user, settings.getId(), request.isPublic());
+        Game newGame =  gameService.createGame(user, settings.getId(), request.isPublic());
+        return new ch.uzh.ifi.hase.soprafs24.model.Game(newGame);
     }
 
     @PostMapping("/invite")
@@ -45,7 +47,8 @@ public class GameController {
     @ResponseBody
     public boolean invitePlayer(@RequestBody GameActionRequest request) {
         Game game = gameService.getGameBySessionId(request.sessionId());
-        gameService.addPlayerToGame(game, request.userId(), game.getSettings().getInitialBalance());
+        User user = userService.getUserById(request.userId());
+        gameService.addPlayerToGame(game, user, game.getSettings().getInitialBalance());
         return true;
     }
 
@@ -61,10 +64,11 @@ public class GameController {
     @PostMapping("/join")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Game joinGame(@RequestBody GameActionRequest request) {
+    public ch.uzh.ifi.hase.soprafs24.model.Game joinGame(@RequestBody GameActionRequest request) {
         Game game = gameService.getGameBySessionId(request.sessionId());
-        gameService.addPlayerToGame(game,request.userId(), game.getSettings().getInitialBalance());
-        return game;
+        User user = userService.getUserById(request.userId());
+        gameService.addPlayerToGame(game,user, game.getSettings().getInitialBalance());
+        return new ch.uzh.ifi.hase.soprafs24.model.Game(game);
     }
 
     @PostMapping("/start")
@@ -159,6 +163,7 @@ public class GameController {
     @GetMapping("/allGames")
     @ResponseStatus(HttpStatus.OK)
     public List<Game> getAllGames() {
+        System.out.println("Received");
         return gameService.getAllGames();
     }
 

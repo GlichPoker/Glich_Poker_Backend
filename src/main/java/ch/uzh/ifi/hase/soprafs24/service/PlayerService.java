@@ -2,6 +2,7 @@ package ch.uzh.ifi.hase.soprafs24.service;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
+import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.PlayerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,8 +34,8 @@ public class PlayerService {
         playerRepository.flush();
     }
     // create a player
-    public Player createPlayer(long userId, String name, long balance, Game game) {
-        Player p = new Player(userId, name, balance, game);
+    public Player createPlayer(User user, long balance, Game game) {
+        Player p = new Player(user, balance, game);
         p.setIsOnline(true);
         p.setBalance(balance);
         playerRepository.save(p);

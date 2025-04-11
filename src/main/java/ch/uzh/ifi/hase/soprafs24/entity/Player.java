@@ -3,26 +3,31 @@ package ch.uzh.ifi.hase.soprafs24.entity;
 import javax.persistence.*;
 
 @Entity
+@Table(name = "player", uniqueConstraints = @UniqueConstraint(columnNames = {"user_Id", "gameId"}))
 public class Player {
     @Id
-    private long userId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
 
+    @Column(nullable = false, name = "user_Id")
+    private long userId;
     private String name;
     private double balance;
     private boolean isActive;
     private boolean isOnline;
 
     @ManyToOne
-    @JoinColumn(name = "userId", referencedColumnName = "id", insertable = false, updatable = false)
+    @JoinColumn(name = "user_Id", referencedColumnName = "id", insertable = false, updatable = false)
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "gameId", referencedColumnName = "id")
     private Game game;
 
-    public Player(long userId, String name, double balance, Game game) {
-        this.userId = userId;
-        this.name = name;
+    public Player(User user, double balance, Game game) {
+        this.name = user.getUsername();
+        this.user = user;
+        this.userId = user.getId();
         this.balance = balance;
         this.isActive = true;
         this.isOnline = false;

@@ -26,7 +26,7 @@ public class GameSettingsService {
 
     public GameSettings createGameSettings(ch.uzh.ifi.hase.soprafs24.model.GameSettings gameSettings) {
         GameSettings newGameSettings = new GameSettings();
-        newGameSettings.setBigBlind(gameSettings.initialBalance());
+        newGameSettings.setInitialBalance(gameSettings.initialBalance());
         newGameSettings.setSmallBlind(gameSettings.smallBlind());
         newGameSettings.setBigBlind(gameSettings.bigBlind());
         GameSettings newSettings =  gameSettingsRepository.save(newGameSettings);

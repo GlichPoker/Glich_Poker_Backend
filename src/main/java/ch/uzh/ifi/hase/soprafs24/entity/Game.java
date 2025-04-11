@@ -11,7 +11,7 @@ public class Game {
     private long id;
 
     @Transient
-    private List<Player> players;
+    private List<Player> players = new ArrayList<>();
 
     @Column(nullable = false)
     private int startPlayer;
@@ -23,7 +23,7 @@ public class Game {
     private boolean roundRunning;
 
     @ManyToOne
-    @JoinColumn(name = "ownerId", referencedColumnName = "id", updatable = false, insertable = false)
+    @JoinColumn(name = "ownerId", referencedColumnName = "id")
     private User owner;
 
     @OneToOne
@@ -31,7 +31,6 @@ public class Game {
     private GameSettings settings;
 
     public Game(User owner, GameSettings settings, boolean isPublic) {
-        this.players = new ArrayList<>();
         this.owner = owner;
         this.startPlayer = 0;
         this.settings = settings;
