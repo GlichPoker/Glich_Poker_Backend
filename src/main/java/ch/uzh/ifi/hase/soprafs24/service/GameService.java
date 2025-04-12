@@ -80,6 +80,16 @@ public class GameService {
         return true;
     }
 
+    public boolean handlePlayerRejoin(Game game, User user) {
+        if(!game.containsPlayer(user.getId())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, String.format("Player with id %d was not invited to game", user.getId()));
+        }
+        Player player = game.getPlayer(user.getId());
+        player.setIsOnline(true);
+        playerService.savePlayer(player);
+        return true;
+    }
+
     public boolean removePlayerFromGame(Game game, long userId) {
         game.removePlayer(userId);
         playerService.removePlayer(userId);
@@ -88,6 +98,7 @@ public class GameService {
     }
 
     public void setPlayerOffline(Game game, long userId) {
+        if(game.isRoundRunning()) throw new ResponseStatusException(HttpStatus.CONFLICT, "Round is still running");
         game.getPlayers().stream()
                 .filter(x -> x.getUserId() == userId)
                 .findFirst().ifPresent(player -> playerService.savePlayer(player.setIsOnline(false)));

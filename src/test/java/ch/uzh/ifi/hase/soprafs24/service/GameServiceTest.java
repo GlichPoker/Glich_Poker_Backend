@@ -147,6 +147,14 @@ public class GameServiceTest {
     }
 
     @Test
+    public void setPlayerOfflineRoundRunning() {
+        Player player = new Player(owner, 1L, game);
+        player.setBalance(1000);
+        game.setRoundRunning(true);
+        assertThrows(ResponseStatusException.class, () -> {gameService.setPlayerOffline(game, owner.getId());});
+    }
+
+    @Test
     public void handlePlayerJoinShouldReturnTrue() {
         Player player = new Player(owner, 1L, game);
         player.setBalance(1000);
@@ -239,5 +247,25 @@ public class GameServiceTest {
         }
         assertFalse(savedGame.isRoundRunning());
         assertEquals(0, savedGame.getStartPlayer());
+    }
+
+    @Test
+    public void handlePlayerRejoinShouldReturnTrue() {
+        Player player = new Player(owner, 1L, game);
+        player.setBalance(1000);
+        player.setIsOnline(false);
+        game.addPlayer(player);
+
+        boolean success =gameService.handlePlayerRejoin(game, owner);
+
+        assertTrue(game.getAllPlayers().contains(player));
+        assertTrue(game.getPlayer(owner.getId()).isOnline());
+        assertEquals(1000,game.getPlayer(owner.getId()).getBalance());
+        assertTrue(success);
+    }
+
+    @Test
+    public void handlePlayerRejoinPlayerNotInGame() {
+        assertThrows(ResponseStatusException.class, () -> gameService.handlePlayerRejoin(game, owner));
     }
 }

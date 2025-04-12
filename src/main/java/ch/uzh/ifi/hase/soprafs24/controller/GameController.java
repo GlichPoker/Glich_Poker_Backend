@@ -178,4 +178,15 @@ public class GameController {
     public List<Game> getAllOwnedGames(@PathVariable long userId) {
         return gameService.getGamesOwnedByUser(userId);
     }
+
+    @PostMapping("/rejoin")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public ch.uzh.ifi.hase.soprafs24.model.Game rejoinGame(@RequestBody GameActionRequest request) {
+        Game game = gameService.getGameBySessionId(request.sessionId());
+        User user = userService.getUserById(request.userId());
+        gameService.handlePlayerRejoin(game,user);
+        Game updatedGame = gameService.getGameBySessionId(request.sessionId());
+        return new ch.uzh.ifi.hase.soprafs24.model.Game(updatedGame, false);
+    }
 }

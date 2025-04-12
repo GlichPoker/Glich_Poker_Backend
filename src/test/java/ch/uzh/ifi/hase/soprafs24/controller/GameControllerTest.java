@@ -459,4 +459,18 @@ public class GameControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
     }
+
+    @Test
+    public void testRejoinGame() throws Exception {
+        when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
+        when(userService.getUserById(anyLong())).thenReturn(testUser);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/game/rejoin")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(gameActionRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sessionId").value(testGame.getSessionId()));
+
+        verify(gameService, times(1)).handlePlayerRejoin(eq(testGame), eq(testUser));
+    }
 }
