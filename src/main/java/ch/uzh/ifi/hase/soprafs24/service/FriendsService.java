@@ -27,6 +27,7 @@ public class FriendsService {
     public boolean addFriend(Long userId, Long friendId) {
         User user = userService.getUserById(userId);
         User user2 = userService.getUserById(friendId);
+        
         if (user == null || user2 == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One of the two users was not found");
         }
@@ -37,12 +38,19 @@ public class FriendsService {
 
         // Create a new friend request
         Friends newFriendship = new Friends();
-        newFriendship.setUser1(user);
-        newFriendship.setUser2(user2);
-        newFriendship.setRequestStatus(FriendRequestState.PENDING); // Initial status is 'PENDING'
-        friendsRepository.save(newFriendship);
-
-        return true;
+        
+        try {
+            newFriendship.setUser1(user);
+            newFriendship.setUser2(user2);
+            newFriendship.setRequestStatus(FriendRequestState.PENDING);
+            
+            friendsRepository.save(newFriendship);
+            return true;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     public boolean acceptFriendRequest(Long userId, Long friendId) {
