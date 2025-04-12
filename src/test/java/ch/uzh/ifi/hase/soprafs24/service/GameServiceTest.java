@@ -64,7 +64,7 @@ public class GameServiceTest {
         assertEquals(owner, createdGame.getOwner());
         assertEquals(gameSettings, createdGame.getSettings());
         assertTrue(createdGame.isPublic());
-        verify(gameRepository, times(2)).save(any(Game.class));
+        verify(gameRepository, times(1)).save(any(Game.class));
     }
 
     @Test
@@ -92,8 +92,9 @@ public class GameServiceTest {
     }
 
     @Test
-    public void addPlayerShouldReturnTrue() {
+    public void addPlayerWithPrivateLobbyShouldReturnTrue() {
         Player player = new Player(owner, 1L, game);
+        game.setIsPublic(false);
         player.setBalance(1000);
         when(playerService.createPlayer(any(User.class), anyLong(), any(Game.class))).thenReturn(player);
         when(gameRepository.save(any(Game.class))).thenReturn(game);
@@ -105,6 +106,19 @@ public class GameServiceTest {
     }
 
     @Test
+    public void addPlayerWithPublicLobbyShouldReturnTrue() {
+        Player player = new Player(owner, 1L, game);
+        player.setBalance(1000);
+        when(playerService.createPlayer(any(User.class), anyLong(), any(Game.class))).thenReturn(player);
+        when(gameRepository.save(any(Game.class))).thenReturn(game);
+        gameService.addPlayerToGame(game, owner, 1L);
+        gameService.handlePlayerJoin(game, owner);
+        verify(gameRepository, times(1)).save(any(Game.class));
+        assertTrue(game.getAllPlayers().contains(player));
+        assertTrue(game.getPlayer(owner.getId()).isOnline());
+    }
+
+    @Test
     public void removePlayerShouldReturnTrue() {
         Player player = new Player(owner, 1L, game);
         player.setBalance(1000);
@@ -112,7 +126,7 @@ public class GameServiceTest {
         when(gameRepository.save(any(Game.class))).thenReturn(game);
         gameService.addPlayerToGame(game, owner, 1L);
         gameService.removePlayerFromGame(game, owner.getId());
-        verify(gameRepository, times(2)).save(any(Game.class));
+        verify(gameRepository, times(1)).save(any(Game.class));
         assertFalse(game.getAllPlayers().contains(player));
     }
 

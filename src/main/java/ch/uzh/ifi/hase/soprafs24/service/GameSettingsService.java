@@ -3,7 +3,9 @@ package ch.uzh.ifi.hase.soprafs24.service;
 import ch.uzh.ifi.hase.soprafs24.entity.GameSettings;
 import ch.uzh.ifi.hase.soprafs24.repository.GameSettingsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
@@ -21,7 +23,7 @@ public class GameSettingsService {
         if (settings.isPresent()) {
             return settings.get();
         }
-        throw new IllegalArgumentException("Game settings with id " + id + " not found");
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "settings not found");
     }
 
     public GameSettings createGameSettings(ch.uzh.ifi.hase.soprafs24.model.GameSettings gameSettings) {

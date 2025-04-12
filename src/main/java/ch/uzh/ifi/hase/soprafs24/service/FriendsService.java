@@ -5,7 +5,9 @@ import ch.uzh.ifi.hase.soprafs24.entity.Friends;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.FriendsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 
@@ -23,20 +25,19 @@ public class FriendsService {
 
     public boolean addFriend(Long userId, Long friendId) {
         User user = userService.getUserById(userId);
-        if (user == null) {
-            throw new IllegalArgumentException("User not found");
+        User user2 = userService.getUserById(friendId);
+        if (user == null || user2 == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One of the two users was not found");
         }
 
-        // Check if the users are already friends (if they exist in the friends table)
-        if (friendsRepository.existsByUser1IdAndUser2IdAndStatus(userId, friendId, FriendRequestState.ACCEPTED) ||
-                friendsRepository.existsByUser1IdAndUser2IdAndStatus(friendId, userId, FriendRequestState.ACCEPTED)) {
-            return false;  // They are already friends
+        if (friendsRepository.existsByUser1IdAndUser2IdAndStatus(userId, friendId, FriendRequestState.ACCEPTED)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Users are already friends");
         }
 
         // Create a new friend request
         Friends newFriendship = new Friends();
-        newFriendship.setUser1Id(userId);
-        newFriendship.setUser2Id(friendId);
+        newFriendship.setUser1(user);
+        newFriendship.setUser2(user2);
         newFriendship.setRequestStatus(FriendRequestState.PENDING); // Initial status is 'PENDING'
         friendsRepository.save(newFriendship);
 
@@ -89,9 +90,10 @@ public class FriendsService {
 
     public boolean ifFriendsRemove(long userId, long friendId) {
         Friends friendship = friendsRepository.findByUser1IdAndUser2IdAndStatus(userId, friendId, FriendRequestState.ACCEPTED);
-        if (friendship == null) throw new IllegalArgumentException("Friendship not found");
+        if (friendship == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Friendship not found");
 
         friendsRepository.delete(friendship);
+        friendsRepository.flush();
         return true;
     }
 }

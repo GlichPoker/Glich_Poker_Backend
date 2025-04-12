@@ -53,13 +53,24 @@ public class GameService {
     // Add a player to an existing game
     public boolean addPlayerToGame(Game game, User user, long startBalance) {
         if(game.containsPlayer(user.getId())) throw new ResponseStatusException(HttpStatus.CONFLICT, String.format("Player with id %d already exists", user.getId()));
-        Player player = playerService.createPlayer(user,  startBalance, game);
-        game.addPlayer(player);
-        gameRepository.save(game);
+        if(!game.isPublic()) {
+            createAndAddPlayerToGame(game, user, startBalance);
+        }
+
         return true;
     }
 
+    public void createAndAddPlayerToGame(Game game, User user, long startBalance) {
+        Player player = playerService.createPlayer(user,  startBalance, game);
+        game.addPlayer(player);
+        gameRepository.save(game);
+    }
+
     public boolean handlePlayerJoin(Game game, User user) {
+        if(game.isPublic()){
+            createAndAddPlayerToGame(game, user, game.getSettings().getInitialBalance());
+        }
+
         if(!game.containsPlayer(user.getId())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, String.format("Player with id %d was not invited to game", user.getId()));
         }
@@ -71,7 +82,7 @@ public class GameService {
 
     public boolean removePlayerFromGame(Game game, long userId) {
         game.removePlayer(userId);
-        playerService.removePlayer(userId, game);
+        playerService.removePlayer(userId);
         gameRepository.save(game);
         return true;
     }

@@ -68,4 +68,5 @@ public class Game {
     public GameSettings getSettings() { return settings; }
     public void setSettings(GameSettings settings) { this.settings = settings; }
     public boolean isPublic() { return isPublic; }
+    public void setIsPublic(boolean isPublic) { this.isPublic = isPublic; }
 }

@@ -2,45 +2,113 @@ package ch.uzh.ifi.hase.soprafs24.repository;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @ActiveProfiles("test")
 public class UserRepositoryIntegrationTest {
 
-  @Autowired
-  private TestEntityManager entityManager;
+    @Autowired
+    private TestEntityManager entityManager;
 
-  @Autowired
-  private UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-  @Test
-  public void findByUsername_success() {
-    // given
-    User user = new User();
-    user.setPassword("securePassword");
-    user.setUsername("firstname@lastname");
-    user.setStatus(UserStatus.OFFLINE);
-    user.setToken("1");
+    private User user;
 
-    entityManager.persist(user);
-    entityManager.flush();
+    @BeforeEach
+    public void setUp() {
+        user = new User();
+        user.setPassword("securePassword");
+        user.setUsername("testUser");
+        user.setStatus(UserStatus.ONLINE);
+        user.setToken("testToken");
+        entityManager.persist(user);
+        entityManager.flush();
+    }
 
-    // when
-    User found = userRepository.findByUsername(user.getUsername());
+    @Test
+    public void testFindByUsernameSuccess() {
+        User found = userRepository.findByUsername(user.getUsername());
 
-    // then
-    assertNotNull(found.getId());
-    assertEquals(found.getPassword(), user.getPassword());
-    assertEquals(found.getUsername(), user.getUsername());
-    assertEquals(found.getToken(), user.getToken());
-    assertEquals(found.getStatus(), user.getStatus());
-  }
+        assertNotNull(found);
+        assertEquals(user.getUsername(), found.getUsername());
+        assertEquals(user.getPassword(), found.getPassword());
+        assertEquals(user.getStatus(), found.getStatus());
+        assertEquals(user.getToken(), found.getToken());
+    }
+
+    @Test
+    public void testFindByUsernameNotFound() {
+        User notFound = userRepository.findByUsername("nonExistentUser");
+
+        assertNull(notFound);
+    }
+
+    @Test
+    public void testFindByTokenSuccess() {
+        User found = userRepository.findByToken(user.getToken());
+
+        assertNotNull(found);
+        assertEquals(user.getToken(), found.getToken());
+        assertEquals(user.getUsername(), found.getUsername());
+    }
+
+    @Test
+    public void testFindByTokenNotFound() {
+        User notFound = userRepository.findByToken("nonExistentToken");
+
+        assertNull(notFound);
+    }
+
+    @Test
+    public void testFindByIdSuccess() {
+        Optional<User> found = userRepository.findById(user.getId());
+
+        assertTrue(found.isPresent());
+        assertEquals(user, found.get());
+    }
+
+    @Test
+    public void testFindByIdNotFound() {
+        Optional<User> notFound = userRepository.findById(99L);
+
+        assertFalse(notFound.isPresent());
+        assertThrows(NoSuchElementException.class, notFound::get);
+    }
+
+    @Test
+    public void testGetAllUsersSuccess() {
+        User user2 = new User();
+        user2.setUsername("anotherUser");
+        user2.setPassword("password");
+        user2.setStatus(UserStatus.OFFLINE);
+        user2.setToken("token2");
+        entityManager.persist(user2);
+        entityManager.flush();
+
+        List<User> users = userRepository.getAllUsers(user.getId());
+
+        assertNotNull(users);
+        assertEquals(1, users.size());
+        assertEquals(user2.getUsername(), users.get(0).getUsername());
+    }
+
+    @Test
+    public void testGetAllUsersNoUsers() {
+        List<User> users = userRepository.getAllUsers(user.getId());
+
+        assertTrue(users.isEmpty());
+    }
 }
