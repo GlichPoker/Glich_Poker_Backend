@@ -2,6 +2,7 @@ package ch.uzh.ifi.hase.soprafs24.service;
 
 import ch.uzh.ifi.hase.soprafs24.constant.FriendRequestState;
 import ch.uzh.ifi.hase.soprafs24.entity.*;
+import ch.uzh.ifi.hase.soprafs24.model.UserModel;
 import ch.uzh.ifi.hase.soprafs24.repository.FriendsRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,7 +61,7 @@ public class FriendsServiceTest {
         boolean success = friendsService.addFriend(1L, 2L);
         verify(friendsRepository, times(1)).save(any(Friends.class));
         assertTrue(success);
-        assertTrue(friendsService.getAllPendingFriendRequests(1L).stream().map(User::getId).anyMatch(x -> x.equals(2L)));
+        assertTrue(friendsService.getAllPendingFriendRequests(1L).stream().map(UserModel::getUsername).anyMatch(x -> x.equals(user2.getUsername())));
     }
 
     @Test
@@ -141,7 +142,7 @@ public class FriendsServiceTest {
     public void getAllFriends() {
         when(friendsRepository.findAllFriends(1L)).thenReturn(new ArrayList<>(){{add(user2); add(user3);}});
 
-        List<User> friends = friendsService.getAllFriends(1L);
+        List<UserModel> friends = friendsService.getAllFriends(1L);
         verify(friendsRepository, times(0)).save(any(Friends.class));
         assertEquals(friends.size(), 2);
     }
@@ -150,7 +151,7 @@ public class FriendsServiceTest {
     public void getAllPendingRequests() {
         when(friendsRepository.findAllPendingRequests(1L)).thenReturn(new ArrayList<>(){{add(user2);}});
 
-        List<User> friends = friendsService.getAllPendingFriendRequests(1L);
+        List<UserModel> friends = friendsService.getAllPendingFriendRequests(1L);
         verify(friendsRepository, times(0)).save(any(Friends.class));
         assertEquals(friends.size(), 1);
     }
@@ -161,10 +162,10 @@ public class FriendsServiceTest {
         when(friendsRepository.findAllFriends(1L)).thenReturn(new ArrayList<>(){{add(user2);}});
         when(friendsRepository.findAllPendingRequests(1L)).thenReturn(new ArrayList<>());
 
-        List<User> availableForFriendRequest = friendsService.getAllUsersWhichAreNotFriends(1L);
+        List<UserModel> availableForFriendRequest = friendsService.getAllUsersWhichAreNotFriends(1L);
         verify(friendsRepository, times(0)).save(any(Friends.class));
         assertEquals(availableForFriendRequest.size(), 1);
-        assertEquals(availableForFriendRequest.get(0), user3);
+        assertEquals(availableForFriendRequest.get(0).getUsername(), user3.toUserModel().getUsername());
     }
 
     @Test
@@ -173,7 +174,7 @@ public class FriendsServiceTest {
         when(friendsRepository.findAllFriends(1L)).thenReturn(new ArrayList<>(){{add(user2);}});
         when(friendsRepository.findAllPendingRequests(1L)).thenReturn(new ArrayList<>(){{add(user3);}});
 
-        List<User> availableForFriendRequest = friendsService.getAllUsersWhichAreNotFriends(1L);
+        List<UserModel> availableForFriendRequest = friendsService.getAllUsersWhichAreNotFriends(1L);
         verify(friendsRepository, times(0)).save(any(Friends.class));
         assertEquals(availableForFriendRequest.size(), 0);
     }

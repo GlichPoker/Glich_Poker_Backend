@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
 import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.model.UserModel;
 import ch.uzh.ifi.hase.soprafs24.service.FriendsService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -87,7 +88,7 @@ public class FriendsControllerTest {
     public void getAllFriendsShouldReturnOk() throws Exception {
         List<User> friends = Arrays.asList(user2);
         when(userService.getUserById(1L)).thenReturn(user1);
-        when(friendsService.getAllFriends(1L)).thenReturn(friends);
+        when(friendsService.getAllFriends(1L)).thenReturn(convertUsersToModels(friends));
 
         mockMvc.perform(get("/friends/allFriends/{userId}", 1L))
                 .andExpect(status().isOk())
@@ -98,7 +99,7 @@ public class FriendsControllerTest {
     public void getAllPendingRequestsShouldReturnOk() throws Exception {
         List<User> pendingRequests = Arrays.asList(user2);
         when(userService.getUserById(1L)).thenReturn(user1);
-        when(friendsService.getAllPendingFriendRequests(1L)).thenReturn(pendingRequests);
+        when(friendsService.getAllPendingFriendRequests(1L)).thenReturn(convertUsersToModels(pendingRequests));
 
         mockMvc.perform(get("/friends/pendingRequests/{userId}", 1L))
                 .andExpect(status().isOk())
@@ -109,7 +110,7 @@ public class FriendsControllerTest {
     public void getAllFriendsWhichCanBeAddedShouldReturnOk() throws Exception {
         List<User> availableUsers = Arrays.asList(user2);
         when(userService.getUserById(1L)).thenReturn(user1);
-        when(friendsService.getAllUsersWhichAreNotFriends(1L)).thenReturn(availableUsers);
+        when(friendsService.getAllUsersWhichAreNotFriends(1L)).thenReturn(convertUsersToModels(availableUsers));
 
         mockMvc.perform(get("/friends/availableUsers/{userId}", 1L))
                 .andExpect(status().isOk())
@@ -147,5 +148,9 @@ public class FriendsControllerTest {
                         .param("userId", "1")
                         .param("friendId", "2"))
                 .andExpect(status().isNotFound());
+    }
+
+    private List<UserModel> convertUsersToModels(List<User> users) {
+        return users.stream().map(User::toUserModel).toList();
     }
 }

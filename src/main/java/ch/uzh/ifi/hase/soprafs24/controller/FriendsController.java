@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
 import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.model.UserModel;
 import ch.uzh.ifi.hase.soprafs24.service.FriendsService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +59,7 @@ public class FriendsController {
     @GetMapping("/allFriends/{userId}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<User> getAllFriends(@PathVariable("userId") Long userId) {
+    public List<UserModel> getAllFriends(@PathVariable("userId") Long userId) {
         checkIdExists(userId);
         return friendshipService.getAllFriends(userId);
     }
@@ -66,7 +67,7 @@ public class FriendsController {
     @GetMapping("/pendingRequests/{userId}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<User> getAllPendingRequests(@PathVariable("userId") Long userId) {
+    public List<UserModel> getAllPendingRequests(@PathVariable("userId") Long userId) {
         checkIdExists(userId);
         return friendshipService.getAllPendingFriendRequests(userId);
     }
@@ -74,7 +75,7 @@ public class FriendsController {
     @GetMapping("/availableUsers/{userId}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<User> getAllFriendsWhichCanBeAdded(@PathVariable("userId") Long userId) {
+    public List<UserModel> getAllFriendsWhichCanBeAdded(@PathVariable("userId") Long userId) {
         checkIdExists(userId);
         return friendshipService.getAllUsersWhichAreNotFriends(userId);
     }

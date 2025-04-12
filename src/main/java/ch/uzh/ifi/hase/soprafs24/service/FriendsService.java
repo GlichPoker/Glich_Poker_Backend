@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs24.service;
 import ch.uzh.ifi.hase.soprafs24.constant.FriendRequestState;
 import ch.uzh.ifi.hase.soprafs24.entity.Friends;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.model.UserModel;
 import ch.uzh.ifi.hase.soprafs24.repository.FriendsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -67,15 +68,15 @@ public class FriendsService {
         return false;
     }
 
-    public List<User> getAllFriends(long userId) {
-        return friendsRepository.findAllFriends(userId);
+    public List<UserModel> getAllFriends(long userId) {
+        return convertUsersToModels(friendsRepository.findAllFriends(userId));
     }
 
-    public List<User> getAllPendingFriendRequests(long userId) {
-        return friendsRepository.findAllPendingRequests(userId);
+    public List<UserModel> getAllPendingFriendRequests(long userId) {
+        return convertUsersToModels(friendsRepository.findAllPendingRequests(userId));
     }
 
-    public List<User> getAllUsersWhichAreNotFriends(long userId) {
+    public List<UserModel> getAllUsersWhichAreNotFriends(long userId) {
         List<User> allUsers = userService.getAllUsersExceptSelf(userId);
         Set<Long> allFriends = new HashSet<>(friendsRepository.findAllFriends(userId).stream().map(User::getId).toList());
         allFriends.addAll(friendsRepository.findAllPendingRequests(userId).stream().map(User::getId).toList());
@@ -85,7 +86,7 @@ public class FriendsService {
                 result.add(user);
             }
         }
-        return result;
+        return convertUsersToModels(result);
     }
 
     public boolean ifFriendsRemove(long userId, long friendId) {
@@ -95,5 +96,9 @@ public class FriendsService {
         friendsRepository.delete(friendship);
         friendsRepository.flush();
         return true;
+    }
+
+    private List<UserModel> convertUsersToModels(List<User> users) {
+        return users.stream().map(User::toUserModel).toList();
     }
 }
