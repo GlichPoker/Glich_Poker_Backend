@@ -44,18 +44,22 @@ public class WS_Handler extends TextWebSocketHandler{
         String gameID = params.get("gameID");
         String userID = params.get("userID");
         
-        if (gameID != null && userID != null) {
-            System.out.println("Game ID: " + gameID + ", \nUser ID: " + userID);
-            if (session.getUri().getPath().equals("/ws/game")){
-                addSessionToGame(gameID, session);
-            } else if (session.getUri().getPath().equals("/ws/chat")){
+        if (gameID != null){
+            if (session.getUri().getPath().equals("/ws/chat")){
                 addSessionToChat(gameID, session);
+            }else if (session.getUri().getPath().equals("/ws/game")){
+                if (userID != null) {
+                    addSessionToGame(gameID, session);
+                }else {
+                    System.err.println("User ID is null. Closing connection.");
+                    session.close(CloseStatus.BAD_DATA);
+                }
             } else {
                 System.err.println("Invalid WebSocket path. Closing connection.");
                 session.close(CloseStatus.BAD_DATA);
             }
-        } else {
-            System.err.println("Not all the necessary parameters were provided. Closing connection.");
+        }else {
+            System.err.println("Game ID is null. Closing connection.");
             session.close(CloseStatus.BAD_DATA);
         }
     }
