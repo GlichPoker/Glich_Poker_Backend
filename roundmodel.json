@@ -1,0 +1,30 @@
+{
+  "event" : "roundmodel",
+  "player" : {
+    "userId" : 1,
+    "name" : "testUsername",
+    "balance" : 33443.0,
+    "hand" : [ { }, { } ],
+    "roundBet" : 0,
+    "active" : true,
+    "online" : true
+  },
+  "potSize" : 0,
+  "roundBet" : 0,
+  "playersTurn" : 0,
+  "startPlayer" : 0,
+  "gameSettings" : {
+    "initialBalance" : 33443,
+    "smallBlind" : 12,
+    "bigBlind" : 23
+  },
+  "communityCards" : [ ],
+  "otherPlayers" : [ {
+    "userId" : 2,
+    "name" : "testUsername2",
+    "balance" : 33443.0,
+    "roundBet" : 0,
+    "active" : true,
+    "online" : true
+  } ]
+}

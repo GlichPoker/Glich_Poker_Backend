@@ -1,0 +1,54 @@
+{
+  "event" : "gamemodel",
+  "sessionId" : 0,
+  "round" : {
+    "players" : [ {
+      "userId" : 1,
+      "name" : "testUsername",
+      "balance" : 33443.0,
+      "hand" : [ { }, { } ],
+      "roundBet" : 0,
+      "active" : true,
+      "online" : true
+    }, {
+      "userId" : 2,
+      "name" : "testUsername2",
+      "balance" : 33443.0,
+      "hand" : [ { }, { } ],
+      "roundBet" : 0,
+      "active" : true,
+      "online" : true
+    } ],
+    "playersTurn" : 0,
+    "startPlayer" : 0,
+    "gameSettings" : {
+      "initialBalance" : 33443,
+      "smallBlind" : 12,
+      "bigBlind" : 23
+    }
+  },
+  "players" : [ {
+    "userId" : 1,
+    "name" : "testUsername",
+    "balance" : 33443.0,
+    "hand" : [ { }, { } ],
+    "roundBet" : 0,
+    "active" : true,
+    "online" : true
+  }, {
+    "userId" : 2,
+    "name" : "testUsername2",
+    "balance" : 33443.0,
+    "hand" : [ { }, { } ],
+    "roundBet" : 0,
+    "active" : true,
+    "online" : true
+  } ],
+  "settings" : {
+    "initialBalance" : 33443,
+    "smallBlind" : 12,
+    "bigBlind" : 23
+  },
+  "ownerId" : 1,
+  "currentRoundStartPlayer" : 0
+}

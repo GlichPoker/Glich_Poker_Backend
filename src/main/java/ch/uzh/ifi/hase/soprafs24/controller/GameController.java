@@ -1,11 +1,12 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
-
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.model.*;
 import ch.uzh.ifi.hase.soprafs24.service.GameService;
 import ch.uzh.ifi.hase.soprafs24.service.GameSettingsService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
+import ch.uzh.ifi.hase.soprafs24.websockets.WS_Handler;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -23,12 +24,14 @@ public class GameController {
     private final GameService gameService;
     private final GameSettingsService gameSettingsService;
     private final UserService userService;
+    private final WS_Handler wsHandler;
 
     @Autowired
-    public GameController(GameService gameService, GameSettingsService gameSettingsService, UserService userService) {
+    public GameController(GameService gameService, GameSettingsService gameSettingsService, UserService userService, WS_Handler wsHandler) {
         this.gameService = gameService;
         this.gameSettingsService = gameSettingsService;
         this.userService = userService;
+        this.wsHandler = wsHandler;
     }
 
     @PostMapping("/create")
@@ -38,6 +41,10 @@ public class GameController {
         ch.uzh.ifi.hase.soprafs24.entity.GameSettings settings = gameSettingsService.createGameSettings(request.gameSettings());
         User user = userService.getUserById(request.userId());
         Game newGame =  gameService.createGame(user, settings.getId(), request.isPublic());
+
+        ch.uzh.ifi.hase.soprafs24.model.Game gameModel = new ch.uzh.ifi.hase.soprafs24.model.Game(newGame, false);
+        wsHandler.sendModelToAll(Long.toString(gameModel.getSessionId()), gameModel, "gameModel");
+
         return new ch.uzh.ifi.hase.soprafs24.model.Game(newGame, false);
     }
 
@@ -68,6 +75,10 @@ public class GameController {
         User user = userService.getUserById(request.userId());
         gameService.handlePlayerJoin(game,user);
         Game updatedGame = gameService.getGameBySessionId(request.sessionId());
+
+        ch.uzh.ifi.hase.soprafs24.model.Game gameModel = new ch.uzh.ifi.hase.soprafs24.model.Game(updatedGame, false);
+        wsHandler.sendModelToAll(Long.toString(gameModel.getSessionId()), gameModel, "gameModel");
+
         return new ch.uzh.ifi.hase.soprafs24.model.Game(updatedGame, false);
     }
 
@@ -79,6 +90,10 @@ public class GameController {
         gameService.startRound(game);
         ch.uzh.ifi.hase.soprafs24.model.Game newGame = new ch.uzh.ifi.hase.soprafs24.model.Game(game,true);
         activeGames.put(request.sessionId(), newGame);
+
+        ch.uzh.ifi.hase.soprafs24.model.Game gameModel = new ch.uzh.ifi.hase.soprafs24.model.Game(game, false);
+        wsHandler.sendModelToAll(Long.toString(gameModel.getSessionId()), gameModel, "roundModel");
+
         return activeGames.get(request.sessionId()).getGameModel(request.userId()).getRound();
     }
 
@@ -91,6 +106,9 @@ public class GameController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
         }
         game.getRound().handleFold(request.userId());
+
+        wsHandler.sendModelToAll(Long.toString(game.getSessionId()), game, "roundModel");
+
         return game.getRoundModel(request.userId());
     }
 
@@ -103,8 +121,10 @@ public class GameController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
         }
         Game gameEntity = gameService.completeRound(game);
-        return new ch.uzh.ifi.hase.soprafs24.model.Game(gameEntity, false);
 
+        wsHandler.sendModelToAll(Long.toString(game.getSessionId()), game, "gameModel");
+
+        return new ch.uzh.ifi.hase.soprafs24.model.Game(gameEntity, false);
     }
 
 
@@ -117,6 +137,9 @@ public class GameController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
         }
         game.getRound().handleCall(request.userId(), request.amount());
+
+        wsHandler.sendModelToAll(Long.toString(game.getSessionId()), game, "roundModel");
+
         return game.getRoundModel(request.userId());
     }
 
@@ -129,6 +152,9 @@ public class GameController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
         }
         game.getRound().handleRaise(request.userId(), request.amount());
+
+        wsHandler.sendModelToAll(Long.toString(game.getSessionId()), game, "roundModel");
+
         return game.getRoundModel(request.userId());
     }
 
@@ -187,6 +213,10 @@ public class GameController {
         User user = userService.getUserById(request.userId());
         gameService.handlePlayerRejoin(game,user);
         Game updatedGame = gameService.getGameBySessionId(request.sessionId());
+
+        ch.uzh.ifi.hase.soprafs24.model.Game gameModel = new ch.uzh.ifi.hase.soprafs24.model.Game(updatedGame, false);
+        wsHandler.sendModelToAll(Long.toString(gameModel.getSessionId()), gameModel, "gameModel");
+
         return new ch.uzh.ifi.hase.soprafs24.model.Game(updatedGame, false);
     }
 }
