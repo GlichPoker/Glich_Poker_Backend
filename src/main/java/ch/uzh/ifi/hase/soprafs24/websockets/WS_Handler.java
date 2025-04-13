@@ -98,25 +98,19 @@ public class WS_Handler extends TextWebSocketHandler{
         }
     }
 
-    public void sendGameStateToAllInGame(String gameId, String message) {
-        CopyOnWriteArraySet<WebSocketSession> sessions = gameSessions.get(gameId);
-        for (WebSocketSession session : sessions) {
-            try {
-                session.sendMessage(new TextMessage(message));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+    public void broadcastMessage(String groupID, String message, Map<String, CopyOnWriteArraySet<WebSocketSession>> sessionGroup) {
+        CopyOnWriteArraySet<WebSocketSession> sessions = sessionGroup.get(groupID);
+        if (sessions == null) {
+            System.err.println("No sessions found for group " + groupID);
+            closeAllConnections(groupID, sessionGroup);
+            return;
         }
-    }
-
-    public void broadcastChatToAllOthers(String chatId, String message, WebSocketSession sender) {
-        CopyOnWriteArraySet<WebSocketSession> sessions = chatSessions.get(chatId);
         for (WebSocketSession session : sessions) {
-            if (!session.equals(sender)) {
+            if (session.isOpen()) {
                 try {
                     session.sendMessage(new TextMessage(message));
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    System.err.println("Error sending message: " + e.getMessage());
                 }
             }
         }
@@ -161,7 +155,7 @@ public class WS_Handler extends TextWebSocketHandler{
     public Void handleChatMessage(WebSocketSession session, String message) {
         String chatId = findChatIdBySession(session);
 
-        broadcastChatToAllOthers(chatId, message, session);
+        broadcastMessage(chatId, message, chatSessions);
 
         return null;
     }
