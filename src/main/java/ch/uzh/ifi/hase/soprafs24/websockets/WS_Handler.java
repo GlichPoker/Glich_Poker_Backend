@@ -14,7 +14,6 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import org.json.JSONObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import ch.uzh.ifi.hase.soprafs24.model.RoundModel;
 import ch.uzh.ifi.hase.soprafs24.model.Game;
 
 @Component
@@ -98,25 +97,19 @@ public class WS_Handler extends TextWebSocketHandler{
         }
     }
 
-    public void sendGameStateToAllInGame(String gameId, String message) {
-        CopyOnWriteArraySet<WebSocketSession> sessions = gameSessions.get(gameId);
-        for (WebSocketSession session : sessions) {
-            try {
-                session.sendMessage(new TextMessage(message));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+    public void broadcastMessage(String groupID, String message, Map<String, CopyOnWriteArraySet<WebSocketSession>> sessionGroup) {
+        CopyOnWriteArraySet<WebSocketSession> sessions = sessionGroup.get(groupID);
+        if (sessions == null) {
+            System.err.println("No sessions found for group " + groupID);
+            closeAllConnections(groupID, sessionGroup);
+            return;
         }
-    }
-
-    public void broadcastChatToAllOthers(String chatId, String message, WebSocketSession sender) {
-        CopyOnWriteArraySet<WebSocketSession> sessions = chatSessions.get(chatId);
         for (WebSocketSession session : sessions) {
-            if (!session.equals(sender)) {
+            if (session.isOpen()) {
                 try {
                     session.sendMessage(new TextMessage(message));
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    System.err.println("Error sending message: " + e.getMessage());
                 }
             }
         }
@@ -161,12 +154,12 @@ public class WS_Handler extends TextWebSocketHandler{
     public Void handleChatMessage(WebSocketSession session, String message) {
         String chatId = findChatIdBySession(session);
 
-        broadcastChatToAllOthers(chatId, message, session);
+        broadcastMessage(chatId, message, chatSessions);
 
         return null;
     }
 
-    public void sendRoundModelToAll(String gameId, Game game) {
+    public void sendModelToAll(String gameId, Game game, String modelType) {
         CopyOnWriteArraySet<WebSocketSession> sessions = gameSessions.get(gameId);
         if (sessions == null || game == null) {
             System.err.println("No sessions found for game " + gameId + " or game is null");
@@ -176,6 +169,10 @@ public class WS_Handler extends TextWebSocketHandler{
         for (WebSocketSession session : sessions) {
             try {
                 // Extract user ID from the session
+                if (session.getUri() == null) {
+                    System.err.println("Session URI is null");
+                    continue;
+                }
                 String query = session.getUri().getQuery();
                 Map<String, String> params = splitQuery(query);
                 String userIdStr = params.get("userID");
@@ -187,15 +184,29 @@ public class WS_Handler extends TextWebSocketHandler{
                 
                 long userId = Long.parseLong(userIdStr);
                 
+                Object model = null;
                 // Get player-specific RoundModel
-                RoundModel roundModel = game.getRoundModel(userId);
+                if (modelType.equals("roundModel")) {
+                    if (game.getRoundModel(userId) == null) {
+                        System.err.println("RoundModel is null for userId: " + userId);
+                        continue;
+                    }
+                    model = game.getRoundModel(userId);
+                }else if (modelType.equals("gameModel")) {
+                    model = game.getGameModel(userId);
+                }
                 
                 // Convert to JSON
                 ObjectMapper mapper = new ObjectMapper();
-                String roundModelJson = mapper.writeValueAsString(roundModel);
+                String modelJson = mapper.writeValueAsString(model);
+
+                // add event field to JSON
+                JSONObject jsonObject = new JSONObject(modelJson);
+                jsonObject.put("event", modelType);
+                modelJson = jsonObject.toString();
                 
                 // Send to player
-                session.sendMessage(new TextMessage(roundModelJson));
+                session.sendMessage(new TextMessage(modelJson));
                 
             } catch (Exception e) {
                 System.err.println("Error sending RoundModel to player: " + e.getMessage());
