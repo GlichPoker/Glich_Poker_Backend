@@ -473,4 +473,14 @@ public class GameControllerTest {
 
         verify(gameService, times(1)).handlePlayerRejoin(eq(testGame), eq(testUser));
     }
+
+    @Test
+    public void testQuitGame() throws Exception {
+        when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
+        mockMvc.perform(MockMvcRequestBuilders.post("/game/quit")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(gameActionRequest)))
+                .andExpect(status().isOk());
+        verify(gameService, times(1)).removePlayerFromGame(eq(testGame), eq(gameActionRequest.userId()));
+    }
 }

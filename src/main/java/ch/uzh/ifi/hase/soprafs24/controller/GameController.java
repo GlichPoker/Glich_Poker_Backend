@@ -141,6 +141,17 @@ public class GameController {
         return true;
     }
 
+    @PostMapping("/quit")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public boolean quitGame(@RequestBody GameActionRequest request) {
+        Game game = gameService.getGameBySessionId(request.sessionId());
+        gameService.removePlayerFromGame(game, request.userId());
+        Game updatedGame = gameService.getGameBySessionId(request.sessionId());
+        // push to all clients
+        return true;
+    }
+
     @PostMapping("/save")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
