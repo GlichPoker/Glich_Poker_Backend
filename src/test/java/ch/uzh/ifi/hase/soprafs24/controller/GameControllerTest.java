@@ -203,7 +203,7 @@ public class GameControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.sessionId").value(testGame.getSessionId()));
 
-        verify(gameService, times(1)).handlePlayerJoin(eq(testGame), eq(testUser));
+        verify(gameService, times(1)).handlePlayerJoinOrRejoin(eq(testGame), eq(testUser));
     }
 
     @Test
@@ -218,7 +218,7 @@ public class GameControllerTest {
         Game game = new Game(user, gameSettings, true);
         when(gameService.getGameBySessionId(gameActionRequest.sessionId())).thenReturn(game);
         when(userService.getUserById(gameActionRequest.userId())).thenReturn(user);
-        when(gameService.handlePlayerJoin(game, user)).thenThrow(new ResponseStatusException(HttpStatus.CONFLICT));
+        when(gameService.handlePlayerJoinOrRejoin(game, user)).thenThrow(new ResponseStatusException(HttpStatus.CONFLICT));
 
 
         mockMvc.perform(MockMvcRequestBuilders.post("/game/join")
@@ -465,13 +465,13 @@ public class GameControllerTest {
         when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
         when(userService.getUserById(anyLong())).thenReturn(testUser);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/game/rejoin")
+        mockMvc.perform(MockMvcRequestBuilders.post("/game/join")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(gameActionRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.sessionId").value(testGame.getSessionId()));
 
-        verify(gameService, times(1)).handlePlayerRejoin(eq(testGame), eq(testUser));
+        verify(gameService, times(1)).handlePlayerJoinOrRejoin(eq(testGame), eq(testUser));
     }
 
     @Test

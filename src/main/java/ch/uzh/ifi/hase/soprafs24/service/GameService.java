@@ -66,8 +66,13 @@ public class GameService {
         gameRepository.save(game);
     }
 
-    public boolean handlePlayerJoin(Game game, User user) {
-        if(game.isPublic()){
+    public boolean handlePlayerJoinOrRejoin(Game game, User user) {
+        /*
+        this line always creates the player when the game is public and the user is not part of the game
+        if the game is private, all users who were already invited are contained in game
+        if the game is public and the player was recently in the game, the game will contain the player aswell
+        */
+        if(game.isPublic() && !game.containsPlayer(user.getId())) {
             createAndAddPlayerToGame(game, user, game.getSettings().getInitialBalance());
         }
 
@@ -80,15 +85,6 @@ public class GameService {
         return true;
     }
 
-    public boolean handlePlayerRejoin(Game game, User user) {
-        if(!game.containsPlayer(user.getId())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, String.format("Player with id %d was not invited to game", user.getId()));
-        }
-        Player player = game.getPlayer(user.getId());
-        player.setIsOnline(true);
-        playerService.savePlayer(player);
-        return true;
-    }
 
     public boolean removePlayerFromGame(Game game, long userId) {
         if(game.isRoundRunning()) throw new ResponseStatusException(HttpStatus.CONFLICT, "Round is still running");

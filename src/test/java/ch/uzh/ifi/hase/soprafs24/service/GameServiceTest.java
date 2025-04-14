@@ -112,7 +112,7 @@ public class GameServiceTest {
         when(playerService.createPlayer(any(User.class), anyLong(), any(Game.class))).thenReturn(player);
         when(gameRepository.save(any(Game.class))).thenReturn(game);
         gameService.addPlayerToGame(game, owner, 1L);
-        gameService.handlePlayerJoin(game, owner);
+        gameService.handlePlayerJoinOrRejoin(game, owner);
         verify(gameRepository, times(1)).save(any(Game.class));
         assertTrue(game.getAllPlayers().contains(player));
         assertTrue(game.getPlayer(owner.getId()).isOnline());
@@ -137,7 +137,7 @@ public class GameServiceTest {
         when(playerService.createPlayer(any(User.class), anyLong(), any(Game.class))).thenReturn(player);
         when(gameRepository.save(any(Game.class))).thenReturn(game);
         gameService.addPlayerToGame(game, owner, 1L);
-        gameService.handlePlayerJoin(game, owner);
+        gameService.handlePlayerJoinOrRejoin(game, owner);
         assertTrue(game.getAllPlayers().contains(player));
         assertTrue(game.getPlayer(owner.getId()).isOnline());
         gameService.setPlayerOffline(game, owner.getId());
@@ -161,7 +161,7 @@ public class GameServiceTest {
         when(playerService.createPlayer(any(User.class), anyLong(), any(Game.class))).thenReturn(player);
         when(gameRepository.save(any(Game.class))).thenReturn(game);
         gameService.addPlayerToGame(game, owner, 1L);
-        gameService.handlePlayerJoin(game, owner);
+        gameService.handlePlayerJoinOrRejoin(game, owner);
         verify(gameRepository, times(1)).save(any(Game.class));
         assertTrue(game.getAllPlayers().contains(player));
         assertTrue(game.getPlayer(owner.getId()).isOnline());
@@ -234,7 +234,7 @@ public class GameServiceTest {
         when(playerService.getPlayer(anyLong())).thenReturn(player);
 
         gameService.addPlayerToGame(game2, owner, 1L);
-        gameService.handlePlayerJoin(game2, owner);
+        gameService.handlePlayerJoinOrRejoin(game2, owner);
         ch.uzh.ifi.hase.soprafs24.model.Game gameModel = new ch.uzh.ifi.hase.soprafs24.model.Game(game2, false);
 
         when(gameRepository.findById(game2.getSessionId())).thenReturn(Optional.of(game2));
@@ -256,7 +256,7 @@ public class GameServiceTest {
         player.setIsOnline(false);
         game.addPlayer(player);
 
-        boolean success =gameService.handlePlayerRejoin(game, owner);
+        boolean success =gameService.handlePlayerJoinOrRejoin(game, owner);
 
         assertTrue(game.getAllPlayers().contains(player));
         assertTrue(game.getPlayer(owner.getId()).isOnline());
@@ -266,6 +266,7 @@ public class GameServiceTest {
 
     @Test
     public void handlePlayerRejoinPlayerNotInGame() {
-        assertThrows(ResponseStatusException.class, () -> gameService.handlePlayerRejoin(game, owner));
+        game.setIsPublic(false);
+        assertThrows(ResponseStatusException.class, () -> gameService.handlePlayerJoinOrRejoin(game, owner));
     }
 }
