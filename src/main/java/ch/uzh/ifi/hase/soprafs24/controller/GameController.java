@@ -174,7 +174,8 @@ public class GameController {
         Game game = gameService.getGameBySessionId(request.sessionId());
         gameService.removePlayerFromGame(game, request.userId());
         Game updatedGame = gameService.getGameBySessionId(request.sessionId());
-        // push to all clients
+        ch.uzh.ifi.hase.soprafs24.model.Game gameModel = new ch.uzh.ifi.hase.soprafs24.model.Game(updatedGame, false);
+        wsHandler.sendModelToAll(Long.toString(gameModel.getSessionId()), gameModel, "gameModel");
         return true;
     }
 

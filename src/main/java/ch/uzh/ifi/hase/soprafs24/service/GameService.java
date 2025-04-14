@@ -91,6 +91,7 @@ public class GameService {
     }
 
     public boolean removePlayerFromGame(Game game, long userId) {
+        if(game.isRoundRunning()) throw new ResponseStatusException(HttpStatus.CONFLICT, "Round is still running");
         game.removePlayer(userId);
         playerService.removePlayer(userId);
         gameRepository.save(game);
