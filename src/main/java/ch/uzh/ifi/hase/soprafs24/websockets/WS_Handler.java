@@ -15,11 +15,19 @@ import org.json.JSONObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ch.uzh.ifi.hase.soprafs24.model.Game;
+import ch.uzh.ifi.hase.soprafs24.service.GameService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Component
 public class WS_Handler extends TextWebSocketHandler{
     private final Map<String, CopyOnWriteArraySet<WebSocketSession>> gameSessions = new ConcurrentHashMap<>();
     private final Map<String, CopyOnWriteArraySet<WebSocketSession>> chatSessions = new ConcurrentHashMap<>();
+    private final GameService gameService;
+
+    @Autowired
+    public WS_Handler(GameService gameService) {
+        this.gameService = gameService;
+    }
 
     @Override
     public void handleTextMessage(@NonNull WebSocketSession session, @NonNull TextMessage message) throws Exception {
@@ -28,7 +36,7 @@ public class WS_Handler extends TextWebSocketHandler{
         if (session.getUri().getPath().equals("/ws/chat")) {
             handleChatMessage(session, clientMessage);
         } else if (session.getUri().getPath().equals("/ws/game")) {
-            System.err.println("Game sockets should not send messages.");
+            handleGamemessage(session, clientMessage);
         } else {
             System.err.println("Invalid WebSocket path. Closing connection.");
             session.close(CloseStatus.BAD_DATA);
@@ -156,6 +164,24 @@ public class WS_Handler extends TextWebSocketHandler{
 
         broadcastMessage(chatId, message, chatSessions);
 
+        return null;
+    }
+
+    public Void handleGamemessage(WebSocketSession session, String message) {
+        JSONObject jsonObject = new JSONObject(message);
+        String event = jsonObject.getString("event");
+        String gameId = jsonObject.getString("gameID");
+        long gameIdLong = Long.parseLong(gameId);
+        
+        try {
+            ch.uzh.ifi.hase.soprafs24.entity.Game gameEntity = gameService.getGameBySessionId(gameIdLong);
+            ch.uzh.ifi.hase.soprafs24.model.Game gameModel = new ch.uzh.ifi.hase.soprafs24.model.Game(gameEntity, false);
+            sendModelToAll(gameId, gameModel, event);
+        } catch (Exception e) {
+            System.err.println("Error retrieving game for WebSocket update: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
         return null;
     }
 
