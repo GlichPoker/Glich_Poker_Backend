@@ -66,18 +66,16 @@ sonar {
         property "sonar.projectKey", "GlichPoker_Glich_Poker_Backend"
         property "sonar.organization", "glichpoker"
         property "sonar.host.url", "https://sonarcloud.io"
+        property "sonar.coverage.jacoco.xmlReportPaths", "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"
+        property "sonar.vebose", "true"
     }
-
-    property "sonar.coverage.jacoco.xmlReportPaths", "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"
-
-    property "sonar.vebose", "true"
 }
 
 jacocoTestReport {
     reports {
-        xml.enabled = true
-        csv.enabled = false
-        html.enabled = true
+        xml.required = true
+        csv.required = false
+        html.required = true
     }
 
     dependsOn test // tests are required to run before generating the report
