@@ -67,6 +67,10 @@ sonar {
         property "sonar.organization", "glichpoker"
         property "sonar.host.url", "https://sonarcloud.io"
     }
+
+    propery "sonar.coverage.jacoco.xmlReportPaths", "${buildDir}/jacoco/test.exec"
+
+    property "sonar.vebose", "true"
 }
 
 jacocoTestReport {
