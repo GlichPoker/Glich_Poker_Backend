@@ -19,7 +19,7 @@ import java.io.IOException;
 @Component
 @Profile("!test")  // The filter will not be loaded when the "test" profile is active
 public class AuthenticationFilter extends OncePerRequestFilter {
-    private final String contentType = "application/json";
+    private final static String contentType = "application/json";
     private final String[][] publicPaths = {
             {"/users/login", null}, //null = all
             {"/users", "POST"}
