@@ -254,7 +254,16 @@ public class WS_Handler extends TextWebSocketHandler {
 
                 // add event field to JSON
                 JSONObject jsonObject = new JSONObject(modelJson);
-                jsonObject.put(event, modelType);
+                // Convert enum to lowercase string to match frontend expectations
+                String eventName = modelType.toString().toLowerCase();
+                if (eventName.equals("gamemodel")) {
+                    eventName = "gameModel";
+                } else if (eventName.equals("roundmodel")) {
+                    eventName = "roundModel";
+                } else if (eventName.equals("settingsmodel")) {
+                    eventName = "settingsModel";
+                }
+                jsonObject.put(event, eventName);
                 modelJson = jsonObject.toString();
 
                 // Send to player
