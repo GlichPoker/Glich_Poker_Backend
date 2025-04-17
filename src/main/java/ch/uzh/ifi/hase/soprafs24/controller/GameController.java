@@ -8,7 +8,7 @@ import ch.uzh.ifi.hase.soprafs24.service.GameSettingsService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import ch.uzh.ifi.hase.soprafs24.websockets.WS_Handler;
 
-import org.checkerframework.checker.units.qual.g;
+// import org.checkerframework.checker.units.qual.g;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -109,13 +109,16 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
         gameService.startRound(game);
 
         ch.uzh.ifi.hase.soprafs24.model.Game newGame = new ch.uzh.ifi.hase.soprafs24.model.Game(game, true);
-        activeGames.put(request.sessionId(), newGame);
 
-        wsHandler.sendModelToAll(Long.toString(newGame.getSessionId()), newGame, "roundModel");
+        activeGames.put(request.sessionId(), newGame);
 
         wsHandler.sendGameStateToAll(Long.toString(request.sessionId()), "IN_GAME");
 
-        return newGame.getGameModel(request.userId()).getRound();
+        wsHandler.sendModelToAll(Long.toString(newGame.getSessionId()), newGame, "roundModel");
+
+        RoundModel round = newGame.getGameModel(request.userId()).getRound();
+
+        return round;
     }
 
     @PostMapping("/fold")
