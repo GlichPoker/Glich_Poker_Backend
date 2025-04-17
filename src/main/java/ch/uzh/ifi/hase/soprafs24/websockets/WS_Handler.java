@@ -169,7 +169,7 @@ public class WS_Handler extends TextWebSocketHandler {
     public Void handleGamemessage(WebSocketSession session, String message) {
         JSONObject jsonObject = new JSONObject(message);
         String eventString = jsonObject.getString(event);
-        Model event = eventString.equals("gameModel") ? Model.GameModel : eventString.equals("roundModel") ? Model.RoundModel : Model.Settings;
+        Model eventModel = eventString.equals("gameModel") ? Model.gameModel : eventString.equals("roundModel") ? Model.roundModel : Model.settingsModel;
         String gameId = jsonObject.getString("gameID");
         long gameIdLong = Long.parseLong(gameId);
 
@@ -178,7 +178,7 @@ public class WS_Handler extends TextWebSocketHandler {
             ch.uzh.ifi.hase.soprafs24.model.Game gameModel = new ch.uzh.ifi.hase.soprafs24.model.Game(gameEntity,
                     false);
 
-            sendModelToAll(gameId, gameModel, event);
+            sendModelToAll(gameId, gameModel, eventModel);
 
         } catch (Exception e) {
             // log error
@@ -238,13 +238,13 @@ public class WS_Handler extends TextWebSocketHandler {
 
                 Object model = null;
                 // Get player-specific RoundModel
-                if (modelType == Model.RoundModel) {
+                if (modelType == Model.roundModel) {
                     if (game.getRoundModel(userId) == null) {
                         continue;
                     }
                     model = game.getRoundModel(userId);
 
-                } else if (modelType == Model.GameModel) {
+                } else if (modelType == Model.gameModel) {
                     model = game.getGameModel(userId);
                 }
 
