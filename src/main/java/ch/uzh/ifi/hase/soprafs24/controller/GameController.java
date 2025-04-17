@@ -8,10 +8,12 @@ import ch.uzh.ifi.hase.soprafs24.service.GameSettingsService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import ch.uzh.ifi.hase.soprafs24.websockets.WS_Handler;
 
+<<<<<<< HEAD
 // import org.checkerframework.checker.units.qual.g;
+=======
+>>>>>>> 2632ac7976e8113f623baa8c71064b970171ac44
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
