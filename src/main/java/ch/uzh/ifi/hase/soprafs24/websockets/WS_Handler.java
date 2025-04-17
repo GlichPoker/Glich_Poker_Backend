@@ -169,7 +169,7 @@ public class WS_Handler extends TextWebSocketHandler {
     public Void handleGamemessage(WebSocketSession session, String message) {
         JSONObject jsonObject = new JSONObject(message);
         String eventString = jsonObject.getString(event);
-        Model eventModel = eventString.equals("gameModel") ? Model.GAMEMODEL : eventString.equals("roundModel") ? Model.ROUNDMODEL : Model.SETTINGSMODEl;
+        Model eventModel = eventString.equals("gameModel") ? Model.GAMEMODEL : eventString.equals("roundModel") ? Model.ROUNDMODEL : Model.SETTINGSMODEL;
         String gameId = jsonObject.getString("gameID");
         long gameIdLong = Long.parseLong(gameId);
 
