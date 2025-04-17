@@ -71,8 +71,12 @@ sonar {
 
 jacocoTestReport {
     reports {
-        xml.enabled true
+        xml.enabled = true
+        csv.enabled = false
+        html.enabled = true
     }
+
+    dependsOn test // tests are required to run before generating the report
 }
 bootRun {
     args = ["--spring.profiles.active=${project.hasProperty('profile') ? project.profile : 'prod'}"]
@@ -81,6 +85,7 @@ test {
     useJUnitPlatform()
     testLogging.showStandardStreams = true
     maxParallelForks = 1
+    finalizedBy jacocoTestReport // report is always generated after tests run
 }
 
 File secretPropsFile = file('./local.properties')
