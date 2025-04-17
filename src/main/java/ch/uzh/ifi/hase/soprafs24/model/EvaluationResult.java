@@ -29,4 +29,23 @@ public record EvaluationResult(HandRank handRank, Card[] highCards) implements C
     public String toString() {
         return "EvaluationResult [handRank=" + handRank + ", highCards=" + Arrays.toString(highCards) + "]";
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        EvaluationResult that = (EvaluationResult) obj;
+        return handRank == that.handRank && Arrays.equals(highCards, that.highCards);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = handRank.hashCode();
+        result = 31 * result + Arrays.hashCode(highCards);
+        return result;
+    }
 }
