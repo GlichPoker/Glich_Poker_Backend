@@ -12,7 +12,6 @@ public class Dealer {
     public void dealPlayers(List<Player> players, int currentPlayer) {
         for (int i = 0; i < 2; i++) {
             for (int j = currentPlayer; j < currentPlayer + players.size(); j++) {
-                Card card = deck.drawCard();
                 players.get(j % players.size()).setHand(deck.drawCard(), i);
             }
         }
