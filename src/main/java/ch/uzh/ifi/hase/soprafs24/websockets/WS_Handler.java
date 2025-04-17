@@ -252,6 +252,7 @@ public class WS_Handler extends TextWebSocketHandler {
                         continue;
                     }
                     model = game.getRoundModel(userId);
+
                 } else if (modelType.equals("gameModel")) {
                     model = game.getGameModel(userId);
                 }
