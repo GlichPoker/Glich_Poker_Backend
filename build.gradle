@@ -70,6 +70,8 @@ sonar {
 }
 
 jacocoTestReport {
+    dependsOn test // tests are required to run before generating the report
+
     reports {
         xml.required = true
     }
@@ -81,6 +83,8 @@ test {
     useJUnitPlatform()
     testLogging.showStandardStreams = true
     maxParallelForks = 1
+    finalizedBy jacocoTestReport // report is always generated after tests run
+
 }
 
 File secretPropsFile = file('./local.properties')
