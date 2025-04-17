@@ -66,16 +66,12 @@ sonar {
         property "sonar.projectKey", "GlichPoker_Glich_Poker_Backend"
         property "sonar.organization", "glichpoker"
         property "sonar.host.url", "https://sonarcloud.io"
-        property "sonar.coverage.jacoco.xmlReportPaths", "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"
-
     }
 }
 
 jacocoTestReport {
-    dependsOn test // tests are required to run before generating the report
-
     reports {
-        xml.required = true
+        xml.enabled true
     }
 }
 bootRun {
@@ -85,8 +81,6 @@ test {
     useJUnitPlatform()
     testLogging.showStandardStreams = true
     maxParallelForks = 1
-    finalizedBy jacocoTestReport // report is always generated after tests run
-
 }
 
 File secretPropsFile = file('./local.properties')
