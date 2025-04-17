@@ -41,5 +41,15 @@ public class GameSettingsService {
         gameSettingsRepository.delete(gameSettings);
         gameSettingsRepository.flush();
     }
+
+    public GameSettings updateSettings(GameSettings gameSettings, ch.uzh.ifi.hase.soprafs24.model.GameSettings newGameSettings) {
+        gameSettings.setSmallBlind(newGameSettings.smallBlind());
+        gameSettings.setInitialBalance(newGameSettings.initialBalance());
+        gameSettings.setBigBlind(newGameSettings.bigBlind());
+        GameSettings savedGameSettings = gameSettingsRepository.save(gameSettings);
+        gameSettingsRepository.flush();
+        return savedGameSettings;
+
+    }
 }
 

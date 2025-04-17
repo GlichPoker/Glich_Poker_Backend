@@ -236,4 +236,20 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
     public List<Game> getAllOwnedGames(@PathVariable long userId) {
         return gameService.getGamesOwnedByUser(userId);
     }
+
+    @GetMapping("/settings/{gameId}")
+    @ResponseStatus(HttpStatus.OK)
+    public ch.uzh.ifi.hase.soprafs24.model.GameSettings getGameSettings(@PathVariable long gameId) {
+        gameService.getGameBySessionId(gameId);
+        return gameSettingsService.getGameSettings(gameId).toModel();
+    }
+
+    @PostMapping("/settings")
+    @ResponseStatus(HttpStatus.OK)
+    public ch.uzh.ifi.hase.soprafs24.model.GameSettings getGameSettings(@RequestBody ModifyGameSettingsRequest request) {
+        Game game = gameService.getGameBySessionId(request.sessionId());
+        ch.uzh.ifi.hase.soprafs24.entity.GameSettings savedSettings = gameSettingsService.updateSettings(game.getSettings(), request.gameSettings());
+        // TODO: push to all clients which are in the game
+        return savedSettings.toModel();
+    }
 }
