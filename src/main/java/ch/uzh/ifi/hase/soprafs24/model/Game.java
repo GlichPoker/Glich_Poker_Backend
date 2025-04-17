@@ -7,13 +7,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Game {
+public class Game implements RoundCompletionListener {
     private final long sessionId;
     private Round round;
     private final List<Player> players;
     private GameSettings settings;
     private final long ownerId;
     private final int currentRoundStartPlayer;
+    private GameCompletionCallback gameCompletionCallback;
+
+    public interface GameCompletionCallback {
+        void onGameComplete(Game game, List<Player> winners);
+    }
 
     public Game(Player player, GameSettings settings) {
         this.sessionId = System.nanoTime();
@@ -46,10 +51,25 @@ public class Game {
     public Player removePlayer(long userId){return this.players.stream().filter(x -> x.getUserId() == userId).findFirst().orElse(null);}
     public Player getPlayer(long userId){return players.stream().filter(x -> x.getUserId() == userId).findFirst().orElse(null);}
 
+    public void setGameCompletionCallback(GameCompletionCallback gameCompletionCallback) {
+        this.gameCompletionCallback = gameCompletionCallback;
+    }
+
+    @Override
+    public void onRoundComplete(List<Player> winners) {
+        if (gameCompletionCallback != null) {
+            gameCompletionCallback.onGameComplete(this, winners);
+        } else {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No GameCompletionCallback set");
+        }
+    }
+
     public void startRound(){
         List<Player> livePlayers = getOnlinePlayers();
         if(livePlayers.size() < 2) throw new ResponseStatusException(HttpStatus.CONFLICT, "at least two players required to start a round");
         this.round = new Round(livePlayers, this.currentRoundStartPlayer, this.settings);
+
+        this.round.setRoundCompletionListener(this);
     }
 
     private List<Player> getOnlinePlayers(){

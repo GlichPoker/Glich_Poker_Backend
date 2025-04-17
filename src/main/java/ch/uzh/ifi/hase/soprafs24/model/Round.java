@@ -16,6 +16,7 @@ public class Round {
     private final GameSettings gameSettings;
     private int haveNotRaised;
     protected List<Card> communityCards;
+    private RoundCompletionListener roundCompletionListener;
 
     public Round(List<Player> players, int startPlayer, boolean isTest, GameSettings gameSettings) {
         this.players = players;
@@ -33,6 +34,10 @@ public class Round {
         // notify update
     }
 
+    public void setRoundCompletionListener(RoundCompletionListener roundCompletionListener) {
+        this.roundCompletionListener = roundCompletionListener;
+    }
+
     public Round(List<Player> players, int startPlayer, GameSettings gameSettings) {
         this(players, startPlayer,false, gameSettings);
     }
@@ -42,7 +47,12 @@ public class Round {
         Map<Player, Double> winnings = calculateWinnings(winners);
         players = updateBalances(winnings);
         resetPlayers();
-        // notify client update
+
+        if (roundCompletionListener != null) {
+            roundCompletionListener.onRoundComplete(winners);
+        } else {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No RoundCompletionListener set");
+        }
     }
 
     private void resetPlayers(){
