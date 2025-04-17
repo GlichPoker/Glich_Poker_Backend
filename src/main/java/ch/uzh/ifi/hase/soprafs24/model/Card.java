@@ -23,7 +23,7 @@ public record Card(@JsonProperty("rank") Rank rank, @JsonProperty("suit") Suit s
 
     @Override
     public int compareTo(Card o) {
-        // Reverse order to ensure descending sorting
+        if(this.rank.value == Integer.MIN_VALUE && o.rank.value == Integer.MIN_VALUE) return 0;
         return -this.rank.compareTo(o.rank);
     }
 
