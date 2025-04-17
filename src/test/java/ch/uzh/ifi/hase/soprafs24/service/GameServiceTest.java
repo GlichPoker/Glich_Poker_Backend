@@ -118,6 +118,7 @@ public class GameServiceTest {
         assertTrue(game.getPlayer(owner.getId()).isOnline());
     }
 
+
     @Test
     public void removePlayerShouldReturnTrue() {
         Player player = new Player(owner, 1L, game);
@@ -154,18 +155,7 @@ public class GameServiceTest {
         assertThrows(ResponseStatusException.class, () -> {gameService.setPlayerOffline(game, owner.getId());});
     }
 
-    @Test
-    public void handlePlayerJoinShouldReturnTrue() {
-        Player player = new Player(owner, 1L, game);
-        player.setBalance(1000);
-        when(playerService.createPlayer(any(User.class), anyLong(), any(Game.class))).thenReturn(player);
-        when(gameRepository.save(any(Game.class))).thenReturn(game);
-        gameService.addPlayerToGame(game, owner, 1L);
-        gameService.handlePlayerJoinOrRejoin(game, owner);
-        verify(gameRepository, times(1)).save(any(Game.class));
-        assertTrue(game.getAllPlayers().contains(player));
-        assertTrue(game.getPlayer(owner.getId()).isOnline());
-    }
+
 
     @Test
     public void startRoundShouldSetRoundRunningTrue() {

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import ch.uzh.ifi.hase.soprafs24.constant.Model;
 import org.springframework.stereotype.Component;
 import org.springframework.lang.NonNull;
 import org.springframework.web.socket.CloseStatus;
@@ -24,6 +25,7 @@ public class WS_Handler extends TextWebSocketHandler {
     private final Map<String, CopyOnWriteArraySet<WebSocketSession>> gameSessions = new ConcurrentHashMap<>();
     private final Map<String, CopyOnWriteArraySet<WebSocketSession>> chatSessions = new ConcurrentHashMap<>();
     private final GameService gameService;
+    private final String event = "event";
 
     @Autowired
     public WS_Handler(GameService gameService) {
@@ -39,7 +41,6 @@ public class WS_Handler extends TextWebSocketHandler {
         } else if (session.getUri().getPath().equals("/ws/game")) {
             handleGamemessage(session, clientMessage);
         } else {
-            System.err.println("Invalid WebSocket path. Closing connection.");
             session.close(CloseStatus.BAD_DATA);
         }
     }
@@ -59,15 +60,12 @@ public class WS_Handler extends TextWebSocketHandler {
                 if (userID != null) {
                     addSessionToGame(gameID, session);
                 } else {
-                    System.err.println("User ID is null. Closing connection.");
                     session.close(CloseStatus.BAD_DATA);
                 }
             } else {
-                System.err.println("Invalid WebSocket path. Closing connection.");
                 session.close(CloseStatus.BAD_DATA);
             }
         } else {
-            System.err.println("Game ID is null. Closing connection.");
             session.close(CloseStatus.BAD_DATA);
         }
     }
@@ -75,7 +73,6 @@ public class WS_Handler extends TextWebSocketHandler {
     @Override
     public void afterConnectionClosed(@NonNull WebSocketSession session, @NonNull CloseStatus status) throws Exception {
         gameSessions.values().forEach(sessions -> sessions.remove(session));
-        System.out.println("WebSocket connection closed: " + status);
     }
 
     public void addSessionToGame(String gameId, WebSocketSession session) {
@@ -110,7 +107,6 @@ public class WS_Handler extends TextWebSocketHandler {
             Map<String, CopyOnWriteArraySet<WebSocketSession>> sessionGroup) {
         CopyOnWriteArraySet<WebSocketSession> sessions = sessionGroup.get(groupID);
         if (sessions == null) {
-            System.err.println("No sessions found for group " + groupID);
             closeAllConnections(groupID, sessionGroup);
             return;
         }
@@ -119,7 +115,7 @@ public class WS_Handler extends TextWebSocketHandler {
                 try {
                     session.sendMessage(new TextMessage(message));
                 } catch (Exception e) {
-                    System.err.println("Error sending message: " + e.getMessage());
+                    // log error
                 }
             }
         }
@@ -132,7 +128,7 @@ public class WS_Handler extends TextWebSocketHandler {
                 try {
                     session.close(CloseStatus.NORMAL);
                 } catch (Exception e) {
-                    System.err.println("Error closing session: " + e.getMessage());
+                    // log error
                 }
             }
         }
@@ -172,7 +168,8 @@ public class WS_Handler extends TextWebSocketHandler {
 
     public Void handleGamemessage(WebSocketSession session, String message) {
         JSONObject jsonObject = new JSONObject(message);
-        String event = jsonObject.getString("event");
+        String eventString = jsonObject.getString(event);
+        Model event = eventString.equals("gameModel") ? Model.GameModel : eventString.equals("roundModel") ? Model.RoundModel : Model.Settings;
         String gameId = jsonObject.getString("gameID");
         long gameIdLong = Long.parseLong(gameId);
 
@@ -184,8 +181,7 @@ public class WS_Handler extends TextWebSocketHandler {
             sendModelToAll(gameId, gameModel, event);
 
         } catch (Exception e) {
-            System.err.println("Error retrieving game for WebSocket update: " + e.getMessage());
-            e.printStackTrace();
+            // log error
         }
 
         return null;
@@ -194,13 +190,12 @@ public class WS_Handler extends TextWebSocketHandler {
     public void sendGameStateToAll(String gameId, String state) {
         CopyOnWriteArraySet<WebSocketSession> sessions = gameSessions.get(gameId);
         if (sessions == null) {
-            System.err.println("No sessions found for game " + gameId);
             return;
         }
 
         try {
             JSONObject stateJson = new JSONObject();
-            stateJson.put("event", "gameStateChanged");
+            stateJson.put(event, "gameStateChanged");
             stateJson.put("state", state);
 
             String message = stateJson.toString();
@@ -210,19 +205,18 @@ public class WS_Handler extends TextWebSocketHandler {
                     try {
                         session.sendMessage(new TextMessage(message));
                     } catch (IOException e) {
-                        System.err.println("Error sending game state to player: " + e.getMessage());
+                        // log error
                     }
                 }
             }
         } catch (Exception e) {
-            System.err.println("Error creating game state message: " + e.getMessage());
+            // log error
         }
     }
 
-    public void sendModelToAll(String gameId, Game game, String modelType) {
+    public void sendModelToAll(String gameId, Game game, Model modelType) {
         CopyOnWriteArraySet<WebSocketSession> sessions = gameSessions.get(gameId);
         if (sessions == null || game == null) {
-            System.err.println("No sessions found for game " + gameId + " or game is null");
             return;
         }
 
@@ -230,7 +224,6 @@ public class WS_Handler extends TextWebSocketHandler {
             try {
                 // Extract user ID from the session
                 if (session.getUri() == null) {
-                    System.err.println("Session URI is null");
                     continue;
                 }
                 String query = session.getUri().getQuery();
@@ -238,7 +231,6 @@ public class WS_Handler extends TextWebSocketHandler {
                 String userIdStr = params.get("userID");
 
                 if (userIdStr == null) {
-                    System.err.println("Session has no userID parameter");
                     continue;
                 }
 
@@ -246,14 +238,13 @@ public class WS_Handler extends TextWebSocketHandler {
 
                 Object model = null;
                 // Get player-specific RoundModel
-                if (modelType.equals("roundModel")) {
+                if (modelType == Model.RoundModel) {
                     if (game.getRoundModel(userId) == null) {
-                        System.err.println("RoundModel is null for userId: " + userId);
                         continue;
                     }
                     model = game.getRoundModel(userId);
 
-                } else if (modelType.equals("gameModel")) {
+                } else if (modelType == Model.GameModel) {
                     model = game.getGameModel(userId);
                 }
 
@@ -263,15 +254,14 @@ public class WS_Handler extends TextWebSocketHandler {
 
                 // add event field to JSON
                 JSONObject jsonObject = new JSONObject(modelJson);
-                jsonObject.put("event", modelType);
+                jsonObject.put(event, modelType);
                 modelJson = jsonObject.toString();
 
                 // Send to player
                 session.sendMessage(new TextMessage(modelJson));
 
             } catch (Exception e) {
-                System.err.println("Error sending RoundModel to player: " + e.getMessage());
-                e.printStackTrace();
+                // log error
             }
         }
     }

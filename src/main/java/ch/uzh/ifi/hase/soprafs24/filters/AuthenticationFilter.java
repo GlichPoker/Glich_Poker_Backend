@@ -19,6 +19,7 @@ import java.io.IOException;
 @Component
 @Profile("!test")  // The filter will not be loaded when the "test" profile is active
 public class AuthenticationFilter extends OncePerRequestFilter {
+    private final String contentType = "application/json";
     private final String[][] publicPaths = {
             {"/users/login", null}, //null = all
             {"/users", "POST"}
@@ -54,7 +55,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             if (token == null) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("{\"error\": \"WebSocket authentication token required\"}");
-                response.setContentType("application/json");
+                response.setContentType(contentType);
                 return;
             }
             
@@ -62,7 +63,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             if (userRepository.findByToken(token) == null) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("{\"error\": \"Invalid WebSocket authentication token\"}");
-                response.setContentType("application/json");
+                response.setContentType(contentType);
                 return;
             }
             
@@ -96,7 +97,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         if (authHeader == null || !authHeader.startsWith("Bearer")) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("{\"error\": \"Authentication required\"}");
-            response.setContentType("application/json");
+            response.setContentType(contentType);
             return;
         }
 
@@ -105,7 +106,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         if (userRepository.findByToken(token) == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("{\"error\": \"Invalid authentication token\"}");
-            response.setContentType("application/json");
+            response.setContentType(contentType);
             return;
         }
 
