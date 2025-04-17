@@ -1,4 +1,5 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
+
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.model.*;
@@ -10,6 +11,7 @@ import ch.uzh.ifi.hase.soprafs24.websockets.WS_Handler;
 import org.checkerframework.checker.units.qual.g;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -28,7 +30,8 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
     private final WS_Handler wsHandler;
 
     @Autowired
-    public GameController(GameService gameService, GameSettingsService gameSettingsService, UserService userService, WS_Handler wsHandler) {
+    public GameController(GameService gameService, GameSettingsService gameSettingsService, UserService userService,
+            WS_Handler wsHandler) {
         this.gameService = gameService;
         this.gameSettingsService = gameSettingsService;
         this.userService = userService;
@@ -52,9 +55,10 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public ch.uzh.ifi.hase.soprafs24.model.Game createGame(@RequestBody CreateGameRequest request) {
-        ch.uzh.ifi.hase.soprafs24.entity.GameSettings settings = gameSettingsService.createGameSettings(request.gameSettings());
+        ch.uzh.ifi.hase.soprafs24.entity.GameSettings settings = gameSettingsService
+                .createGameSettings(request.gameSettings());
         User user = userService.getUserById(request.userId());
-        Game newGame =  gameService.createGame(user, settings.getId(), request.isPublic());
+        Game newGame = gameService.createGame(user, settings.getId(), request.isPublic());
 
         ch.uzh.ifi.hase.soprafs24.model.Game gameModel = new ch.uzh.ifi.hase.soprafs24.model.Game(newGame, false);
         wsHandler.sendModelToAll(Long.toString(gameModel.getSessionId()), gameModel, "gameModel");
@@ -87,7 +91,7 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
     public ch.uzh.ifi.hase.soprafs24.model.Game joinGame(@RequestBody GameActionRequest request) {
         Game game = gameService.getGameBySessionId(request.sessionId());
         User user = userService.getUserById(request.userId());
-        gameService.handlePlayerJoinOrRejoin(game,user);
+        gameService.handlePlayerJoinOrRejoin(game, user);
         Game updatedGame = gameService.getGameBySessionId(request.sessionId());
 
         ch.uzh.ifi.hase.soprafs24.model.Game gameModel = new ch.uzh.ifi.hase.soprafs24.model.Game(updatedGame, false);
@@ -101,14 +105,17 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
     @ResponseBody
     public RoundModel startGame(@RequestBody GameActionRequest request) {
         Game game = gameService.getGameBySessionId(request.sessionId());
+
         gameService.startRound(game);
-        ch.uzh.ifi.hase.soprafs24.model.Game newGame = new ch.uzh.ifi.hase.soprafs24.model.Game(game,true);
-        newGame.setGameCompletionCallback(this);
+
+        ch.uzh.ifi.hase.soprafs24.model.Game newGame = new ch.uzh.ifi.hase.soprafs24.model.Game(game, true);
         activeGames.put(request.sessionId(), newGame);
 
         wsHandler.sendModelToAll(Long.toString(newGame.getSessionId()), newGame, "roundModel");
 
-        return activeGames.get(request.sessionId()).getGameModel(request.userId()).getRound();
+        wsHandler.sendGameStateToAll(Long.toString(request.sessionId()), "IN_GAME");
+
+        return newGame.getGameModel(request.userId()).getRound();
     }
 
     @PostMapping("/fold")
@@ -140,7 +147,6 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
 
         return new ch.uzh.ifi.hase.soprafs24.model.Game(gameEntity, false);
     }
-
 
     @PostMapping("/call")
     @ResponseStatus(HttpStatus.OK)
@@ -213,7 +219,7 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
         if (game.getOwner().getId() != userId) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not the owner of this game");
         }
-        if(game.isRoundRunning())
+        if (game.isRoundRunning())
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Game is still running");
 
         activeGames.remove(sessionId);

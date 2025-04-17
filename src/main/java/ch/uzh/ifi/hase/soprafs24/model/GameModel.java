@@ -10,19 +10,41 @@ public class GameModel {
     private final long ownerId;
     private final int currentRoundStartPlayer;
 
-    public GameModel(Game game, long userId){
+    public GameModel(Game game, long userId) {
         this.sessionId = game.getSessionId();
-        this.round = game.getRoundModel(userId);
+        // only when round exist, create RoundModel
+        if (game.getRound() != null) {
+            this.round = game.getRoundModel(userId);
+        } else {
+            this.round = null;
+        }
         this.players = game.getPlayers();
         this.settings = game.getSettings();
         this.ownerId = game.getOwnerId();
         this.currentRoundStartPlayer = game.getCurrentRoundStartPlayer();
     }
 
-    public long getSessionId() {return sessionId;}
-    public RoundModel getRound() {return round;}
-    public List<Player> getPlayers() {return players;}
-    public GameSettings getSettings() {return settings;}
-    public long getOwnerId() {return ownerId;}
-    public int getCurrentRoundStartPlayer() {return currentRoundStartPlayer;}
+    public long getSessionId() {
+        return sessionId;
+    }
+
+    public RoundModel getRound() {
+        return round;
+    }
+
+    public List<Player> getPlayers() {
+        return players;
+    }
+
+    public GameSettings getSettings() {
+        return settings;
+    }
+
+    public long getOwnerId() {
+        return ownerId;
+    }
+
+    public int getCurrentRoundStartPlayer() {
+        return currentRoundStartPlayer;
+    }
 }
