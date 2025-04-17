@@ -10,6 +10,7 @@ import ch.uzh.ifi.hase.soprafs24.websockets.WS_Handler;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -92,14 +93,15 @@ public class GameController {
         Game game = gameService.getGameBySessionId(request.sessionId());
 
         gameService.startRound(game);
+
         ch.uzh.ifi.hase.soprafs24.model.Game newGame = new ch.uzh.ifi.hase.soprafs24.model.Game(game, true);
         activeGames.put(request.sessionId(), newGame);
 
-        ch.uzh.ifi.hase.soprafs24.model.Game gameModel = new ch.uzh.ifi.hase.soprafs24.model.Game(game, false);
-        wsHandler.sendModelToAll(Long.toString(gameModel.getSessionId()), gameModel, "roundModel");
+        wsHandler.sendModelToAll(Long.toString(newGame.getSessionId()), newGame, "roundModel");
 
         wsHandler.sendGameStateToAll(Long.toString(request.sessionId()), "IN_GAME");
-        return activeGames.get(request.sessionId()).getGameModel(request.userId()).getRound();
+
+        return newGame.getGameModel(request.userId()).getRound();
     }
 
     @PostMapping("/fold")
@@ -179,7 +181,8 @@ public class GameController {
         gameService.removePlayerFromGame(game, request.userId());
         Game updatedGame = gameService.getGameBySessionId(request.sessionId());
         ch.uzh.ifi.hase.soprafs24.model.Game gameModel = new ch.uzh.ifi.hase.soprafs24.model.Game(updatedGame, false);
-        wsHandler.sendModelToAll(Long.toString(gameModel.getSessionId()), gameModel, "gameModel");
+        wsHandler.sendModelToAll(Long.toString(gameModel.getSessionId()), gameModel,
+                "gameModel");
         return true;
     }
 
