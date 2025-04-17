@@ -66,6 +66,8 @@ sonar {
         property "sonar.projectKey", "GlichPoker_Glich_Poker_Backend"
         property "sonar.organization", "glichpoker"
         property "sonar.host.url", "https://sonarcloud.io"
+        property "sonar.coverage.jacoco.xmlReportPaths", "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"
+
     }
 }
 
