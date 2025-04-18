@@ -195,7 +195,7 @@ public class WS_Handler extends TextWebSocketHandler {
 
         try {
             JSONObject stateJson = new JSONObject();
-            stateJson.put(event, "gameStateChanged");
+            stateJson.put(event, "GAMESTATECHANGED");  // Changed to uppercase for consistency sideeye to BackendDev
             stateJson.put("state", state);
 
             String message = stateJson.toString();
@@ -254,16 +254,7 @@ public class WS_Handler extends TextWebSocketHandler {
 
                 // add event field to JSON
                 JSONObject jsonObject = new JSONObject(modelJson);
-                // Convert enum to lowercase string to match frontend expectations
-                String eventName = modelType.toString().toLowerCase();
-                if (eventName.equals("gamemodel")) {
-                    eventName = "gameModel";
-                } else if (eventName.equals("roundmodel")) {
-                    eventName = "roundModel";
-                } else if (eventName.equals("settingsmodel")) {
-                    eventName = "settingsModel";
-                }
-                jsonObject.put(event, eventName);
+                jsonObject.put(event, modelType);
                 modelJson = jsonObject.toString();
 
                 // Send to player
