@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
+import java.util.stream.IntStream;
 
 public class Round {
     private List<Player> players;
@@ -81,7 +82,14 @@ public class Round {
     }
 
     public List<PlayerModel> getPlayerModelsOfOtherParticipants(long userId){
-        List<Player> otherPlayers = players.stream().filter(x -> x.getUserId() != userId).toList();
+        int playerIdx = IntStream.range(0, players.size())
+                .filter(i -> players.get(i).getUserId() == userId)
+                .findFirst()
+                .orElse(-1);
+        if(playerIdx == -1)throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found");
+        List<Player> otherPlayers = new ArrayList<>();
+        otherPlayers.addAll(players.subList(playerIdx + 1, players.size()));
+        otherPlayers.addAll(players.subList(0, playerIdx));
         ArrayList<PlayerModel> models = new ArrayList<>();
         otherPlayers.forEach(player -> models.add(new PlayerModel(player)));
         return models;
