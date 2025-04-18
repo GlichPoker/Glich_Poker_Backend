@@ -34,5 +34,6 @@ jobs:
         run: chmod +x ./gradlew
       - name: Build and analyze
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed for PR analysis
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew build --info
+        run: ./gradlew clean test jacocoTestReport sonarqube --info
