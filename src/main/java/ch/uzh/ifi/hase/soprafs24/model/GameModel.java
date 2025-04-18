@@ -23,15 +23,20 @@ public class GameModel {
         } else {
             this.round = null;
         }
-        int playerIdx = IntStream.range(0, game.getPlayers().size())
-                .filter(i -> game.getPlayers().get(i).getUserId() == userId)
+
+        List<Player> players = game.getPlayers();
+        int playerIdx = IntStream.range(0, players.size())
+                .filter(i -> players.get(i).getUserId() == userId)
                 .findFirst()
                 .orElse(-1);
+
         if(playerIdx == -1)throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found");
-        List<Player> otherPlayers = new ArrayList<>();
-        otherPlayers.addAll(game.getPlayers().subList(playerIdx, game.getPlayers().size()));
-        otherPlayers.addAll(game.getPlayers().subList(0, playerIdx));
-        this.players = otherPlayers;
+
+        List<Player> orderedPlayers = new ArrayList<>();
+        orderedPlayers.addAll(players.subList(playerIdx, players.size()));
+        orderedPlayers.addAll(players.subList(0, playerIdx));
+
+        this.players = orderedPlayers;
         this.settings = game.getSettings();
         this.ownerId = game.getOwnerId();
         this.currentRoundStartPlayer = game.getCurrentRoundStartPlayer();
