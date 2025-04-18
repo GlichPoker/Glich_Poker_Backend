@@ -252,4 +252,19 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
         // TODO: push to all clients which are in the game
         return savedSettings.toModel();
     }
+
+    @PostMapping("/check")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public RoundModel checkGame(@RequestBody GameActionRequest request) {
+        ch.uzh.ifi.hase.soprafs24.model.Game game = activeGames.get(request.sessionId());
+        if (game == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
+        }
+        game.getRound().handleCheck(request.userId());
+
+        wsHandler.sendModelToAll(Long.toString(game.getSessionId()), game, Model.ROUNDMODEL);
+
+        return game.getRoundModel(request.userId());
+    }
 }

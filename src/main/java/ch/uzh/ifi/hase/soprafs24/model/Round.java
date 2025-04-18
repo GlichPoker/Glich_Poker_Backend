@@ -31,6 +31,7 @@ public class Round {
         this.gameSettings = gameSettings;
 
         if (!isTest) dealPlayers(); // deal with this for tests
+        handleBlinds();
         // notify update
     }
 
@@ -53,6 +54,16 @@ public class Round {
         } else {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No RoundCompletionListener set");
         }
+    }
+
+    public void handleBlinds(){
+        // happens only in tests bc i am lazy
+        if(gameSettings == null) return;
+        Player bigBlind = players.get((playersTurn - 1 + players.size()) % players.size());
+        Player smallBlind = players.get((playersTurn - 2 + players.size()) % players.size());
+        bigBlind.call(gameSettings.bigBlind());
+        smallBlind.call(gameSettings.smallBlind());
+        roundBet = gameSettings.bigBlind();
     }
 
     private void resetPlayers(){
@@ -122,7 +133,6 @@ public class Round {
     public void progressRound(){
         playersTurn = startPlayer;
         betState++;
-        roundBet = 0;
         switch (betState){
             case 1:
                 dealFlop();
@@ -198,14 +208,23 @@ public class Round {
         // notify update
     }
 
+    public void handleCheck(long userId){
+        Player player = findPlayerById(userId);
+        if(player == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "player not found");
+        if (!player.isActive()) throw new ResponseStatusException(HttpStatus.CONFLICT, "player already folded");
+        if(player.getRoundBet() < roundBet) throw new ResponseStatusException(HttpStatus.CONFLICT, "cannot check if the player has bet less than the current bet amount");
+        progressPlayer();
+    }
+
     private void handleCallOrRaise(long userId, long balance) {
         Player player = findPlayerById(userId);
-        if (player == null) return;
-        if (!player.isActive()) throw new ResponseStatusException(HttpStatus.CONFLICT, "user already folded");
-        boolean successful = player.call(balance);
+        if (player == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "player not found");
+        if (!player.isActive()) throw new ResponseStatusException(HttpStatus.CONFLICT, "player already folded");
+        long difference = player.calculateDifference(balance);
+        boolean successful = player.call(difference);
 
         if (successful) {
-            potSize += balance;
+            potSize += difference;
             roundBet = Math.max(balance, roundBet);
         }
     }
