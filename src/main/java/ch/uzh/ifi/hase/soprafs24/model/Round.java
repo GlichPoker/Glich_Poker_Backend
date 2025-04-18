@@ -194,7 +194,7 @@ public class Round {
 
     public void handleFold(long userId){
         Player player = findPlayerById(userId);
-        if(player == null) return;
+        if(player == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found");
         if (!player.isActive()) throw new ResponseStatusException(HttpStatus.CONFLICT, "user already folded");
         player.fold();
         progressPlayer();

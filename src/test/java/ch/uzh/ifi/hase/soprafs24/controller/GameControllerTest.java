@@ -290,6 +290,7 @@ public class GameControllerTest {
 
     @Test
     public void testFoldGameGameNotStarted() throws Exception {
+        gameActionRequest = new GameActionRequest(12341,13,2134);
         mockMvc.perform(MockMvcRequestBuilders.post("/game/fold")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(gameActionRequest)))
@@ -482,5 +483,49 @@ public class GameControllerTest {
                         .content(objectMapper.writeValueAsString(gameActionRequest)))
                 .andExpect(status().isOk());
         verify(gameService, times(1)).removePlayerFromGame(eq(testGame), eq(gameActionRequest.userId()));
+    }
+
+    @Test
+    public void testCheckGameConflict() throws Exception {
+        addPlayersToGame(testGame, testUser, testUser2);
+        when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
+
+        ch.uzh.ifi.hase.soprafs24.model.Game gameModel = new ch.uzh.ifi.hase.soprafs24.model.Game(testGame, false);
+
+        // First start the game
+        mockMvc.perform(MockMvcRequestBuilders.post("/game/start")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(gameActionRequest)))
+                .andExpect(status().isOk());
+
+        // Then test check
+        mockMvc.perform(MockMvcRequestBuilders.post("/game/check")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(gameActionRequest)))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    public void testCheckGame() throws Exception {
+        addPlayersToGame(testGame, testUser, testUser2);
+        when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
+        testGame.getSettings().setBigBlind(0);
+        testGame.getSettings().setSmallBlind(0);
+        ch.uzh.ifi.hase.soprafs24.model.Game gameModel = new ch.uzh.ifi.hase.soprafs24.model.Game(testGame, false);
+
+        // First start the game
+        mockMvc.perform(MockMvcRequestBuilders.post("/game/start")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(gameActionRequest)))
+                .andExpect(status().isOk());
+
+        // Then test call
+        mockMvc.perform(MockMvcRequestBuilders.post("/game/check")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(gameActionRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.player.userId").value(gameModel.getPlayer(testUser.getId()).getUserId()))
+                .andExpect(jsonPath("$.player.roundBet").value(0));
+
     }
 }
