@@ -211,12 +211,12 @@ public class Round {
     }
 
     public void handleCall(long userId, long balance) {
-        handleCallOrRaise(userId, balance);
+        handleCallOrRaise(userId, balance, false);
         progressPlayer();
     }
 
     public void handleRaise(long userId, long balance) {
-        handleCallOrRaise(userId, balance);
+        handleCallOrRaise(userId, balance, true);
         do {
             playersTurn = (playersTurn + 1) % players.size();
             haveNotRaised++;
@@ -234,7 +234,7 @@ public class Round {
         progressPlayer();
     }
 
-    private void handleCallOrRaise(long userId, long balance) {
+    private void handleCallOrRaise(long userId, long balance, boolean raise) {
         Player player = findPlayerById(userId);
         if (player == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "player not found");
         if (!player.isActive()) throw new ResponseStatusException(HttpStatus.CONFLICT, "player already folded");
@@ -242,7 +242,7 @@ public class Round {
 
         if (successful) {
             potSize += balance;
-            roundBet += balance;
+            roundBet = raise ? roundBet + balance : Math.max(roundBet, balance);
         }
     }
     public GameSettings getGameSettings() {return gameSettings;}
