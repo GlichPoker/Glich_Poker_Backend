@@ -48,7 +48,6 @@ public class FriendsService {
             return true;
         }
         catch (Exception e) {
-            e.printStackTrace();
             throw e;
         }
     }
