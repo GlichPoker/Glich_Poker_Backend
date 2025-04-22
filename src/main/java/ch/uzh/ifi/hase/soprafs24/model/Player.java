@@ -8,6 +8,7 @@ public class Player {
     private Card[] hand;
     private long roundBet;
     private boolean isOnline;
+    private long totalBet;
 
     public Player(long userId, String name, long balance) {
         this.userId = userId;
@@ -17,6 +18,7 @@ public class Player {
         this.hand = new Card[2];
         this.roundBet = 0;
         this.isOnline = false;
+        this.totalBet = 0;
     }
 
     public Player(ch.uzh.ifi.hase.soprafs24.entity.Player player) {
@@ -27,6 +29,7 @@ public class Player {
         this.hand = new Card[2];
         this.roundBet = 0;
         this.isOnline = player.isOnline();
+        this.totalBet = 0;
     }
 
     public double getBalance() {
@@ -87,15 +90,12 @@ public class Player {
         isActive = false;
     }
 
-    public long calculateDifference(long amount){
-        return amount - roundBet;
-    }
-    // can be used for raise, call and check since its called from controller and
-    // there we decide on action not here
+
     public boolean call(long differnce) {
         if (differnce <= balance && isActive) {
             balance -= differnce;
             roundBet += differnce;
+            totalBet += differnce;
         } else {
             isActive = false;
         }
@@ -103,8 +103,6 @@ public class Player {
     }
 
     protected void reset() {
-        isActive = true;
         roundBet = 0;
-        this.hand = new Card[2];
     }
 }

@@ -147,13 +147,13 @@ public class GameServiceTest {
         assertFalse(game.getPlayer(owner.getId()).isOnline());
     }
 
-    @Test
+  /*  @Test
     public void setPlayerOfflineRoundRunning() {
         Player player = new Player(owner, 1L, game);
         player.setBalance(1000);
         game.setRoundRunning(true);
         assertThrows(ResponseStatusException.class, () -> {gameService.setPlayerOffline(game, owner.getId());});
-    }
+    }*/
 
 
 

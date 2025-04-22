@@ -18,6 +18,7 @@ public class Round {
     private int haveNotRaised;
     protected List<Card> communityCards;
     private RoundCompletionListener roundCompletionListener;
+    private boolean roundOver;
 
     public Round(List<Player> players, int startPlayer, boolean isTest, GameSettings gameSettings) {
         this.players = players;
@@ -30,12 +31,16 @@ public class Round {
         communityCards = new ArrayList<>();
         roundBet = 0;
         this.gameSettings = gameSettings;
+        this.roundOver = false;
 
         if (!isTest) dealPlayers(); // deal with this for tests
         handleBlinds();
         // notify update
     }
 
+    public boolean isRoundOver() {
+        return roundOver;
+    }
     public void setRoundCompletionListener(RoundCompletionListener roundCompletionListener) {
         this.roundCompletionListener = roundCompletionListener;
     }
@@ -44,17 +49,17 @@ public class Round {
         this(players, startPlayer,false, gameSettings);
     }
 
-    public void onRoundCompletion(){
+    public Map<Player, Double> onRoundCompletion(){
         List<Player> winners = roundComplete();
         Map<Player, Double> winnings = calculateWinnings(winners);
         players = updateBalances(winnings);
-        resetPlayers();
-
-        if (roundCompletionListener != null) {
+        this.roundOver = true;
+        /*if (roundCompletionListener != null) {
             roundCompletionListener.onRoundComplete(winners);
         } else {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No RoundCompletionListener set");
-        }
+        }*/
+        return winnings;
     }
 
     public void handleBlinds(){
@@ -62,9 +67,11 @@ public class Round {
         if(gameSettings == null) return;
         Player bigBlind = players.get((playersTurn - 1 + players.size()) % players.size());
         Player smallBlind = players.get((playersTurn - 2 + players.size()) % players.size());
-        bigBlind.call(gameSettings.bigBlind());
-        smallBlind.call(gameSettings.smallBlind());
-        roundBet = gameSettings.bigBlind();
+        boolean successfulBig = bigBlind.call(gameSettings.bigBlind());
+        boolean successfulSmall = smallBlind.call(gameSettings.smallBlind());
+        roundBet = successfulBig ? gameSettings.bigBlind() : successfulSmall ? gameSettings.smallBlind() : 0;
+        if(successfulBig) potSize += gameSettings.bigBlind();
+        if(successfulSmall) potSize += gameSettings.smallBlind();
     }
 
     private void resetPlayers(){
@@ -152,11 +159,13 @@ public class Round {
                 dealRiver();
                 break;
             case 4:
-                onRoundCompletion();
+                roundOver = true;
                 break;
             default:
                 break;
         }
+        resetPlayers();
+        roundBet = 0;
         // notify update client
     }
 
@@ -176,6 +185,7 @@ public class Round {
         dealer.deal(communityCards, 1);
         dealer.restore();
     }
+
 
     public void progressPlayer(){
         do{
@@ -228,12 +238,11 @@ public class Round {
         Player player = findPlayerById(userId);
         if (player == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "player not found");
         if (!player.isActive()) throw new ResponseStatusException(HttpStatus.CONFLICT, "player already folded");
-        long difference = player.calculateDifference(balance);
-        boolean successful = player.call(difference);
+        boolean successful = player.call(balance);
 
         if (successful) {
-            potSize += difference;
-            roundBet = Math.max(balance, roundBet);
+            potSize += balance;
+            roundBet += balance;
         }
     }
     public GameSettings getGameSettings() {return gameSettings;}

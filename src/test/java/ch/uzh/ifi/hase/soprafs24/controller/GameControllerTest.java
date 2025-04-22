@@ -337,7 +337,7 @@ public class GameControllerTest {
                         .content(objectMapper.writeValueAsString(gameActionRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.player.userId").value(gameModel.getPlayer(testUser.getId()).getUserId()))
-                .andExpect(jsonPath("$.player.roundBet").value(gameActionRequest.amount()));
+                .andExpect(jsonPath("$.player.roundBet").value(gameActionRequest.amount() + gameSettingsEntity.getSmallBlind()));
     }
 
     @Test
@@ -359,7 +359,7 @@ public class GameControllerTest {
                         .content(objectMapper.writeValueAsString(gameActionRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.player.userId").value(gameModel.getPlayer(testUser.getId()).getUserId()))
-                .andExpect(jsonPath("$.player.roundBet").value(gameActionRequest.amount()));
+                .andExpect(jsonPath("$.player.roundBet").value(gameActionRequest.amount() + gameSettingsEntity.getSmallBlind()));
     }
 
     @Test

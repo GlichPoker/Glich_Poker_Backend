@@ -124,10 +124,11 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
         if (game == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
         }
-        game.getRound().handleFold(request.userId());
+        Round round = game.getRound();
+        round.handleFold(request.userId());
 
         wsHandler.sendModelToAll(Long.toString(game.getSessionId()), game, Model.ROUNDMODEL);
-
+        if(round.isRoundOver())wsHandler.sendModelToAll(Long.toString(game.getSessionId()), game, Model.WINNINGMODEL);
         return game.getRoundModel(request.userId());
     }
 
@@ -154,10 +155,11 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
         if (game == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
         }
-        game.getRound().handleCall(request.userId(), request.amount());
+        Round round = game.getRound();
+        round.handleCall(request.userId(), request.amount());
 
         wsHandler.sendModelToAll(Long.toString(game.getSessionId()), game, Model.ROUNDMODEL);
-
+        if(round.isRoundOver())wsHandler.sendModelToAll(Long.toString(game.getSessionId()), game, Model.WINNINGMODEL);
         return game.getRoundModel(request.userId());
     }
 
@@ -169,10 +171,11 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
         if (game == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
         }
-        game.getRound().handleRaise(request.userId(), request.amount());
+        Round round = game.getRound();
+        round.handleRaise(request.userId(), request.amount());
 
         wsHandler.sendModelToAll(Long.toString(game.getSessionId()), game, Model.ROUNDMODEL);
-
+        if(round.isRoundOver())wsHandler.sendModelToAll(Long.toString(game.getSessionId()), game, Model.WINNINGMODEL);
         return game.getRoundModel(request.userId());
     }
 
