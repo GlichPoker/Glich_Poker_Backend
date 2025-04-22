@@ -171,7 +171,8 @@ public class WS_Handler extends TextWebSocketHandler {
     public Void handleGamemessage(WebSocketSession session, String message) {
         JSONObject jsonObject = new JSONObject(message);
         String eventString = jsonObject.getString(event);
-        Model eventModel = eventString.equals("gameModel") ? Model.GAMEMODEL : eventString.equals("roundModel") ? Model.ROUNDMODEL : Model.SETTINGSMODEL;
+        Model eventModel = eventString.equals("GAMEMODEL") ? Model.GAMEMODEL
+                : eventString.equals("ROUNDMODEL") ? Model.ROUNDMODEL : Model.SETTINGSMODEL;
         String gameId = jsonObject.getString("gameID");
         long gameIdLong = Long.parseLong(gameId);
 
@@ -197,7 +198,7 @@ public class WS_Handler extends TextWebSocketHandler {
 
         try {
             JSONObject stateJson = new JSONObject();
-            stateJson.put(event, "GAMESTATECHANGED");  // Changed to uppercase for consistency sideeye to BackendDev
+            stateJson.put(event, "GAMESTATECHANGED"); // Changed to uppercase for consistency sideeye to BackendDev
             stateJson.put("state", state);
 
             String message = stateJson.toString();
@@ -262,7 +263,7 @@ public class WS_Handler extends TextWebSocketHandler {
 
                 // add event field to JSON
                 JSONObject jsonObject = new JSONObject(modelJson);
-                jsonObject.put(event, modelType);
+                jsonObject.put(event, modelType.name());
                 modelJson = jsonObject.toString();
 
                 // Send to player
