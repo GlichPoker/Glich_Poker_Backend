@@ -9,6 +9,7 @@ import java.util.Map;
 import ch.uzh.ifi.hase.soprafs24.constant.Model;
 import ch.uzh.ifi.hase.soprafs24.model.GameModel;
 import ch.uzh.ifi.hase.soprafs24.model.Round;
+import ch.uzh.ifi.hase.soprafs24.model.WinnerModel;
 import org.springframework.stereotype.Component;
 import org.springframework.lang.NonNull;
 import org.springframework.web.socket.CloseStatus;
@@ -250,11 +251,11 @@ public class WS_Handler extends TextWebSocketHandler {
                 } else if (modelType == Model.GAMEMODEL) {
                     model = game.getGameModel(userId);
                 } else if (modelType == Model.WINNINGMODEL) {
-                    Round tempmodel = game.getRound();
-                    if (tempmodel == null) {
+                    Round round = game.getRound();
+                    if (round == null) {
                         continue;
                     }
-                    model = Map.of("winnings", tempmodel.onRoundCompletion());
+                    model = new WinnerModel(round, userId, round.onRoundCompletion());
                 }
 
                 // Convert to JSON

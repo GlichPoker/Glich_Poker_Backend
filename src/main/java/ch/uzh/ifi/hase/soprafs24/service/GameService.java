@@ -87,7 +87,7 @@ public class GameService {
 
 
     public boolean removePlayerFromGame(Game game, long userId) {
-        //if(game.isRoundRunning()) throw new ResponseStatusException(HttpStatus.CONFLICT, "Round is still running");
+        if(game.isRoundRunning()) throw new ResponseStatusException(HttpStatus.CONFLICT, "Round is still running");
         game.removePlayer(userId);
         playerService.removePlayer(userId);
         gameRepository.save(game);
@@ -95,7 +95,7 @@ public class GameService {
     }
 
     public void setPlayerOffline(Game game, long userId) {
-        //if(game.isRoundRunning()) throw new ResponseStatusException(HttpStatus.CONFLICT, "Round is still running");
+        if(game.isRoundRunning()) throw new ResponseStatusException(HttpStatus.CONFLICT, "Round is still running");
         game.getPlayers().stream()
                 .filter(x -> x.getUserId() == userId)
                 .findFirst().ifPresent(player -> playerService.savePlayer(player.setIsOnline(false)));
