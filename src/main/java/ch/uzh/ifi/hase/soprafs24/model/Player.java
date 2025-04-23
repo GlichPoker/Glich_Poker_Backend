@@ -32,6 +32,8 @@ public class Player {
         this.totalBet = 0;
     }
 
+    public long getTotalBet(){return totalBet;}
+    public void setTotalBet(long totalBet){this.totalBet = totalBet;}
     public double getBalance() {
         return balance;
     }

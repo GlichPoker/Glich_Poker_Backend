@@ -110,8 +110,9 @@ public class Round {
 
     public Map<Player, Double> calculateWinnings(List<Player> winners){
         Map<Player, Double> winnings = new HashMap<>();
+        long totalWinningBets = winners.stream().mapToLong(Player::getTotalBet).sum();
         for(Player winner : winners){
-            double amount = (double)winner.getRoundBet() / this.potSize * potSize;
+            double amount = (double)winner.getTotalBet() / totalWinningBets * potSize;
             winnings.put(winner, amount);
         }
         return winnings;

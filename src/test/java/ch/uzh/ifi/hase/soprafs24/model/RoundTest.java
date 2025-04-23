@@ -71,8 +71,8 @@ class RoundTest {
         // Arrange
         Player player1 = new Player(1, "hallo", 1000);
         Player player2 = new Player(2, "hallo2", 1000);
-        player1.setRoundBet(200);
-        player2.setRoundBet(200);
+        player1.setTotalBet(200);
+        player2.setTotalBet(200);
         ArrayList<Player> players = new ArrayList<>(Arrays.asList(player1, player2));
         Round round = new Round(players, 0, true, null);
 
@@ -92,8 +92,8 @@ class RoundTest {
         // Arrange
         Player player1 = new Player(1, "hallo", 1000);
         Player player2 = new Player(2, "hallo2", 1000);
-        player1.setRoundBet(300);
-        player2.setRoundBet(100);
+        player1.setTotalBet(300);
+        player2.setTotalBet(100);
         ArrayList<Player> players = new ArrayList<>(Arrays.asList(player1, player2));
         Round round = new Round(players, 0, true, null);
 
