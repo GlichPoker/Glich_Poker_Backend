@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Round {
@@ -49,17 +50,22 @@ public class Round {
         this(players, startPlayer,false, gameSettings);
     }
 
-    public Map<Player, Double> onRoundCompletion(){
+    public Map<Long, Double> onRoundCompletion(){
         List<Player> winners = roundComplete();
         Map<Player, Double> winnings = calculateWinnings(winners);
         players = updateBalances(winnings);
+
         this.roundOver = true;
         /*if (roundCompletionListener != null) {
             roundCompletionListener.onRoundComplete(winners);
         } else {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No RoundCompletionListener set");
         }*/
-        return winnings;
+        return winnings.entrySet().stream()
+                .collect(Collectors.toMap(
+                        entry -> entry.getKey().getUserId(),
+                        Map.Entry::getValue
+                ));
     }
 
     public void handleBlinds(){
