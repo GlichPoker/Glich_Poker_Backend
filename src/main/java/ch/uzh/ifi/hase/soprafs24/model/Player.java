@@ -36,7 +36,7 @@ public class Player {
     }
 
     public EvaluationResult getEvaluationResult() {return evaluationResult;}
-    public void setEvaluationResult(EvaluationResult handRank) {this.evaluationResult = evaluationResult;}
+    public void setEvaluationResult(EvaluationResult evaluationResult) {this.evaluationResult = evaluationResult;}
     public long getTotalBet(){return totalBet;}
     public void setTotalBet(long totalBet){this.totalBet = totalBet;}
     public double getBalance() {
