@@ -127,7 +127,11 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
         Round round = game.getRound();
         round.handleFold(request.userId());
 
-        if(round.isRoundOver()) wsHandler.sendModelToAll(Long.toString(game.getSessionId()), game, Model.WINNINGMODEL);
+        if(round.isRoundOver()) {
+            wsHandler.sendModelToAll(Long.toString(game.getSessionId()), game, Model.WINNINGMODEL);
+            gameService.completeRound(game);
+
+        }
         else wsHandler.sendModelToAll(Long.toString(game.getSessionId()), game, Model.ROUNDMODEL);
 
         return game.getRoundModel(request.userId());
@@ -159,7 +163,11 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
         Round round = game.getRound();
         round.handleCall(request.userId(), request.amount());
 
-        if(round.isRoundOver()) wsHandler.sendModelToAll(Long.toString(game.getSessionId()), game, Model.WINNINGMODEL);
+        if(round.isRoundOver()) {
+            wsHandler.sendModelToAll(Long.toString(game.getSessionId()), game, Model.WINNINGMODEL);
+            gameService.completeRound(game);
+
+        }
         else wsHandler.sendModelToAll(Long.toString(game.getSessionId()), game, Model.ROUNDMODEL);
 
         return game.getRoundModel(request.userId());
@@ -176,7 +184,11 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
         Round round = game.getRound();
         round.handleRaise(request.userId(), request.amount());
 
-        if(round.isRoundOver()) wsHandler.sendModelToAll(Long.toString(game.getSessionId()), game, Model.WINNINGMODEL);
+        if(round.isRoundOver()) {
+            wsHandler.sendModelToAll(Long.toString(game.getSessionId()), game, Model.WINNINGMODEL);
+            gameService.completeRound(game);
+
+        }
         else wsHandler.sendModelToAll(Long.toString(game.getSessionId()), game, Model.ROUNDMODEL);
 
         return game.getRoundModel(request.userId());
