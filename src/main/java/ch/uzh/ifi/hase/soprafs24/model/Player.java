@@ -1,5 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.model;
 
+import ch.uzh.ifi.hase.soprafs24.constant.HandRank;
+
 public class Player {
     private final long userId;
     private final String name;
@@ -9,6 +11,7 @@ public class Player {
     private long roundBet;
     private boolean isOnline;
     private long totalBet;
+    private EvaluationResult evaluationResult;
 
     public Player(long userId, String name, long balance) {
         this.userId = userId;
@@ -32,6 +35,8 @@ public class Player {
         this.totalBet = 0;
     }
 
+    public EvaluationResult getEvaluationResult() {return evaluationResult;}
+    public void setEvaluationResult(EvaluationResult handRank) {this.evaluationResult = evaluationResult;}
     public long getTotalBet(){return totalBet;}
     public void setTotalBet(long totalBet){this.totalBet = totalBet;}
     public double getBalance() {

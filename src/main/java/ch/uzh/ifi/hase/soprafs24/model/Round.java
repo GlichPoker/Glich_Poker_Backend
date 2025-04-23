@@ -125,6 +125,7 @@ public class Round {
         List<Card> mergedCards = mergeHands(player.getHand());
 
         EvaluationResult res = HandEvaluator.evaluateHand(mergedCards);
+        player.setEvaluationResult(res);
 
         if(winner == null || res.compareTo(winner) < 0){
             winners.clear();

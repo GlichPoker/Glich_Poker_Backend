@@ -7,6 +7,7 @@ public class PlayerModel {
     private final boolean isActive;
     private final long roundBet;
     private final boolean isOnline;
+    private final EvaluationResult evaluationResult;
     public PlayerModel(Player player) {
         this.userId = player.getUserId();
         this.name = player.getName();
@@ -14,6 +15,7 @@ public class PlayerModel {
         this.isActive = player.isActive();
         this.roundBet = player.getRoundBet();
         this.isOnline = player.isOnline();
+        this.evaluationResult = player.getEvaluationResult();
     }
 
     public long getUserId() {return userId;}

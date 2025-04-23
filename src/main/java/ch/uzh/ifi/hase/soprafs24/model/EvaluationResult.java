@@ -1,10 +1,11 @@
 package ch.uzh.ifi.hase.soprafs24.model;
 
 import ch.uzh.ifi.hase.soprafs24.constant.HandRank;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Arrays;
 
-public record EvaluationResult(HandRank handRank, Card[] highCards) implements Comparable<EvaluationResult> {
+public record EvaluationResult(@JsonProperty("handRank")HandRank handRank, @JsonProperty("highCards")Card[] highCards) implements Comparable<EvaluationResult> {
 
     @Override
     public int compareTo(EvaluationResult other) {
