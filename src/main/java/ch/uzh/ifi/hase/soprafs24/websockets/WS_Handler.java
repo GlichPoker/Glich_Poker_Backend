@@ -254,7 +254,7 @@ public class WS_Handler extends TextWebSocketHandler {
                     if (tempmodel == null) {
                         continue;
                     }
-                    model = tempmodel.onRoundCompletion();
+                    model = Map.of("winnings", tempmodel.onRoundCompletion());
                 }
 
                 // Convert to JSON
