@@ -108,24 +108,18 @@ public class Game implements RoundCompletionListener {
     }
 
     public void startRound() {
-        // ✅ 1. 모든 플레이어 리셋 + 온라인 표시
+
         for (Player player : players) {
             player.reset();
-            player.setIsOnline(true); // 중요: 반드시 이 시점에 true로 설정
+            player.setIsOnline(true);
         }
 
-        // ✅ 2. round 생성에 전체 players 전달 (getOnlinePlayers 사용 안함!)
         if (players.size() < 2) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "at least two players required to start a round");
         }
 
-        // ✅ 3. 전체 플레이어를 그대로 넘김
         this.round = new Round(players, this.currentRoundStartPlayer, this.settings);
         this.round.setRoundCompletionListener(this);
-    }
-
-    private List<Player> getOnlinePlayers() {
-        return new ArrayList<>(players.stream().filter(Player::isOnline).toList());
     }
 
     public boolean containsUser(long userId) {
