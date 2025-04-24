@@ -218,6 +218,38 @@ public class WS_Handler extends TextWebSocketHandler {
         }
     }
 
+    public void sendRawWinnerModelToPlayer(String gameId, long userId, WinnerModel winnerModel) {
+        CopyOnWriteArraySet<WebSocketSession> sessions = gameSessions.get(gameId);
+        if (sessions == null) {
+            return;
+        }
+
+        for (WebSocketSession session : sessions) {
+            if (session.getUri() == null) {
+                continue;
+            }
+
+            String query = session.getUri().getQuery();
+            Map<String, String> params = splitQuery(query);
+            String sessionUserId = params.get("userID");
+
+            if (!String.valueOf(userId).equals(sessionUserId)) {
+                continue;
+            }
+
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                String json = mapper.writeValueAsString(winnerModel);
+                JSONObject wrapped = new JSONObject(json);
+                wrapped.put("event", Model.WINNINGMODEL.name());
+
+                session.sendMessage(new TextMessage(wrapped.toString()));
+            } catch (Exception e) {
+
+            }
+        }
+    }
+
     public void sendModelToAll(String gameId, Game game, Model modelType) {
         CopyOnWriteArraySet<WebSocketSession> sessions = gameSessions.get(gameId);
         if (sessions == null || game == null) {
@@ -250,12 +282,6 @@ public class WS_Handler extends TextWebSocketHandler {
 
                 } else if (modelType == Model.GAMEMODEL) {
                     model = game.getGameModel(userId);
-                } else if (modelType == Model.WINNINGMODEL) {
-                    Round round = game.getRound();
-                    if (round == null) {
-                        continue;
-                    }
-                    model = new WinnerModel(round, userId, round.onRoundCompletion());
                 }
 
                 // Convert to JSON

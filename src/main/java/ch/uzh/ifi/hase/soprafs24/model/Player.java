@@ -35,10 +35,22 @@ public class Player {
         this.totalBet = 0;
     }
 
-    public EvaluationResult getEvaluationResult() {return evaluationResult;}
-    public void setEvaluationResult(EvaluationResult evaluationResult) {this.evaluationResult = evaluationResult;}
-    public long getTotalBet(){return totalBet;}
-    public void setTotalBet(long totalBet){this.totalBet = totalBet;}
+    public EvaluationResult getEvaluationResult() {
+        return evaluationResult;
+    }
+
+    public void setEvaluationResult(EvaluationResult evaluationResult) {
+        this.evaluationResult = evaluationResult;
+    }
+
+    public long getTotalBet() {
+        return totalBet;
+    }
+
+    public void setTotalBet(long totalBet) {
+        this.totalBet = totalBet;
+    }
+
     public double getBalance() {
         return balance;
     }
@@ -97,7 +109,6 @@ public class Player {
         isActive = false;
     }
 
-
     public boolean call(long differnce) {
         if (differnce <= balance && isActive) {
             balance -= differnce;
@@ -111,5 +122,8 @@ public class Player {
 
     protected void reset() {
         roundBet = 0;
+        totalBet = 0;
+        isActive = true;
+        evaluationResult = null;
     }
 }

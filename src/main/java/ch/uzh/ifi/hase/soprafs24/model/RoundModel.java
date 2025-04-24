@@ -15,7 +15,11 @@ public class RoundModel {
     private final List<PlayerModel> otherPlayers;
 
     public RoundModel(Round round, long userId) {
-        this.player = round.getPlayers().stream().filter(x -> x.getUserId() == userId).findFirst().get();
+        this.player = round.getPlayers()
+                .stream()
+                .filter(x -> x.getUserId() == userId)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException(" RoundModel: No player found with userId=" + userId));
         this.potSize = round.potSize;
         this.roundBet = round.roundBet;
         this.playersTurn = round.getPlayersTurn();
