@@ -55,7 +55,7 @@ public class WS_Handler extends TextWebSocketHandler {
     public void afterConnectionEstablished(@NonNull WebSocketSession session) throws Exception {
         URI sessionUri = session.getUri();
         if(sessionUri == null) return;
-        String query = session.getUri().getQuery();
+        String query = sessionUri.getQuery();
         Map<String, String> params = splitQuery(query);
 
         String gameID = params.get("gameID");
