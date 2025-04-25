@@ -8,8 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ch.uzh.ifi.hase.soprafs24.constant.Model;
-import ch.uzh.ifi.hase.soprafs24.model.GameModel;
-import ch.uzh.ifi.hase.soprafs24.model.Round;
+
 import ch.uzh.ifi.hase.soprafs24.model.WinnerModel;
 import org.springframework.stereotype.Component;
 import org.springframework.lang.NonNull;
@@ -54,15 +53,15 @@ public class WS_Handler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(@NonNull WebSocketSession session) throws Exception {
-        String query = session.getUri() != null ? session.getUri().getQuery() : null;
+        URI sessionUri = session.getUri();
+        if(sessionUri == null) return;
+        String query = session.getUri().getQuery();
         Map<String, String> params = splitQuery(query);
 
         String gameID = params.get("gameID");
         String userID = params.get("userID");
 
         if (gameID != null) {
-            URI sessionUri = session.getUri();
-            if(sessionUri == null) return;
             if (sessionUri.getPath().equals("/ws/chat")) {
                 addSessionToChat(gameID, session);
             } else if (sessionUri.getPath().equals("/ws/game")) {
