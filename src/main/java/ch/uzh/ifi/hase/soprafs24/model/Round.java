@@ -224,7 +224,7 @@ public class Round {
         boolean found = players.stream().anyMatch(player -> player.getUserId() == userId);
         if (!found)
             return null;
-        return players.stream().filter(x -> x.getUserId() == userId).findFirst().get();
+        return players.stream().filter(x -> x.getUserId() == userId).findFirst().orElse(null);
     }
 
     public void handleFold(long userId) {

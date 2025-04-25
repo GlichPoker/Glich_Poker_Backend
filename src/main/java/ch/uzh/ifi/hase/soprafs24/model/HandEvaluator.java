@@ -108,8 +108,8 @@ public class HandEvaluator {
 
     private static Card[] getHighCardsTwoPair(List<Card> cards) {
         Rank[] ranks = findTwoPairRanks(cards);
-        Rank highCardRank = cards.stream().filter(x -> x.rank() != ranks[0] && x.rank() != ranks[1]).findFirst().get().rank();
-        return new Card[]{new Card(ranks[0], Suit.SPADES), new Card(ranks[1], Suit.SPADES), new Card(highCardRank, Suit.SPADES)};
+        Optional<Card> highCardRankCard = cards.stream().filter(x -> x.rank() != ranks[0] && x.rank() != ranks[1]).findFirst();
+        return highCardRankCard.map(card -> new Card[]{new Card(ranks[0], Suit.SPADES), new Card(ranks[1], Suit.SPADES), new Card(card.rank(), Suit.SPADES)}).orElseGet(() -> new Card[]{new Card(ranks[0], Suit.SPADES), new Card(ranks[1], Suit.SPADES)});
     }
 
     private static Card[] getHighCardTwoKind(List<Card> cards) {

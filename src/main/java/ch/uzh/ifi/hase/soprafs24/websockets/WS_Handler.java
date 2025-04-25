@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.websockets;
 
+import java.net.URI;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.io.IOException;
@@ -39,9 +40,12 @@ public class WS_Handler extends TextWebSocketHandler {
     public void handleTextMessage(@NonNull WebSocketSession session, @NonNull TextMessage message) throws Exception {
         String clientMessage = message.getPayload();
 
-        if (session.getUri().getPath().equals("/ws/chat")) {
+        URI sessionUri = session.getUri();
+        if(sessionUri == null) return;
+
+        if (sessionUri.getPath().equals("/ws/chat")) {
             handleChatMessage(session, clientMessage);
-        } else if (session.getUri().getPath().equals("/ws/game")) {
+        } else if (sessionUri.getPath().equals("/ws/game")) {
             handleGamemessage(session, clientMessage);
         } else {
             session.close(CloseStatus.BAD_DATA);
@@ -57,9 +61,11 @@ public class WS_Handler extends TextWebSocketHandler {
         String userID = params.get("userID");
 
         if (gameID != null) {
-            if (session.getUri().getPath().equals("/ws/chat")) {
+            URI sessionUri = session.getUri();
+            if(sessionUri == null) return;
+            if (sessionUri.getPath().equals("/ws/chat")) {
                 addSessionToChat(gameID, session);
-            } else if (session.getUri().getPath().equals("/ws/game")) {
+            } else if (sessionUri.getPath().equals("/ws/game")) {
                 if (userID != null) {
                     addSessionToGame(gameID, session);
                 } else {
@@ -225,11 +231,12 @@ public class WS_Handler extends TextWebSocketHandler {
         }
 
         for (WebSocketSession session : sessions) {
-            if (session.getUri() == null) {
+            URI sessionUri = session.getUri();
+            if (sessionUri == null) {
                 continue;
             }
 
-            String query = session.getUri().getQuery();
+            String query = sessionUri.getQuery();
             Map<String, String> params = splitQuery(query);
             String sessionUserId = params.get("userID");
 
@@ -258,11 +265,12 @@ public class WS_Handler extends TextWebSocketHandler {
 
         for (WebSocketSession session : sessions) {
             try {
+                URI sessionUri = session.getUri();
                 // Extract user ID from the session
-                if (session.getUri() == null) {
+                if (sessionUri == null) {
                     continue;
                 }
-                String query = session.getUri().getQuery();
+                String query = sessionUri.getQuery();
                 Map<String, String> params = splitQuery(query);
                 String userIdStr = params.get("userID");
 
