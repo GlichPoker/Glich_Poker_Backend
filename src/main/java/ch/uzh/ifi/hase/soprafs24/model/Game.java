@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 public class Game implements RoundCompletionListener {
     private final long sessionId;
     private Round round;
-    private final List<Player> players;
+    private List<Player> players;
     private GameSettings settings;
     private final long ownerId;
     private final int currentRoundStartPlayer;
@@ -31,13 +31,23 @@ public class Game implements RoundCompletionListener {
 
     public Game(ch.uzh.ifi.hase.soprafs24.entity.Game game, boolean start) {
         this.sessionId = game.getSessionId();
-        this.players = game.getPlayers().stream()
-                .map(Player::new).collect(Collectors.toList());
+
+        List<Player> playerList = game.getPlayers() != null
+                ? game.getPlayers().stream().map(Player::new).collect(Collectors.toList())
+                : new ArrayList<>();
+
+        this.players = playerList;
         this.ownerId = game.getOwner().getId();
         this.currentRoundStartPlayer = game.getStartPlayer();
         this.settings = new GameSettings(game.getSettings());
-        if (start)
+
+        if (start) {
             startRound();
+
+            if (this.players.isEmpty() && this.round != null) {
+                this.players = this.round.getPlayers();
+            }
+        }
     }
 
     public int getCurrentRoundStartPlayer() {
@@ -98,16 +108,18 @@ public class Game implements RoundCompletionListener {
     }
 
     public void startRound() {
-        List<Player> livePlayers = getOnlinePlayers();
-        if (livePlayers.size() < 2)
+
+        for (Player player : players) {
+            player.reset();
+            player.setIsOnline(true);
+        }
+
+        if (players.size() < 2) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "at least two players required to start a round");
-        this.round = new Round(livePlayers, this.currentRoundStartPlayer, this.settings);
+        }
 
+        this.round = new Round(players, this.currentRoundStartPlayer, this.settings);
         this.round.setRoundCompletionListener(this);
-    }
-
-    private List<Player> getOnlinePlayers() {
-        return new ArrayList<>(players.stream().filter(Player::isOnline).toList());
     }
 
     public boolean containsUser(long userId) {
