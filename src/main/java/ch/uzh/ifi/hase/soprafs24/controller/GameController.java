@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
+import ch.uzh.ifi.hase.soprafs24.constant.HandRank;
 import ch.uzh.ifi.hase.soprafs24.constant.Model;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
@@ -48,7 +49,7 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
             return;
         }
 
-        Map<Long, Double> winnings = round.onRoundCompletion();
+        Map<Long, Double> winnings = round.onRoundCompletion(gameModel.getSettings());
 
         List<Player> allPlayers = gameModel.getPlayers();
         if (allPlayers == null || allPlayers.isEmpty()) {
@@ -161,7 +162,7 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
         round.handleFold(request.userId());
 
         if (round.isRoundOver()) {
-            Map<Long, Double> winnings = round.onRoundCompletion();
+            Map<Long, Double> winnings = round.onRoundCompletion(game.getSettings());
 
             for (Player p : game.getPlayers()) {
                 WinnerModel winnerModel = new WinnerModel(round, p.getUserId(), winnings);
@@ -205,7 +206,7 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
         round.handleCall(request.userId(), request.amount());
 
         if (round.isRoundOver()) {
-            Map<Long, Double> winnings = round.onRoundCompletion();
+            Map<Long, Double> winnings = round.onRoundCompletion(game.getSettings());
 
             for (Player p : game.getPlayers()) {
                 WinnerModel winnerModel = new WinnerModel(round, p.getUserId(), winnings);
@@ -234,7 +235,7 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
         round.handleRaise(request.userId(), request.amount());
 
         if (round.isRoundOver()) {
-            Map<Long, Double> winnings = round.onRoundCompletion();
+            Map<Long, Double> winnings = round.onRoundCompletion(game.getSettings());
 
             for (Player p : game.getPlayers()) {
                 WinnerModel winnerModel = new WinnerModel(round, p.getUserId(), winnings);

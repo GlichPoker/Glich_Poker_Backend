@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.repository;
 
+import ch.uzh.ifi.hase.soprafs24.constant.HandRank;
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.GameSettings;
@@ -12,8 +13,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -39,8 +39,9 @@ public class PlayerRepositoryTest {
         user.setStatus(UserStatus.ONLINE);
         user.setToken("token1");
         entityManager.persist(user);
+        List<HandRank> order = new ArrayList<>(Arrays.stream(HandRank.values()).sorted(Comparator.reverseOrder()).toList());
 
-        GameSettings gameSettings = new GameSettings(1000, 5, 10);
+        GameSettings gameSettings = new GameSettings(1000, 5, 10, order, true);
         entityManager.persist(gameSettings);
 
         game = new Game(user, gameSettings, true);

@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
+import ch.uzh.ifi.hase.soprafs24.constant.HandRank;
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
@@ -24,8 +25,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -66,7 +66,8 @@ public class GameControllerTest {
     @BeforeEach
     public void setup() {
         // Initialize test data
-        gameSettingsModel = new GameSettings(341, 2, 3);
+        List<HandRank> order = new ArrayList<>(Arrays.stream(HandRank.values()).sorted(Comparator.reverseOrder()).toList());
+        gameSettingsModel = new GameSettings(341, 2, 3, order, true);
         createGameRequest = new CreateGameRequest(1L, gameSettingsModel, true);
         gameActionRequest = new GameActionRequest(1L, 1L, 100);
         denyInvitationRequest = new DenyInvitationRequest(1L, 3, 3);
@@ -80,7 +81,7 @@ public class GameControllerTest {
         testUser2 = createUser(2L, "testUsername2", "securePassword2", "2", UserStatus.ONLINE);
 
         // Create game settings
-        gameSettingsEntity = new ch.uzh.ifi.hase.soprafs24.entity.GameSettings(33443, 12, 23);
+        gameSettingsEntity = new ch.uzh.ifi.hase.soprafs24.entity.GameSettings(33443, 12, 23, order, true);
 
         // Create test game
         testGame = new Game(testUser, gameSettingsEntity, true);
@@ -208,7 +209,9 @@ public class GameControllerTest {
 
     @Test
     public void testJoinGameUserAlreadyInGame() throws Exception {
-        ch.uzh.ifi.hase.soprafs24.entity.GameSettings gameSettings = new ch.uzh.ifi.hase.soprafs24.entity.GameSettings(33443, 12, 23);
+        List<HandRank> order = new ArrayList<>(Arrays.stream(HandRank.values()).sorted(Comparator.reverseOrder()).toList());
+
+        ch.uzh.ifi.hase.soprafs24.entity.GameSettings gameSettings = new ch.uzh.ifi.hase.soprafs24.entity.GameSettings(33443, 12, 23, order, true);
         User user = new User();
         user.setId(1L);
         user.setPassword("securePassword");

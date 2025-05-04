@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.model;
 
+import ch.uzh.ifi.hase.soprafs24.constant.HandRank;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -52,8 +53,8 @@ public class Round {
         this(players, startPlayer, false, gameSettings);
     }
 
-    public Map<Long, Double> onRoundCompletion() {
-        List<Player> winners = roundComplete();
+    public Map<Long, Double> onRoundCompletion(GameSettings settings) {
+        List<Player> winners =  roundComplete(settings);
         Map<Player, Double> winnings = calculateWinnings(winners);
 
         updateBalances(winnings);
@@ -129,13 +130,13 @@ public class Round {
         return winnings;
     }
 
-    public List<Player> roundComplete() {
+    public List<Player> roundComplete(GameSettings settings) {
         List<Player> winners = new ArrayList<>();
         EvaluationResult winner = null;
         for (Player player : players) {
             List<Card> mergedCards = mergeHands(player.getHand());
 
-            EvaluationResult res = HandEvaluator.evaluateHand(mergedCards);
+            EvaluationResult res = HandEvaluator.evaluateHand(mergedCards, settings);
             player.setEvaluationResult(res);
 
             if (winner == null || res.compareTo(winner) < 0) {

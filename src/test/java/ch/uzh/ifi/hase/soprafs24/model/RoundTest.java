@@ -1,18 +1,23 @@
 package ch.uzh.ifi.hase.soprafs24.model;
 
+import ch.uzh.ifi.hase.soprafs24.constant.HandRank;
 import ch.uzh.ifi.hase.soprafs24.constant.Rank;
 import ch.uzh.ifi.hase.soprafs24.constant.Suit;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 class RoundTest {
 
+    public static GameSettings gameSettings;
+    @BeforeAll
+    public static void setup() {
+        List<HandRank> order = new ArrayList<>(Arrays.stream(HandRank.values()).sorted(Comparator.reverseOrder()).toList());
+        gameSettings = new GameSettings(1000,10,20, order, true);
+    }
     @Test
     void testRoundComplete_singleWinner() {
         // Arrange
@@ -32,7 +37,7 @@ class RoundTest {
         ));
 
         // Act
-        List<Player> winners = round.roundComplete();
+        List<Player> winners = round.roundComplete(gameSettings);
 
         // Assert
         assertEquals(1, winners.size());
@@ -58,7 +63,7 @@ class RoundTest {
         ));
 
         // Act
-        List<Player> winners = round.roundComplete();
+        List<Player> winners = round.roundComplete(gameSettings);
 
         // Assert
         assertEquals(2, winners.size());

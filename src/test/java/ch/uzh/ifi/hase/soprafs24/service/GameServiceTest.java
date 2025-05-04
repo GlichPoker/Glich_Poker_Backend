@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
+import ch.uzh.ifi.hase.soprafs24.constant.HandRank;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.GameSettings;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
@@ -13,9 +14,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -46,8 +45,9 @@ public class GameServiceTest {
         owner = new User();
         owner.setId(1L);
         owner.setUsername("owner");
+        List<HandRank> order = new ArrayList<>(Arrays.stream(HandRank.values()).sorted(Comparator.reverseOrder()).toList());
 
-        gameSettings = new GameSettings(1000L, 1L,2L);
+        gameSettings = new GameSettings(1000L, 1L,2L, order, true);
 
 
         game = new Game(owner, gameSettings, true);

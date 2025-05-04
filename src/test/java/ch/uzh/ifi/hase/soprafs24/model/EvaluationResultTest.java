@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.model;
 
+import ch.uzh.ifi.hase.soprafs24.constant.EvaluationRank;
 import ch.uzh.ifi.hase.soprafs24.constant.HandRank;
 import ch.uzh.ifi.hase.soprafs24.constant.Rank;
 import ch.uzh.ifi.hase.soprafs24.constant.Suit;
@@ -18,28 +19,28 @@ public class EvaluationResultTest {
     @BeforeEach
     public void setup() {
         highHands = new ArrayList<>();
-        highHands.add(new EvaluationResult(HandRank.ROYALFLUSH, new Card[]{new Card(Rank.ACE, Suit.CLUBS)}));
-        highHands.add(new EvaluationResult(HandRank.STRAIGHTFLUSH, new Card[]{new Card(Rank.KING, Suit.CLUBS)}));
-        highHands.add(new EvaluationResult(HandRank.FOUROFKIND, new Card[]{new Card(Rank.ACE, Suit.CLUBS), new Card(Rank.KING, Suit.SPADES)}));
-        highHands.add(new EvaluationResult(HandRank.FULLHOUSE, new Card[]{new Card(Rank.ACE, Suit.CLUBS),new Card(Rank.KING, Suit.CLUBS)}));
-        highHands.add(new EvaluationResult(HandRank.FLUSH, new Card[]{new Card(Rank.ACE, Suit.CLUBS), new Card(Rank.QUEEN, Suit.CLUBS),new Card(Rank.TEN, Suit.CLUBS),new Card(Rank.EIGHT, Suit.CLUBS),new Card(Rank.FIVE, Suit.CLUBS)}));
-        highHands.add(new EvaluationResult(HandRank.STRAIGHT, new Card[]{new Card(Rank.ACE, Suit.CLUBS)}));
-        highHands.add(new EvaluationResult(HandRank.THREEOFKIND, new Card[]{new Card(Rank.ACE, Suit.CLUBS),new Card(Rank.QUEEN, Suit.CLUBS),new Card(Rank.TEN, Suit.CLUBS)}));
-        highHands.add(new EvaluationResult(HandRank.TWOPAIR, new Card[]{new Card(Rank.ACE, Suit.CLUBS),new Card(Rank.QUEEN, Suit.CLUBS),new Card(Rank.TEN, Suit.CLUBS)}));
-        highHands.add(new EvaluationResult(HandRank.ONEPAIR, new Card[]{new Card(Rank.ACE, Suit.CLUBS),new Card(Rank.QUEEN, Suit.CLUBS),new Card(Rank.TEN, Suit.CLUBS),new Card(Rank.SEVEN, Suit.CLUBS)}));
-        highHands.add(new EvaluationResult(HandRank.HIGHCARD, new Card[]{new Card(Rank.ACE, Suit.CLUBS),new Card(Rank.QUEEN, Suit.CLUBS),new Card(Rank.TEN, Suit.CLUBS),new Card(Rank.SEVEN, Suit.CLUBS),new Card(Rank.FIVE, Suit.CLUBS)}));
+        highHands.add(new EvaluationResult(HandRank.ROYALFLUSH, new Card[]{new Card(Rank.ACE, Suit.CLUBS)}, EvaluationRank.FIRST, true));
+        highHands.add(new EvaluationResult(HandRank.STRAIGHTFLUSH, new Card[]{new Card(Rank.KING, Suit.CLUBS)}, EvaluationRank.SECOND, true));
+        highHands.add(new EvaluationResult(HandRank.FOUROFKIND, new Card[]{new Card(Rank.ACE, Suit.CLUBS), new Card(Rank.KING, Suit.SPADES)}, EvaluationRank.THIRD, true));
+        highHands.add(new EvaluationResult(HandRank.FULLHOUSE, new Card[]{new Card(Rank.ACE, Suit.CLUBS),new Card(Rank.KING, Suit.CLUBS)}, EvaluationRank.FOURTH, true));
+        highHands.add(new EvaluationResult(HandRank.FLUSH, new Card[]{new Card(Rank.ACE, Suit.CLUBS), new Card(Rank.QUEEN, Suit.CLUBS),new Card(Rank.TEN, Suit.CLUBS),new Card(Rank.EIGHT, Suit.CLUBS),new Card(Rank.FIVE, Suit.CLUBS)}, EvaluationRank.FIFTH, true));
+        highHands.add(new EvaluationResult(HandRank.STRAIGHT, new Card[]{new Card(Rank.ACE, Suit.CLUBS)}, EvaluationRank.SIXTH, true));
+        highHands.add(new EvaluationResult(HandRank.THREEOFKIND, new Card[]{new Card(Rank.ACE, Suit.CLUBS),new Card(Rank.QUEEN, Suit.CLUBS),new Card(Rank.TEN, Suit.CLUBS)}, EvaluationRank.SEVENTH, true));
+        highHands.add(new EvaluationResult(HandRank.TWOPAIR, new Card[]{new Card(Rank.ACE, Suit.CLUBS),new Card(Rank.QUEEN, Suit.CLUBS),new Card(Rank.TEN, Suit.CLUBS)}, EvaluationRank.EIGHTH, true));
+        highHands.add(new EvaluationResult(HandRank.ONEPAIR, new Card[]{new Card(Rank.ACE, Suit.CLUBS),new Card(Rank.QUEEN, Suit.CLUBS),new Card(Rank.TEN, Suit.CLUBS),new Card(Rank.SEVEN, Suit.CLUBS)}, EvaluationRank.NINETH, true));
+        highHands.add(new EvaluationResult(HandRank.HIGHCARD, new Card[]{new Card(Rank.ACE, Suit.CLUBS),new Card(Rank.QUEEN, Suit.CLUBS),new Card(Rank.TEN, Suit.CLUBS),new Card(Rank.SEVEN, Suit.CLUBS),new Card(Rank.FIVE, Suit.CLUBS)}, EvaluationRank.TENTH, true));
 
         lowHands = new ArrayList<>();
-        lowHands.add(new EvaluationResult(HandRank.ROYALFLUSH, new Card[]{new Card(Rank.ACE, Suit.CLUBS)}));
-        lowHands.add(new EvaluationResult(HandRank.STRAIGHTFLUSH, new Card[]{new Card(Rank.QUEEN, Suit.CLUBS)}));
-        lowHands.add(new EvaluationResult(HandRank.FOUROFKIND, new Card[]{new Card(Rank.ACE, Suit.CLUBS), new Card(Rank.QUEEN, Suit.SPADES)}));
-        lowHands.add(new EvaluationResult(HandRank.FULLHOUSE, new Card[]{new Card(Rank.ACE, Suit.CLUBS),new Card(Rank.QUEEN, Suit.CLUBS)}));
-        lowHands.add(new EvaluationResult(HandRank.FLUSH, new Card[]{new Card(Rank.ACE, Suit.CLUBS), new Card(Rank.QUEEN, Suit.CLUBS),new Card(Rank.TEN, Suit.CLUBS),new Card(Rank.EIGHT, Suit.CLUBS),new Card(Rank.FOUR, Suit.CLUBS)}));
-        lowHands.add(new EvaluationResult(HandRank.STRAIGHT, new Card[]{new Card(Rank.KING, Suit.CLUBS)}));
-        lowHands.add(new EvaluationResult(HandRank.THREEOFKIND, new Card[]{new Card(Rank.ACE, Suit.CLUBS),new Card(Rank.QUEEN, Suit.CLUBS),new Card(Rank.NINE, Suit.CLUBS)}));
-        lowHands.add(new EvaluationResult(HandRank.TWOPAIR, new Card[]{new Card(Rank.ACE, Suit.CLUBS),new Card(Rank.QUEEN, Suit.CLUBS),new Card(Rank.NINE, Suit.CLUBS)}));
-        lowHands.add(new EvaluationResult(HandRank.ONEPAIR, new Card[]{new Card(Rank.ACE, Suit.CLUBS),new Card(Rank.QUEEN, Suit.CLUBS),new Card(Rank.TEN, Suit.CLUBS),new Card(Rank.SIX, Suit.CLUBS)}));
-        lowHands.add(new EvaluationResult(HandRank.HIGHCARD, new Card[]{new Card(Rank.ACE, Suit.CLUBS),new Card(Rank.QUEEN, Suit.CLUBS),new Card(Rank.TEN, Suit.CLUBS),new Card(Rank.SEVEN, Suit.CLUBS),new Card(Rank.FOUR, Suit.CLUBS)}));
+        lowHands.add(new EvaluationResult(HandRank.ROYALFLUSH, new Card[]{new Card(Rank.ACE, Suit.CLUBS)}, EvaluationRank.FIRST, true));
+        lowHands.add(new EvaluationResult(HandRank.STRAIGHTFLUSH, new Card[]{new Card(Rank.QUEEN, Suit.CLUBS)}, EvaluationRank.SECOND, true));
+        lowHands.add(new EvaluationResult(HandRank.FOUROFKIND, new Card[]{new Card(Rank.ACE, Suit.CLUBS), new Card(Rank.QUEEN, Suit.SPADES)}, EvaluationRank.THIRD, true));
+        lowHands.add(new EvaluationResult(HandRank.FULLHOUSE, new Card[]{new Card(Rank.ACE, Suit.CLUBS),new Card(Rank.QUEEN, Suit.CLUBS)}, EvaluationRank.FOURTH, true));
+        lowHands.add(new EvaluationResult(HandRank.FLUSH, new Card[]{new Card(Rank.ACE, Suit.CLUBS), new Card(Rank.QUEEN, Suit.CLUBS),new Card(Rank.TEN, Suit.CLUBS),new Card(Rank.EIGHT, Suit.CLUBS),new Card(Rank.FOUR, Suit.CLUBS)},EvaluationRank.FIFTH, true));
+        lowHands.add(new EvaluationResult(HandRank.STRAIGHT, new Card[]{new Card(Rank.KING, Suit.CLUBS)}, EvaluationRank.SIXTH, true));
+        lowHands.add(new EvaluationResult(HandRank.THREEOFKIND, new Card[]{new Card(Rank.ACE, Suit.CLUBS),new Card(Rank.QUEEN, Suit.CLUBS),new Card(Rank.NINE, Suit.CLUBS)}, EvaluationRank.SEVENTH, true));
+        lowHands.add(new EvaluationResult(HandRank.TWOPAIR, new Card[]{new Card(Rank.ACE, Suit.CLUBS),new Card(Rank.QUEEN, Suit.CLUBS),new Card(Rank.NINE, Suit.CLUBS)}, EvaluationRank.EIGHTH, true));
+        lowHands.add(new EvaluationResult(HandRank.ONEPAIR, new Card[]{new Card(Rank.ACE, Suit.CLUBS),new Card(Rank.QUEEN, Suit.CLUBS),new Card(Rank.TEN, Suit.CLUBS),new Card(Rank.SIX, Suit.CLUBS)}, EvaluationRank.NINETH, true));
+        lowHands.add(new EvaluationResult(HandRank.HIGHCARD, new Card[]{new Card(Rank.ACE, Suit.CLUBS),new Card(Rank.QUEEN, Suit.CLUBS),new Card(Rank.TEN, Suit.CLUBS),new Card(Rank.SEVEN, Suit.CLUBS),new Card(Rank.FOUR, Suit.CLUBS)}, EvaluationRank.TENTH, true));
 
     }
 

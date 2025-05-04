@@ -1,16 +1,18 @@
 package ch.uzh.ifi.hase.soprafs24.model;
 
+import ch.uzh.ifi.hase.soprafs24.constant.EvaluationRank;
 import ch.uzh.ifi.hase.soprafs24.constant.HandRank;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Arrays;
 
-public record EvaluationResult(@JsonProperty("handRank")HandRank handRank, @JsonProperty("highCards")Card[] highCards) implements Comparable<EvaluationResult> {
+public record EvaluationResult(@JsonProperty("handRank")HandRank handRank, @JsonProperty("highCards")Card[] highCards, @JsonProperty EvaluationRank evaluationRank, boolean descending) implements Comparable<EvaluationResult> {
 
     @Override
     public int compareTo(EvaluationResult other) {
         // Compare HandRank first
-        int rankComparison = -Integer.compare(this.handRank.ordinal(), other.handRank.ordinal());
+        int rankComparison = -Integer.compare(this.evaluationRank.ordinal(), other.evaluationRank.ordinal()) ;
+        rankComparison = descending ? rankComparison : -rankComparison;
         if (rankComparison != 0) {
             return rankComparison;
         }
@@ -18,6 +20,8 @@ public record EvaluationResult(@JsonProperty("handRank")HandRank handRank, @Json
         // Compare high cards
         for (int i = 0; i < this.highCards.length; i++) {
             int cardComparison = this.highCards[i].compareTo(other.highCards[i]);
+            cardComparison = descending ? cardComparison : -cardComparison;
+
             if (cardComparison != 0) {
                 return cardComparison;
             }

@@ -3,13 +3,22 @@ package ch.uzh.ifi.hase.soprafs24.model;
 import ch.uzh.ifi.hase.soprafs24.constant.HandRank;
 import ch.uzh.ifi.hase.soprafs24.constant.Rank;
 import ch.uzh.ifi.hase.soprafs24.constant.Suit;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 
 class HandEvaluatorTest {
+    private static GameSettings settings;
+    @BeforeAll
+    public static void setup() {
+        List<HandRank> order = new ArrayList<>(Arrays.stream(HandRank.values()).sorted(Comparator.reverseOrder()).toList());
+        settings = new GameSettings(1000,10,20, order, true);
+    }
 
     @Test
     void testRoyalFlush() {
@@ -21,7 +30,7 @@ class HandEvaluatorTest {
                 new Card(Rank.ACE, Suit.SPADES)
         ));
 
-        EvaluationResult result = HandEvaluator.evaluateHand(royalFlushCards);
+        EvaluationResult result = HandEvaluator.evaluateHand(royalFlushCards, settings);
 
         assertEquals(HandRank.ROYALFLUSH, result.handRank());
 
@@ -40,7 +49,7 @@ class HandEvaluatorTest {
                 new Card(Rank.SEVEN, Suit.SPADES)
         ));
 
-        EvaluationResult result = HandEvaluator.evaluateHand(royalFlushCards);
+        EvaluationResult result = HandEvaluator.evaluateHand(royalFlushCards, settings);
 
         assertEquals(HandRank.STRAIGHTFLUSH, result.handRank());
 
@@ -59,7 +68,7 @@ class HandEvaluatorTest {
                 new Card(Rank.EIGHT, Suit.HEARTS)
         ));
 
-        EvaluationResult result = HandEvaluator.evaluateHand(straightCards);
+        EvaluationResult result = HandEvaluator.evaluateHand(straightCards, settings);
 
         assertEquals(HandRank.STRAIGHT, result.handRank());
 
@@ -78,7 +87,7 @@ class HandEvaluatorTest {
                 new Card(Rank.EIGHT, Suit.HEARTS)
         ));
 
-        EvaluationResult result = HandEvaluator.evaluateHand(straightCards);
+        EvaluationResult result = HandEvaluator.evaluateHand(straightCards, settings);
 
         assertEquals(HandRank.STRAIGHT, result.handRank());
 
@@ -95,7 +104,7 @@ class HandEvaluatorTest {
                 new Card(Rank.KING, Suit.SPADES)
         ));
 
-        EvaluationResult result = HandEvaluator.evaluateHand(fourOfAKindCards);
+        EvaluationResult result = HandEvaluator.evaluateHand(fourOfAKindCards, settings);
 
         assertEquals(HandRank.FOUROFKIND, result.handRank());
 
@@ -115,7 +124,7 @@ class HandEvaluatorTest {
                 new Card(Rank.QUEEN, Suit.HEARTS)
         ));
 
-        EvaluationResult result = HandEvaluator.evaluateHand(fullHouseCards);
+        EvaluationResult result = HandEvaluator.evaluateHand(fullHouseCards, settings);
 
         assertEquals(HandRank.FULLHOUSE, result.handRank());
 
@@ -135,7 +144,7 @@ class HandEvaluatorTest {
                 new Card(Rank.QUEEN, Suit.HEARTS)
         ));
 
-        EvaluationResult result = HandEvaluator.evaluateHand(fullHouseCards);
+        EvaluationResult result = HandEvaluator.evaluateHand(fullHouseCards, settings);
 
         assertEquals(HandRank.FULLHOUSE, result.handRank());
 
@@ -155,7 +164,7 @@ class HandEvaluatorTest {
                 new Card(Rank.QUEEN, Suit.HEARTS)
         ));
 
-        EvaluationResult result = HandEvaluator.evaluateHand(fullHouseCards);
+        EvaluationResult result = HandEvaluator.evaluateHand(fullHouseCards, settings);
 
         assertEquals(HandRank.FULLHOUSE, result.handRank());
 
@@ -175,7 +184,7 @@ class HandEvaluatorTest {
                 new Card(Rank.EIGHT, Suit.HEARTS)
         ));
 
-        EvaluationResult result = HandEvaluator.evaluateHand(straightCards);
+        EvaluationResult result = HandEvaluator.evaluateHand(straightCards, settings);
 
         assertEquals(HandRank.FLUSH, result.handRank());
 
@@ -198,7 +207,7 @@ class HandEvaluatorTest {
                 new Card(Rank.QUEEN, Suit.HEARTS)
         ));
 
-        EvaluationResult result = HandEvaluator.evaluateHand(fullHouseCards);
+        EvaluationResult result = HandEvaluator.evaluateHand(fullHouseCards, settings);
 
         assertEquals(HandRank.THREEOFKIND, result.handRank());
 
@@ -219,7 +228,7 @@ class HandEvaluatorTest {
                 new Card(Rank.QUEEN, Suit.HEARTS)
         ));
 
-        EvaluationResult result = HandEvaluator.evaluateHand(fullHouseCards);
+        EvaluationResult result = HandEvaluator.evaluateHand(fullHouseCards, settings);
 
         assertEquals(HandRank.TWOPAIR, result.handRank());
 
@@ -240,7 +249,7 @@ class HandEvaluatorTest {
                 new Card(Rank.SIX, Suit.HEARTS)
         ));
 
-        EvaluationResult result = HandEvaluator.evaluateHand(fullHouseCards);
+        EvaluationResult result = HandEvaluator.evaluateHand(fullHouseCards, settings);
 
         assertEquals(HandRank.ONEPAIR, result.handRank());
 
@@ -262,7 +271,7 @@ class HandEvaluatorTest {
                 new Card(Rank.QUEEN, Suit.HEARTS)
         ));
 
-        EvaluationResult result = HandEvaluator.evaluateHand(fullHouseCards);
+        EvaluationResult result = HandEvaluator.evaluateHand(fullHouseCards, settings);
 
         assertEquals(HandRank.HIGHCARD, result.handRank());
 
