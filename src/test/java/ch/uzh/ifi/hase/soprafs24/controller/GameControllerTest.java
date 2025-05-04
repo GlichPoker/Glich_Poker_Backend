@@ -536,7 +536,7 @@ public class GameControllerTest {
     public void testDefaultOrder() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/game/defaultOrder")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk()).andExpect(jsonPath("$[0]").value(HandRank.ROYALFLUSH.toString())).andReturn()
-        ;
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0]").value(HandRank.ROYALFLUSH.toString()));
     }
 }
