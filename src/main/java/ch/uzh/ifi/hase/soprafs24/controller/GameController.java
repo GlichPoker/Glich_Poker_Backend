@@ -15,8 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
@@ -360,5 +359,11 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
         wsHandler.sendModelToAll(Long.toString(game.getSessionId()), game, Model.GAMEMODEL);
 
         return game;
+    }
+
+    @GetMapping("/defaultOrder")
+    @ResponseStatus(HttpStatus.OK)
+    public List<HandRank> getDefaultOrder() {
+        return new ArrayList<>(Arrays.stream(HandRank.values()).sorted(Comparator.reverseOrder()).toList());
     }
 }
