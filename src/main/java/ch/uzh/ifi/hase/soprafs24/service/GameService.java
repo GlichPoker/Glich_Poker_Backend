@@ -21,7 +21,8 @@ public class GameService {
     private final GameSettingsService gameSettingsService;
 
     @Autowired
-    public GameService(GameRepository gameRepository, PlayerService playerService, GameSettingsService gameSettingsService) {
+    public GameService(GameRepository gameRepository, PlayerService playerService,
+            GameSettingsService gameSettingsService) {
         this.gameRepository = gameRepository;
         this.playerService = playerService;
         this.gameSettingsService = gameSettingsService;
@@ -41,7 +42,8 @@ public class GameService {
     public Game getGameBySessionId(long sessionId) {
         Optional<Game> optionalGame = gameRepository.findById(sessionId);
         if (optionalGame.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Game with session id %d not found", sessionId));
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    String.format("Game with session id %d not found", sessionId));
         }
         Game game = optionalGame.get();
 
@@ -52,8 +54,10 @@ public class GameService {
 
     // Add a player to an existing game
     public boolean addPlayerToGame(Game game, User user, long startBalance) {
-        if(game.containsPlayer(user.getId())) throw new ResponseStatusException(HttpStatus.CONFLICT, String.format("Player with id %d already exists", user.getId()));
-        if(!game.isPublic()) {
+        if (game.containsPlayer(user.getId()))
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    String.format("Player with id %d already exists", user.getId()));
+        if (!game.isPublic()) {
             createAndAddPlayerToGame(game, user, startBalance);
         }
 
@@ -61,23 +65,27 @@ public class GameService {
     }
 
     public void createAndAddPlayerToGame(Game game, User user, long startBalance) {
-        Player player = playerService.createPlayer(user,  startBalance, game);
+        Player player = playerService.createPlayer(user, startBalance, game);
         game.addPlayer(player);
         gameRepository.save(game);
     }
 
     public boolean handlePlayerJoinOrRejoin(Game game, User user) {
         /*
-        this line always creates the player when the game is public and the user is not part of the game
-        if the game is private, all users who were already invited are contained in game
-        if the game is public and the player was recently in the game, the game will contain the player aswell
-        */
-        if(game.isPublic() && !game.containsPlayer(user.getId())) {
+         * this line always creates the player when the game is public and the user is
+         * not part of the game
+         * if the game is private, all users who were already invited are contained in
+         * game
+         * if the game is public and the player was recently in the game, the game will
+         * contain the player aswell
+         */
+        if (game.isPublic() && !game.containsPlayer(user.getId())) {
             createAndAddPlayerToGame(game, user, game.getSettings().getInitialBalance());
         }
 
-        if(!game.containsPlayer(user.getId())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, String.format("Player with id %d was not invited to game", user.getId()));
+        if (!game.containsPlayer(user.getId())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    String.format("Player with id %d was not invited to game", user.getId()));
         }
         Player player = game.getPlayer(user.getId());
         player.setIsOnline(true);
@@ -85,9 +93,9 @@ public class GameService {
         return true;
     }
 
-
     public boolean removePlayerFromGame(Game game, long userId) {
-        if(game.isRoundRunning()) throw new ResponseStatusException(HttpStatus.CONFLICT, "Round is still running");
+        if (game.isRoundRunning())
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Round is still running");
         game.removePlayer(userId);
         playerService.removePlayer(userId);
         gameRepository.save(game);
@@ -95,7 +103,8 @@ public class GameService {
     }
 
     public void setPlayerOffline(Game game, long userId) {
-        if(game.isRoundRunning()) throw new ResponseStatusException(HttpStatus.CONFLICT, "Round is still running");
+        if (game.isRoundRunning())
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Round is still running");
         game.getPlayers().stream()
                 .filter(x -> x.getUserId() == userId)
                 .findFirst().ifPresent(player -> playerService.savePlayer(player.setIsOnline(false)));
@@ -108,7 +117,7 @@ public class GameService {
     public void startRound(Game game) {
         game.setRoundRunning(true);
         List<Player> players = game.getPlayers();
-        for(Player player : players) {
+        for (Player player : players) {
             player.setIsActive(true);
             playerService.savePlayer(player);
         }
@@ -119,7 +128,8 @@ public class GameService {
     public Game completeRound(ch.uzh.ifi.hase.soprafs24.model.Game game) {
         Game gameEntity = getGameBySessionId(game.getSessionId());
         gameEntity.setRoundRunning(false);
-        //TODO shouldn't this be the active players in case some of the palyers are offline?
+        // TODO shouldn't this be the active players in case some of the palyers are
+        // offline?
         gameEntity.setStartPlayer((game.getCurrentRoundStartPlayer() + 1) % game.getPlayers().size());
         List<ch.uzh.ifi.hase.soprafs24.model.Player> newPlayers = game.getPlayers();
         for (ch.uzh.ifi.hase.soprafs24.model.Player activePlayer : newPlayers) {
@@ -149,9 +159,9 @@ public class GameService {
     public void deleteSession(Game game) {
         List<Player> players = game.getPlayers();
         playerService.deletePlayers(players);
-        gameSettingsService.deleteSettings(game.getSettings());
         gameRepository.delete(game);
         gameRepository.flush();
+        gameSettingsService.deleteSettings(game.getSettings());
     }
 
     public List<Game> getGamesOwnedByUser(long userId) {
