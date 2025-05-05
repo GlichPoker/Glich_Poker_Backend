@@ -8,7 +8,5 @@ runtime_config:
   jdk: openjdk17
 vpc_access_connector:
   name: projects/automatic-bond-454109-v8/locations/europe-west6/connectors/database-connector
-automatic_scaling:
-  max_instances: 1
 env_variables:
   DB_PASSWORD: "${DB_PASSWORD}"
