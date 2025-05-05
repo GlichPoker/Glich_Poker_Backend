@@ -289,12 +289,14 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
     @ResponseBody
     public boolean deleteGame(@RequestParam long sessionId, @RequestParam long userId) {
         Game game = gameService.getGameBySessionId(sessionId);
+        if (game == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
+        }
         if (game.getOwner().getId() != userId) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not the owner of this game");
         }
         if (game.isRoundRunning())
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Game is still running");
-
         activeGames.remove(sessionId);
         gameService.deleteSession(game);
         return true;
