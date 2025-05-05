@@ -5,7 +5,8 @@ runtime: java
 env: flex
 
 runtime_config:
-  jdk: openjdk17
+  operating_system: "ubuntu22"
+  runtime_version: "17"
 vpc_access_connector:
   name: projects/automatic-bond-454109-v8/locations/europe-west6/connectors/database-connector
 env_variables:
