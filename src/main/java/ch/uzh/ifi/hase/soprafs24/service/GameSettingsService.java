@@ -31,18 +31,20 @@ public class GameSettingsService {
         newGameSettings.setInitialBalance(gameSettings.initialBalance());
         newGameSettings.setSmallBlind(gameSettings.smallBlind());
         newGameSettings.setBigBlind(gameSettings.bigBlind());
-        GameSettings newSettings =  gameSettingsRepository.save(newGameSettings);
+        newGameSettings.setDescending(gameSettings.descending());
+        newGameSettings.setOrder(gameSettings.order());
+        GameSettings newSettings = gameSettingsRepository.save(newGameSettings);
         gameSettingsRepository.flush();
         return newSettings;
     }
 
-    public void deleteSettings(GameSettings gameSettings)
-    {
+    public void deleteSettings(GameSettings gameSettings) {
         gameSettingsRepository.delete(gameSettings);
         gameSettingsRepository.flush();
     }
 
-    public GameSettings updateSettings(GameSettings gameSettings, ch.uzh.ifi.hase.soprafs24.model.GameSettings newGameSettings) {
+    public GameSettings updateSettings(GameSettings gameSettings,
+            ch.uzh.ifi.hase.soprafs24.model.GameSettings newGameSettings) {
         gameSettings.setSmallBlind(newGameSettings.smallBlind());
         gameSettings.setInitialBalance(newGameSettings.initialBalance());
         gameSettings.setBigBlind(newGameSettings.bigBlind());
@@ -52,4 +54,3 @@ public class GameSettingsService {
 
     }
 }
-
