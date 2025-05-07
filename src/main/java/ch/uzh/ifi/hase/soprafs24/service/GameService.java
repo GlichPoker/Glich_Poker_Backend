@@ -169,6 +169,6 @@ public class GameService {
     }
 
     public List<Game> getAllGames() {
-        return gameRepository.findAll().stream().filter(Game::isPublic).toList();
+        return gameRepository.findAll().stream().toList();
     }
 }

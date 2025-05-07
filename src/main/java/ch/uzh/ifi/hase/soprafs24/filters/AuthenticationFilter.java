@@ -17,12 +17,13 @@ import java.io.IOException;
 
 @CrossOrigin(origins = "*")
 @Component
-@Profile("!test")  // The filter will not be loaded when the "test" profile is active
+@Profile("!test") // The filter will not be loaded when the "test" profile is active
 public class AuthenticationFilter extends OncePerRequestFilter {
     private final String contentType = "application/json";
     private final String[][] publicPaths = {
-            {"/users/login", null}, //null = all
-            {"/users", "POST"}
+            { "/users/login", null }, // null = all
+            { "/users", "POST" },
+            { "/game/allGames", "GET" }
     };
 
     private final UserService userService;
@@ -45,12 +46,13 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
 
         // Handle WebSocket connections with token authentication
         if (request.getRequestURI().startsWith("/ws")) {
             String token = request.getParameter("token");
-            
+
             // Check if token exists and is valid
             if (token == null) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -58,7 +60,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
                 response.setContentType(contentType);
                 return;
             }
-            
+
             // Verify token against repository
             if (userRepository.findByToken(token) == null) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -66,7 +68,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
                 response.setContentType(contentType);
                 return;
             }
-            
+
             // Token is valid, allow connection
             filterChain.doFilter(request, response);
             return;
