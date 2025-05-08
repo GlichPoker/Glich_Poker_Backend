@@ -1,5 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
+import ch.uzh.ifi.hase.soprafs24.constant.HandRank;
+import ch.uzh.ifi.hase.soprafs24.constant.WeatherType;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.GameSettings;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
@@ -13,9 +15,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -46,8 +46,9 @@ public class GameServiceTest {
         owner = new User();
         owner.setId(1L);
         owner.setUsername("owner");
+        List<HandRank> order = new ArrayList<>(Arrays.stream(HandRank.values()).sorted(Comparator.reverseOrder()).toList());
 
-        gameSettings = new GameSettings(1000L, 1L,2L);
+        gameSettings = new GameSettings(1000L, 1L,2L, order, true, WeatherType.CLOUDY, "");
 
 
         game = new Game(owner, gameSettings, true);
@@ -112,7 +113,7 @@ public class GameServiceTest {
         when(playerService.createPlayer(any(User.class), anyLong(), any(Game.class))).thenReturn(player);
         when(gameRepository.save(any(Game.class))).thenReturn(game);
         gameService.addPlayerToGame(game, owner, 1L);
-        gameService.handlePlayerJoinOrRejoin(game, owner);
+        gameService.handlePlayerJoinOrRejoin(game, owner, "");
         verify(gameRepository, times(1)).save(any(Game.class));
         assertTrue(game.getAllPlayers().contains(player));
         assertTrue(game.getPlayer(owner.getId()).isOnline());
@@ -138,7 +139,7 @@ public class GameServiceTest {
         when(playerService.createPlayer(any(User.class), anyLong(), any(Game.class))).thenReturn(player);
         when(gameRepository.save(any(Game.class))).thenReturn(game);
         gameService.addPlayerToGame(game, owner, 1L);
-        gameService.handlePlayerJoinOrRejoin(game, owner);
+        gameService.handlePlayerJoinOrRejoin(game, owner, "");
         assertTrue(game.getAllPlayers().contains(player));
         assertTrue(game.getPlayer(owner.getId()).isOnline());
         gameService.setPlayerOffline(game, owner.getId());
@@ -224,7 +225,7 @@ public class GameServiceTest {
         when(playerService.getPlayer(anyLong())).thenReturn(player);
 
         gameService.addPlayerToGame(game2, owner, 1L);
-        gameService.handlePlayerJoinOrRejoin(game2, owner);
+        gameService.handlePlayerJoinOrRejoin(game2, owner, "");
         ch.uzh.ifi.hase.soprafs24.model.Game gameModel = new ch.uzh.ifi.hase.soprafs24.model.Game(game2, false);
 
         when(gameRepository.findById(game2.getSessionId())).thenReturn(Optional.of(game2));
@@ -246,7 +247,7 @@ public class GameServiceTest {
         player.setIsOnline(false);
         game.addPlayer(player);
 
-        boolean success =gameService.handlePlayerJoinOrRejoin(game, owner);
+        boolean success =gameService.handlePlayerJoinOrRejoin(game, owner, "");
 
         assertTrue(game.getAllPlayers().contains(player));
         assertTrue(game.getPlayer(owner.getId()).isOnline());
@@ -257,6 +258,6 @@ public class GameServiceTest {
     @Test
     public void handlePlayerRejoinPlayerNotInGame() {
         game.setIsPublic(false);
-        assertThrows(ResponseStatusException.class, () -> gameService.handlePlayerJoinOrRejoin(game, owner));
+        assertThrows(ResponseStatusException.class, () -> gameService.handlePlayerJoinOrRejoin(game, owner, "asdf"));
     }
 }

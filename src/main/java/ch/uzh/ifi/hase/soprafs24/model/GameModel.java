@@ -24,19 +24,23 @@ public class GameModel {
             this.round = null;
         }
 
-        List<Player> players = game.getPlayers();
-        int playerIdx = IntStream.range(0, players.size())
-                .filter(i -> players.get(i).getUserId() == userId)
-                .findFirst()
-                .orElse(-1);
+        if(userId > 0) {
+            List<Player> players = game.getPlayers();
+            int playerIdx = IntStream.range(0, players.size())
+                    .filter(i -> players.get(i).getUserId() == userId)
+                    .findFirst()
+                    .orElse(-1);
 
-        if(playerIdx == -1)throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found");
+            if (playerIdx == -1) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found");
 
-        List<Player> orderedPlayers = new ArrayList<>();
-        orderedPlayers.addAll(players.subList(playerIdx, players.size()));
-        orderedPlayers.addAll(players.subList(0, playerIdx));
+            List<Player> orderedPlayers = new ArrayList<>();
+            orderedPlayers.addAll(players.subList(playerIdx, players.size()));
+            orderedPlayers.addAll(players.subList(0, playerIdx));
+            this.players = orderedPlayers;
 
-        this.players = orderedPlayers;
+        }else{
+            this.players = game.getPlayers();
+        }
         this.settings = game.getSettings();
         this.ownerId = game.getOwnerId();
         this.currentRoundStartPlayer = game.getCurrentRoundStartPlayer();

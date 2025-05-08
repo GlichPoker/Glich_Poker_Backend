@@ -70,16 +70,12 @@ public class GameService {
         gameRepository.save(game);
     }
 
-    public boolean handlePlayerJoinOrRejoin(Game game, User user) {
-        /*
-         * this line always creates the player when the game is public and the user is
-         * not part of the game
-         * if the game is private, all users who were already invited are contained in
-         * game
-         * if the game is public and the player was recently in the game, the game will
-         * contain the player aswell
-         */
-        if (game.isPublic() && !game.containsPlayer(user.getId())) {
+
+    public boolean handlePlayerJoinOrRejoin(Game game, User user, String password) {
+
+        if(!game.isPublic() && !game.getSettings().getPassword().equals(password))
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "password does not match");
+        if (!game.containsPlayer(user.getId())) {
             createAndAddPlayerToGame(game, user, game.getSettings().getInitialBalance());
         }
 
@@ -169,6 +165,6 @@ public class GameService {
     }
 
     public List<Game> getAllGames() {
-        return gameRepository.findAll().stream().filter(Game::isPublic).toList();
+        return gameRepository.findAll().stream().toList();
     }
 }

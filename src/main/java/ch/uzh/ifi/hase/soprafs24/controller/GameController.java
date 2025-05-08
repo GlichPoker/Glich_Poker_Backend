@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
+import ch.uzh.ifi.hase.soprafs24.constant.HandRank;
 import ch.uzh.ifi.hase.soprafs24.constant.Model;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
@@ -14,8 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
@@ -48,7 +48,7 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
             return;
         }
 
-        Map<Long, Double> winnings = round.onRoundCompletion();
+        Map<Long, Double> winnings = round.onRoundCompletion(gameModel.getSettings());
 
         List<Player> allPlayers = gameModel.getPlayers();
         if (allPlayers == null || allPlayers.isEmpty()) {
@@ -114,10 +114,10 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
     @PostMapping("/join")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public ch.uzh.ifi.hase.soprafs24.model.Game joinGame(@RequestBody GameActionRequest request) {
+    public ch.uzh.ifi.hase.soprafs24.model.Game joinGame(@RequestBody JoinGameRequest request) {
         Game game = gameService.getGameBySessionId(request.sessionId());
         User user = userService.getUserById(request.userId());
-        gameService.handlePlayerJoinOrRejoin(game, user);
+        gameService.handlePlayerJoinOrRejoin(game, user, request.password());
         Game updatedGame = gameService.getGameBySessionId(request.sessionId());
 
         ch.uzh.ifi.hase.soprafs24.model.Game gameModel = new ch.uzh.ifi.hase.soprafs24.model.Game(updatedGame, false);
@@ -152,7 +152,7 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
     @PostMapping("/fold")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public RoundModel foldGame(@RequestBody GameActionRequest request) {
+    public void foldGame(@RequestBody GameActionRequest request) {
         ch.uzh.ifi.hase.soprafs24.model.Game game = activeGames.get(request.sessionId());
         if (game == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
@@ -161,7 +161,7 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
         round.handleFold(request.userId());
 
         if (round.isRoundOver()) {
-            Map<Long, Double> winnings = round.onRoundCompletion();
+            Map<Long, Double> winnings = round.onRoundCompletion(game.getSettings());
 
             for (Player p : game.getPlayers()) {
                 WinnerModel winnerModel = new WinnerModel(round, p.getUserId(), winnings);
@@ -175,7 +175,6 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
         } else
             wsHandler.sendModelToAll(Long.toString(game.getSessionId()), game, Model.ROUNDMODEL);
 
-        return game.getRoundModel(request.userId());
     }
 
     @PostMapping("/roundComplete")
@@ -196,7 +195,7 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
     @PostMapping("/call")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public RoundModel callGame(@RequestBody GameActionRequest request) {
+    public void callGame(@RequestBody GameActionRequest request) {
         ch.uzh.ifi.hase.soprafs24.model.Game game = activeGames.get(request.sessionId());
         if (game == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
@@ -205,7 +204,7 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
         round.handleCall(request.userId(), request.amount());
 
         if (round.isRoundOver()) {
-            Map<Long, Double> winnings = round.onRoundCompletion();
+            Map<Long, Double> winnings = round.onRoundCompletion(game.getSettings());
 
             for (Player p : game.getPlayers()) {
                 WinnerModel winnerModel = new WinnerModel(round, p.getUserId(), winnings);
@@ -219,13 +218,12 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
         } else
             wsHandler.sendModelToAll(Long.toString(game.getSessionId()), game, Model.ROUNDMODEL);
 
-        return game.getRoundModel(request.userId());
     }
 
     @PostMapping("/raise")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public RoundModel raiseGame(@RequestBody GameActionRequest request) {
+    public void raiseGame(@RequestBody GameActionRequest request) {
         ch.uzh.ifi.hase.soprafs24.model.Game game = activeGames.get(request.sessionId());
         if (game == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
@@ -234,7 +232,7 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
         round.handleRaise(request.userId(), request.amount());
 
         if (round.isRoundOver()) {
-            Map<Long, Double> winnings = round.onRoundCompletion();
+            Map<Long, Double> winnings = round.onRoundCompletion(game.getSettings());
 
             for (Player p : game.getPlayers()) {
                 WinnerModel winnerModel = new WinnerModel(round, p.getUserId(), winnings);
@@ -248,7 +246,6 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
         } else
             wsHandler.sendModelToAll(Long.toString(game.getSessionId()), game, Model.ROUNDMODEL);
 
-        return game.getRoundModel(request.userId());
     }
 
     @PostMapping("/leave")
@@ -304,14 +301,24 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
 
     @GetMapping("/allGames")
     @ResponseStatus(HttpStatus.OK)
-    public List<Game> getAllGames() {
-        return gameService.getAllGames();
+    public List<GameModel> getAllGames() {
+        List<Game> games =  gameService.getAllGames();
+        List<GameModel> gameModels = new ArrayList<>();
+        for (Game game : games) {
+            gameModels.add(new GameModel(game.toGameModel(), -1));
+        }
+        return gameModels;
     }
 
     @GetMapping("/owned/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public List<Game> getAllOwnedGames(@PathVariable long userId) {
-        return gameService.getGamesOwnedByUser(userId);
+    public List<GameModel> getAllOwnedGames(@PathVariable long userId) {
+        List<Game> games = gameService.getGamesOwnedByUser(userId);
+        List<GameModel> gameModels = new ArrayList<>();
+        for (Game game : games) {
+            gameModels.add(new GameModel(game.toGameModel(), -1));
+        }
+        return gameModels;
     }
 
     @GetMapping("/settings/{gameId}")
@@ -335,16 +342,29 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
     @PostMapping("/check")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public RoundModel checkGame(@RequestBody GameActionRequest request) {
+    public void checkGame(@RequestBody GameActionRequest request) {
         ch.uzh.ifi.hase.soprafs24.model.Game game = activeGames.get(request.sessionId());
         if (game == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
         }
-        game.getRound().handleCheck(request.userId());
+        Round round = game.getRound();
+        round.handleCheck(request.userId());
 
-        wsHandler.sendModelToAll(Long.toString(game.getSessionId()), game, Model.ROUNDMODEL);
+        if (round.isRoundOver()) {
+            Map<Long, Double> winnings = round.onRoundCompletion(game.getSettings());
 
-        return game.getRoundModel(request.userId());
+            for (Player p : game.getPlayers()) {
+                WinnerModel winnerModel = new WinnerModel(round, p.getUserId(), winnings);
+                wsHandler.sendRawWinnerModelToPlayer(
+                        String.valueOf(game.getSessionId()),
+                        p.getUserId(),
+                        winnerModel);
+            }
+
+            gameService.completeRound(game);
+        } else
+            wsHandler.sendModelToAll(Long.toString(game.getSessionId()), game, Model.ROUNDMODEL);
+
     }
 
     @PostMapping("/readyForNextGame")
@@ -361,5 +381,11 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
         wsHandler.sendModelToAll(Long.toString(game.getSessionId()), game, Model.GAMEMODEL);
 
         return game;
+    }
+
+    @GetMapping("/defaultOrder")
+    @ResponseStatus(HttpStatus.OK)
+    public List<HandRank> getDefaultOrder() {
+        return new ArrayList<>(Arrays.stream(HandRank.values()).sorted(Comparator.reverseOrder()).toList());
     }
 }

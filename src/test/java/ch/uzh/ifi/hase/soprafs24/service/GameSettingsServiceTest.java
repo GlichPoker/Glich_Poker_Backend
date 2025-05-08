@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
+import ch.uzh.ifi.hase.soprafs24.constant.HandRank;
 import ch.uzh.ifi.hase.soprafs24.entity.*;
 
 import ch.uzh.ifi.hase.soprafs24.repository.GameSettingsRepository;
@@ -9,7 +10,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.web.server.ResponseStatusException;
-import java.util.Optional;
+
+import java.util.*;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -32,10 +34,13 @@ public class GameSettingsServiceTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
+        List<HandRank> order = new ArrayList<>(Arrays.stream(HandRank.values()).sorted(Comparator.reverseOrder()).toList());
         gameSettings = new GameSettings();
         gameSettings.setInitialBalance(100);
         gameSettings.setBigBlind(10);
         gameSettings.setSmallBlind(5);
+        gameSettings.setOrder(order);
+        gameSettings.setDescending(true);
 
         otherSettings = new ch.uzh.ifi.hase.soprafs24.model.GameSettings(gameSettings);
     }

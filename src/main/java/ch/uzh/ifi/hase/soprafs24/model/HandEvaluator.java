@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.model;
 
+import ch.uzh.ifi.hase.soprafs24.constant.EvaluationRank;
 import ch.uzh.ifi.hase.soprafs24.constant.HandRank;
 import ch.uzh.ifi.hase.soprafs24.constant.Rank;
 import ch.uzh.ifi.hase.soprafs24.constant.Suit;
@@ -13,20 +14,56 @@ public class HandEvaluator {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
 
-    public static EvaluationResult evaluateHand(List<Card> cards) {
-         orderCards(cards);
+    public static EvaluationResult evaluateHand(List<Card> cards, GameSettings settings) {
+         orderCards(cards, settings.descending());
          // suit never matters for high card comparison, so I default to spades
          // technically royal flush is redundant
-         if(isRoyalFlush(cards)) return new EvaluationResult(HandRank.ROYALFLUSH, new Card[] {new Card(Rank.ACE, Suit.SPADES)}); // high card trivially ace
-         if(isStraightFlush(cards)) return new EvaluationResult(HandRank.STRAIGHTFLUSH, getHighCardsStraight(cards)); // only high card of straight matters
-         if(isFourOfAKind(cards)) return new EvaluationResult(HandRank.FOUROFKIND, getHighCardFourKind(cards)); // high card of fours and high card of general hand
-         if(isFullHouse(cards)) return new EvaluationResult(HandRank.FULLHOUSE, getHighCardsFullHouse(cards)); // high card are trips and doubles
-         if(isFlush(cards)) return new EvaluationResult(HandRank.FLUSH, getHighCardsFlush(cards)); // high cards are just first 5 flush cards
-         if(isStraight(cards)) return new EvaluationResult(HandRank.STRAIGHT, getHighCardsStraight(cards)); // highest hard of straight
-         if(isThreeOfAKind(cards)) return new EvaluationResult(HandRank.THREEOFKIND, getHighCardThreeKind(cards)); // value of trips and two high cards must be considered
-         if(isTwoPair(cards)) return new EvaluationResult(HandRank.TWOPAIR, getHighCardsTwoPair(cards)); // value of both pairs and one additional high card must be considered
-         if(isPair(cards)) return new EvaluationResult(HandRank.ONEPAIR, getHighCardTwoKind(cards)); //value of pair and three high cards must be considered
-         return new EvaluationResult(HandRank.HIGHCARD, getHighCards(cards)); // 5 highest cards need to be considered
+        int first = 9;
+
+        for (HandRank rank : settings.order()) {
+            switch (rank) {
+                case ROYALFLUSH:
+                    if (isRoyalFlush(cards))
+                        return new EvaluationResult(HandRank.ROYALFLUSH, new Card[]{new Card(settings.descending()? Rank.ACE : Rank.TWO, Suit.SPADES)}, EvaluationRank.fromValue(first), settings.descending()); // high card trivially ace
+                    break;
+                case STRAIGHTFLUSH:
+                    if (isStraightFlush(cards))
+                        return new EvaluationResult(HandRank.STRAIGHTFLUSH, getHighCardsStraight(cards), EvaluationRank.fromValue(first), settings.descending()); // only high card of straight matters
+                    break;
+                case FOUROFKIND:
+                    if(isFourOfAKind(cards))
+                        return new EvaluationResult(HandRank.FOUROFKIND, getHighCardFourKind(cards), EvaluationRank.fromValue(first), settings.descending()); // high card of fours and high card of general hand
+                    break;
+                case FULLHOUSE:
+                    if(isFullHouse(cards))
+                        return new EvaluationResult(HandRank.FULLHOUSE, getHighCardsFullHouse(cards), EvaluationRank.fromValue(first), settings.descending()); // high card are trips and doubles
+                    break;
+                case FLUSH:
+                    if(isFlush(cards))
+                        return new EvaluationResult(HandRank.FLUSH, getHighCardsFlush(cards), EvaluationRank.fromValue(first), settings.descending()); // high cards are just first 5 flush cards
+                    break;
+                case STRAIGHT:
+                    if(isStraight(cards))
+                        return new EvaluationResult(HandRank.STRAIGHT, getHighCardsStraight(cards), EvaluationRank.fromValue(first), settings.descending()); // highest hard of straight
+                    break;
+                case THREEOFKIND:
+                    if(isThreeOfAKind(cards))
+                        return new EvaluationResult(HandRank.THREEOFKIND, getHighCardThreeKind(cards), EvaluationRank.fromValue(first), settings.descending()); // value of trips and two high cards must be considered
+                    break;
+                case TWOPAIR:
+                    if(isTwoPair(cards))
+                        return new EvaluationResult(HandRank.TWOPAIR, getHighCardsTwoPair(cards), EvaluationRank.fromValue(first), settings.descending()); // value of both pairs and one additional high card must be considered
+                    break;
+                case ONEPAIR:
+                    if(isPair(cards))
+                        return new EvaluationResult(HandRank.ONEPAIR, getHighCardTwoKind(cards), EvaluationRank.fromValue(first), settings.descending()); //value of pair and three high cards must be considered
+                    break;
+                case HIGHCARD:
+                    return new EvaluationResult(HandRank.HIGHCARD, getHighCards(cards), EvaluationRank.fromValue(first), settings.descending()); // 5 highest cards need to be considered
+            }
+            first--;
+        }
+        return null; // Can never happen but java stupid
     }
 
     private static boolean isRoyalFlush(List<Card> cards) {
@@ -204,7 +241,7 @@ public class HandEvaluator {
         return cards.stream().map(Card::rank).filter(x -> x != pair).limit(take).toArray(Rank[]::new);
     }
 
-    private static void orderCards(List<Card> cards) {
-        cards.sort(Comparator.comparing(Card::rank).reversed());
+    private static void orderCards(List<Card> cards, boolean descending) {
+        cards.sort(descending ? Comparator.comparing(Card::rank).reversed(): Comparator.comparing(Card::rank));
     }
 }

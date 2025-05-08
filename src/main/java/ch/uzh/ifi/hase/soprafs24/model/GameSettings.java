@@ -1,14 +1,22 @@
-    package ch.uzh.ifi.hase.soprafs24.model;
+package ch.uzh.ifi.hase.soprafs24.model;
 
-    import com.fasterxml.jackson.annotation.JsonCreator;
-    import com.fasterxml.jackson.annotation.JsonProperty;
+import ch.uzh.ifi.hase.soprafs24.constant.HandRank;
+import ch.uzh.ifi.hase.soprafs24.constant.WeatherType;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-    public record GameSettings(
-            @JsonProperty("initialBalance") long initialBalance,
-            @JsonProperty("smallBlind") long smallBlind,
-            @JsonProperty("bigBlind") long bigBlind) {
+import java.util.List;
 
-        public GameSettings(ch.uzh.ifi.hase.soprafs24.entity.GameSettings gameSettings) {
-            this(gameSettings.getInitialBalance(), gameSettings.getSmallBlind(), gameSettings.getBigBlind());
-        }
+public record GameSettings(
+        @JsonProperty("initialBalance") long initialBalance,
+        @JsonProperty("smallBlind") long smallBlind,
+        @JsonProperty("bigBlind") long bigBlind,
+        @JsonProperty("order") List<HandRank> order,
+        @JsonProperty("descending") boolean descending,
+        @JsonProperty("weatherTyp") WeatherType weatherType,
+        @JsonProperty("password") String password) {
+
+    public GameSettings(ch.uzh.ifi.hase.soprafs24.entity.GameSettings gameSettings) {
+        this(gameSettings.getInitialBalance(), gameSettings.getSmallBlind(), gameSettings.getBigBlind(),
+                gameSettings.getOrder(), gameSettings.isDescending(), gameSettings.getWeatherType(), gameSettings.getPassword());
     }
+}
