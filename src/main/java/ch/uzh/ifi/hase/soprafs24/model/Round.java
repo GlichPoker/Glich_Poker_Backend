@@ -22,6 +22,7 @@ public class Round {
     private boolean roundOver;
     private boolean firstActionOccurred = false;
     private boolean hasProgressedOnce = false;
+    private int haveNotRaiseCount;
 
     public Round(List<Player> players, int startPlayer, boolean isTest, GameSettings gameSettings) {
         this.players = players;
@@ -34,6 +35,7 @@ public class Round {
         roundBet = 0;
         this.gameSettings = gameSettings;
         this.roundOver = false;
+        haveNotRaiseCount = 0;
 
         if (!isTest)
             dealPlayers(); // deal with this for tests
@@ -54,7 +56,7 @@ public class Round {
     }
 
     public Map<Long, Double> onRoundCompletion(GameSettings settings) {
-        List<Player> winners =  roundComplete(settings);
+        List<Player> winners = roundComplete(settings);
         Map<Player, Double> winnings = calculateWinnings(winners);
 
         updateBalances(winnings);
@@ -164,6 +166,7 @@ public class Round {
     }
 
     public void progressRound() {
+        haveNotRaiseCount = 0;
         playersTurn = startPlayer;
         betState++;
         switch (betState) {
@@ -206,6 +209,7 @@ public class Round {
 
     public void progressPlayer() {
         do {
+            haveNotRaiseCount++;
             playersTurn = (playersTurn + 1) % players.size();
         } while (!players.get(playersTurn).isActive());
 
@@ -246,6 +250,7 @@ public class Round {
     }
 
     public void handleRaise(long userId, long balance) {
+        haveNotRaiseCount = 0;
         firstActionOccurred = true;
         handleCallOrRaise(userId, balance, true);
         progressPlayer();
@@ -280,22 +285,19 @@ public class Round {
 
     private boolean shouldProgressRound() {
 
-        if (roundBet == 0) {
-            return false;
-        }
+        // if (roundBet == 0) {
+        // return false;
+        // }
 
         long activePlayers = players.stream().filter(Player::isActive).count();
-        if (activePlayers < 2) {
-            return true;
-        }
+        return (activePlayers < 2 || haveNotRaiseCount == players.size());
 
-        for (Player player : players) {
-            if (player.isActive() && player.getRoundBet() < roundBet) {
-                return false;
-            }
-        }
+        // for (Player player : players) {
+        // if (player.isActive() && player.getRoundBet() < roundBet) {
+        // return false;
+        // }
+        // }
 
-        return true;
     }
 
     public GameSettings getGameSettings() {

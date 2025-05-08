@@ -152,7 +152,7 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
     @PostMapping("/fold")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public RoundModel foldGame(@RequestBody GameActionRequest request) {
+    public void foldGame(@RequestBody GameActionRequest request) {
         ch.uzh.ifi.hase.soprafs24.model.Game game = activeGames.get(request.sessionId());
         if (game == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
@@ -175,7 +175,6 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
         } else
             wsHandler.sendModelToAll(Long.toString(game.getSessionId()), game, Model.ROUNDMODEL);
 
-        return game.getRoundModel(request.userId());
     }
 
     @PostMapping("/roundComplete")
@@ -196,7 +195,7 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
     @PostMapping("/call")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public RoundModel callGame(@RequestBody GameActionRequest request) {
+    public void callGame(@RequestBody GameActionRequest request) {
         ch.uzh.ifi.hase.soprafs24.model.Game game = activeGames.get(request.sessionId());
         if (game == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
@@ -219,13 +218,12 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
         } else
             wsHandler.sendModelToAll(Long.toString(game.getSessionId()), game, Model.ROUNDMODEL);
 
-        return game.getRoundModel(request.userId());
     }
 
     @PostMapping("/raise")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public RoundModel raiseGame(@RequestBody GameActionRequest request) {
+    public void raiseGame(@RequestBody GameActionRequest request) {
         ch.uzh.ifi.hase.soprafs24.model.Game game = activeGames.get(request.sessionId());
         if (game == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
@@ -248,7 +246,6 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
         } else
             wsHandler.sendModelToAll(Long.toString(game.getSessionId()), game, Model.ROUNDMODEL);
 
-        return game.getRoundModel(request.userId());
     }
 
     @PostMapping("/leave")
@@ -335,16 +332,29 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
     @PostMapping("/check")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public RoundModel checkGame(@RequestBody GameActionRequest request) {
+    public void checkGame(@RequestBody GameActionRequest request) {
         ch.uzh.ifi.hase.soprafs24.model.Game game = activeGames.get(request.sessionId());
         if (game == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
         }
-        game.getRound().handleCheck(request.userId());
+        Round round = game.getRound();
+        round.handleCheck(request.userId());
 
-        wsHandler.sendModelToAll(Long.toString(game.getSessionId()), game, Model.ROUNDMODEL);
+        if (round.isRoundOver()) {
+            Map<Long, Double> winnings = round.onRoundCompletion(game.getSettings());
 
-        return game.getRoundModel(request.userId());
+            for (Player p : game.getPlayers()) {
+                WinnerModel winnerModel = new WinnerModel(round, p.getUserId(), winnings);
+                wsHandler.sendRawWinnerModelToPlayer(
+                        String.valueOf(game.getSessionId()),
+                        p.getUserId(),
+                        winnerModel);
+            }
+
+            gameService.completeRound(game);
+        } else
+            wsHandler.sendModelToAll(Long.toString(game.getSessionId()), game, Model.ROUNDMODEL);
+
     }
 
     @PostMapping("/readyForNextGame")
