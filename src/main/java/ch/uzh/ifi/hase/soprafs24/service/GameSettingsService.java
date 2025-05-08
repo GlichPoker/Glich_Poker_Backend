@@ -33,6 +33,8 @@ public class GameSettingsService {
         newGameSettings.setBigBlind(gameSettings.bigBlind());
         newGameSettings.setDescending(gameSettings.descending());
         newGameSettings.setOrder(gameSettings.order());
+        newGameSettings.setWeatherType(gameSettings.weatherType());
+        newGameSettings.setPassword(gameSettings.password());
         GameSettings newSettings = gameSettingsRepository.save(newGameSettings);
         gameSettingsRepository.flush();
         return newSettings;

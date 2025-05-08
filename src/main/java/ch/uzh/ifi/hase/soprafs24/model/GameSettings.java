@@ -12,11 +12,12 @@ public record GameSettings(
         @JsonProperty("bigBlind") long bigBlind,
         @JsonProperty("order") List<HandRank> order,
         @JsonProperty("descending") boolean descending,
-        @JsonProperty("weatherTyp") WeatherType weatherType,
+        @JsonProperty("weatherType") WeatherType weatherType,
         @JsonProperty("password") String password) {
 
     public GameSettings(ch.uzh.ifi.hase.soprafs24.entity.GameSettings gameSettings) {
         this(gameSettings.getInitialBalance(), gameSettings.getSmallBlind(), gameSettings.getBigBlind(),
-                gameSettings.getOrder(), gameSettings.isDescending(), gameSettings.getWeatherType(), gameSettings.getPassword());
+                gameSettings.getOrder(), gameSettings.isDescending(), gameSettings.getWeatherType(),
+                gameSettings.getPassword());
     }
 }
