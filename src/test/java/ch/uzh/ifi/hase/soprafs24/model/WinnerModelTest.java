@@ -17,7 +17,7 @@ public class WinnerModelTest {
     private Round round;
 
     @BeforeEach
-    public void setup(){
+    void setup(){
         List<Player> players = new ArrayList<>() {{
             add(new Player(1, "a", 100));
             add(new Player(2, "b", 100));
@@ -27,7 +27,7 @@ public class WinnerModelTest {
         round = new Round(players, 0, gameSettings);
     }
     @Test
-    public void testGetWinnings(){
+    void testGetWinnings(){
         WinnerModel winnerModel = new WinnerModel(round, 1, new HashMap<Long, Double>(){{put(1L, 40.0);}});
         assertEquals(1, winnerModel.getWinnings().size());
         assertTrue(winnerModel.getWinnings().containsKey(1L));

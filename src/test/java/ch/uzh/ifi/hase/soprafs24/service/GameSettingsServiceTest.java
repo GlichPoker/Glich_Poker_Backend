@@ -33,7 +33,7 @@ public class GameSettingsServiceTest {
 
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
         List<HandRank> order = new ArrayList<>(Arrays.stream(HandRank.values()).sorted(Comparator.reverseOrder()).toList());
         gameSettings = new GameSettings();
@@ -47,7 +47,7 @@ public class GameSettingsServiceTest {
     }
 
     @Test
-    public void getSettingsFound() {
+    void getSettingsFound() {
         when(settingsRepository.findById(1L)).thenReturn(Optional.of(gameSettings));
 
         GameSettings settings = gameSettingsService.getGameSettings(1L);
@@ -56,14 +56,14 @@ public class GameSettingsServiceTest {
     }
 
     @Test
-    public void getSettingsNotFound() {
+    void getSettingsNotFound() {
         when(settingsRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThrows(ResponseStatusException.class, () -> gameSettingsService.getGameSettings(1L));
     }
 
     @Test
-    public void createSettings() {
+    void createSettings() {
         when(settingsRepository.save(any(GameSettings.class))).thenReturn(gameSettings);
 
         GameSettings newSettings = gameSettingsService.createGameSettings(otherSettings);
@@ -75,14 +75,14 @@ public class GameSettingsServiceTest {
     }
 
     @Test
-    public void deleteSettings() {
+    void deleteSettings() {
         gameSettingsService.deleteSettings(gameSettings);
         verify(settingsRepository, times(1)).delete(any(GameSettings.class));
     }
 
 
     @Test
-    public void updateSettings() {
+    void updateSettings() {
         when(settingsRepository.save(any(GameSettings.class))).thenReturn(gameSettings);
 
         ch.uzh.ifi.hase.soprafs24.model.GameSettings model = new ch.uzh.ifi.hase.soprafs24.model.GameSettings(1000, 10, 20, null, true, WeatherType.RAINY, "");

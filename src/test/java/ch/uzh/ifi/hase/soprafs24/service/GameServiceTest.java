@@ -40,7 +40,7 @@ public class GameServiceTest {
     private Game game;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
 
         owner = new User();
@@ -55,7 +55,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void createGameShouldReturnNewGame() {
+    void createGameShouldReturnNewGame() {
         when(gameSettingsService.getGameSettings(1L)).thenReturn(gameSettings);
         when(gameRepository.save(any(Game.class))).thenReturn(game);
 
@@ -69,7 +69,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void getGameBySessionIdShouldReturnGame() {
+    void getGameBySessionIdShouldReturnGame() {
         when(gameRepository.findById(0L)).thenReturn(Optional.of(game));
         when(playerService.findByGameId(0L)).thenReturn(Arrays.asList(new Player()));
 
@@ -81,7 +81,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void getGameBySessionIdShouldThrowNotFound_WhenGameDoesNotExist() {
+    void getGameBySessionIdShouldThrowNotFound_WhenGameDoesNotExist() {
         when(gameRepository.findById(1L)).thenReturn(Optional.empty());
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
@@ -93,7 +93,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void addPlayerWithPrivateLobbyShouldReturnTrue() {
+    void addPlayerWithPrivateLobbyShouldReturnTrue() {
         Player player = new Player(owner, 1L, game);
         game.setIsPublic(false);
         player.setBalance(1000);
@@ -107,7 +107,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void addPlayerWithPublicLobbyShouldReturnTrue() {
+    void addPlayerWithPublicLobbyShouldReturnTrue() {
         Player player = new Player(owner, 1L, game);
         player.setBalance(1000);
         when(playerService.createPlayer(any(User.class), anyLong(), any(Game.class))).thenReturn(player);
@@ -121,7 +121,7 @@ public class GameServiceTest {
 
 
     @Test
-    public void removePlayerShouldReturnTrue() {
+    void removePlayerShouldReturnTrue() {
         Player player = new Player(owner, 1L, game);
         player.setBalance(1000);
         when(playerService.createPlayer(any(User.class), anyLong(), any(Game.class))).thenReturn(player);
@@ -133,7 +133,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void setPlayerOfflineShouldReturnTrue() {
+    void setPlayerOfflineShouldReturnTrue() {
         Player player = new Player(owner, 1L, game);
         player.setBalance(1000);
         when(playerService.createPlayer(any(User.class), anyLong(), any(Game.class))).thenReturn(player);
@@ -149,7 +149,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void setPlayerOfflineRoundRunning() {
+    void setPlayerOfflineRoundRunning() {
         Player player = new Player(owner, 1L, game);
         player.setBalance(1000);
         game.setRoundRunning(true);
@@ -159,7 +159,7 @@ public class GameServiceTest {
 
 
     @Test
-    public void startRoundShouldSetRoundRunningTrue() {
+    void startRoundShouldSetRoundRunningTrue() {
         when(gameRepository.save(any(Game.class))).thenReturn(game);
 
         gameService.startRound(game);
@@ -170,7 +170,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void saveSessionShouldReturnTrue() {
+    void saveSessionShouldReturnTrue() {
         when(gameRepository.save(any(Game.class))).thenReturn(game);
 
         boolean result = gameService.saveSession(game);
@@ -180,7 +180,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void deleteSessionShouldDeleteGame() {
+    void deleteSessionShouldDeleteGame() {
         when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
         doNothing().when(playerService).deletePlayers(anyList());
         doNothing().when(gameRepository).delete(game);
@@ -192,7 +192,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void getGamesOwnedByUserShouldReturnListOfGames() {
+    void getGamesOwnedByUserShouldReturnListOfGames() {
         when(gameRepository.getGamesByOwnerId(owner.getId())).thenReturn(Arrays.asList(game));
 
         List<Game> games = gameService.getGamesOwnedByUser(owner.getId());
@@ -203,7 +203,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void getAllGamesShouldReturnPublicGames() {
+    void getAllGamesShouldReturnPublicGames() {
         Game publicGame = new Game(owner, gameSettings, true);
         when(gameRepository.findAll()).thenReturn(Arrays.asList(game, publicGame));
 
@@ -215,7 +215,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void completeRound() {
+    void completeRound() {
         Game game2 = new Game(owner, gameSettings, true);
         game2.setRoundRunning(true);
         Player player = new Player(owner, 1L, game);
@@ -241,7 +241,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void handlePlayerRejoinShouldReturnTrue() {
+    void handlePlayerRejoinShouldReturnTrue() {
         Player player = new Player(owner, 1L, game);
         player.setBalance(1000);
         player.setIsOnline(false);
@@ -256,7 +256,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void handlePlayerRejoinPlayerNotInGame() {
+    void handlePlayerRejoinPlayerNotInGame() {
         game.setIsPublic(false);
         assertThrows(ResponseStatusException.class, () -> gameService.handlePlayerJoinOrRejoin(game, owner, "asdf"));
     }

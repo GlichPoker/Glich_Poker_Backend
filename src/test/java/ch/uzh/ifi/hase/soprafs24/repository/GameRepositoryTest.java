@@ -32,7 +32,7 @@ public class GameRepositoryTest {
     private GameSettings gameSettings;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         owner = new User();
         owner.setUsername("gameOwner");
         owner.setPassword("password");
@@ -47,7 +47,7 @@ public class GameRepositoryTest {
     }
 
     @Test
-    public void testFindByIdSuccess() {
+    void testFindByIdSuccess() {
         Game game = new Game(owner, gameSettings,true);
 
         entityManager.persist(game);
@@ -60,7 +60,7 @@ public class GameRepositoryTest {
     }
 
     @Test
-    public void testGetGamesByOwnerIdSuccess() {
+    void testGetGamesByOwnerIdSuccess() {
         Game game1 = new Game(owner, gameSettings,true);
         Game game2 = new Game(owner, gameSettings,true);
 
@@ -75,7 +75,7 @@ public class GameRepositoryTest {
     }
 
     @Test
-    public void testFindAllSuccess() {
+    void testFindAllSuccess() {
         Game game = new Game(owner, gameSettings,true);
 
         entityManager.persist(game);

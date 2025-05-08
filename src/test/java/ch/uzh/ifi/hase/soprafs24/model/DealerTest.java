@@ -15,7 +15,7 @@ public class DealerTest {
     private List<Player> players;
     private List<Card> cards;
     @BeforeEach
-    public void setup(){
+    void setup(){
         deck = new Deck();
         players = new ArrayList<Player>() {{
             add(new Player(1, "a", 100));
@@ -27,7 +27,7 @@ public class DealerTest {
     }
 
     @Test
-    public void testDealPlayers(){
+    void testDealPlayers(){
         assertNull(players.get(0).getHand()[0]);
 
         dealer.dealPlayers(players, 0);
@@ -40,14 +40,14 @@ public class DealerTest {
     }
 
     @Test
-    public void testDealOne(){
+    void testDealOne(){
         assertEquals(0, cards.size());
         dealer.deal(cards, 1);
         assertNotNull(cards.get(0));
     }
 
     @Test
-    public void testDealThree(){
+    void testDealThree(){
         assertEquals(0, cards.size());
         dealer.deal(cards, 3);
         assertNotNull(cards.get(1));
@@ -56,14 +56,14 @@ public class DealerTest {
     }
 
     @Test
-    public void testDealZero(){
+    void testDealZero(){
         assertEquals(0, cards.size());
         dealer.deal(cards, 0);
         assertEquals(0, cards.size());
     }
 
     @Test
-    public void testRestore(){
+    void testRestore(){
         dealer.deal(cards, 1);
         assertEquals(51, deck.getCards().size());
         dealer.restore();

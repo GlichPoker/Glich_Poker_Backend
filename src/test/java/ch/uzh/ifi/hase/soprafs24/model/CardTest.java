@@ -12,7 +12,7 @@ public class CardTest {
 
     private static Card[] testCards;
     @BeforeAll
-    public static void setup(){
+    static void setup(){
         testCards = new Card[3];
         testCards[0] =new Card(Rank.FOUR, Suit.CLUBS);
         testCards[1] = new Card(Rank.TEN, Suit.HEARTS);
@@ -20,30 +20,30 @@ public class CardTest {
     }
 
     @Test
-    public void testCardCodeNumber(){
+    void testCardCodeNumber(){
         assertEquals("4C", testCards[0].cardCode());
     }
 
     @Test
-    public void testCardCodeTen(){
+    void testCardCodeTen(){
         assertEquals("0H", testCards[1].cardCode());
 
     }
 
     @Test
-    public void testCardCodeFaced(){
+    void testCardCodeFaced(){
         assertEquals("AC", testCards[2].cardCode());
 
     }
 
     @Test
-    public void testCompareTo(){
+    void testCompareTo(){
 
         assertTrue(testCards[0].compareTo(testCards[1]) > 0);
     }
 
     @Test
-    public void testToString(){
+    void testToString(){
         assertEquals("CLUBS:FOUR", testCards[0].toString());
     }
 }

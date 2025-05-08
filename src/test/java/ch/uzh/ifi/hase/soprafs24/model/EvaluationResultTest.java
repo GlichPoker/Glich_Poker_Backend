@@ -20,7 +20,7 @@ public class EvaluationResultTest {
     private static int count = 0;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         count++;
         boolean descending = count <= 1;
         highHands = new ArrayList<>();
@@ -51,7 +51,7 @@ public class EvaluationResultTest {
 
     @Test
     @Order(1)
-    public void testCompareTo(){
+    void testCompareTo(){
         for(int i = 0; i < highHands.size(); i++){
             for(int j = i; j < lowHands.size(); j++){
                 if(i == 0 && j == 0)assertEquals(0, highHands.get(i).compareTo(lowHands.get(j)));
@@ -61,7 +61,7 @@ public class EvaluationResultTest {
     }
 
     @Test
-    public void testCompareToAscending(){
+    void testCompareToAscending(){
         for(int i = 0; i < highHands.size(); i++){
             for(int j = i; j < lowHands.size(); j++){
                 if(i == 0 && j == 0)assertEquals(0, highHands.get(i).compareTo(lowHands.get(j)));
@@ -71,32 +71,32 @@ public class EvaluationResultTest {
     }
 
     @Test
-    public void testToString(){
+    void testToString(){
         EvaluationResult res = highHands.get(0);
         assertEquals("EvaluationResult [handRank=" + res.handRank() + ", highCards=" + Arrays.toString(res.highCards()) + "]", res.toString());
     }
 
     @Test
-    public void testEquals(){
+    void testEquals(){
         EvaluationResult res = highHands.get(0);
         EvaluationResult res2 = lowHands.get(0);
         assertEquals(res, res2);
     }
     @Test
-    public void testEqualsNull(){
+    void testEqualsNull(){
         EvaluationResult res = highHands.get(0);
         EvaluationResult res2 = null;
         assertNotEquals(res, res2);
     }
 
     @Test
-    public void testEqualsSelf(){
+    void testEqualsSelf(){
         EvaluationResult res = highHands.get(0);
         assertEquals(res, res);
     }
 
     @Test
-    public void testHashCode(){
+    void testHashCode(){
         EvaluationResult res = highHands.get(0);
         assertEquals(res.hashCode(), highHands.get(0).hashCode());
     }

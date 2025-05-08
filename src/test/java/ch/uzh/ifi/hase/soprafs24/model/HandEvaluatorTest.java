@@ -16,7 +16,7 @@ import java.util.List;
 class HandEvaluatorTest {
     private static GameSettings settings;
     @BeforeAll
-    public static void setup() {
+    static void setup() {
         List<HandRank> order = new ArrayList<>(Arrays.stream(HandRank.values()).sorted(Comparator.reverseOrder()).toList());
         settings = new GameSettings(1000,10,20, order, true, WeatherType.CLOUDY, "");
     }

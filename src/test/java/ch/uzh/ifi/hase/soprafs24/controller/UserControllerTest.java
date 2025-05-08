@@ -61,7 +61,7 @@ public class UserControllerTest {
   private UserRepository userRepository;
 
   @Test
-  public void givenUsers_whenGetUsers_thenReturnJsonArray() throws Exception {
+  void givenUsers_whenGetUsers_thenReturnJsonArray() throws Exception {
     // given
     User user = new User();
     user.setPassword("securePassword");
@@ -91,7 +91,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void createUser_validInput_userCreated() throws Exception {
+  void createUser_validInput_userCreated() throws Exception {
     // given
     User user = new User();
     user.setId(1L);
@@ -122,7 +122,7 @@ public class UserControllerTest {
 
   // 1. POST /users (409 Conflict) - Creating a user with existing username
   @Test
-  public void createUser_duplicateUsername_throwsException() throws Exception {
+  void createUser_duplicateUsername_throwsException() throws Exception {
       // given
       UserPostDTO userPostDTO = new UserPostDTO();
       userPostDTO.setPassword("testPassword");
@@ -144,7 +144,7 @@ public class UserControllerTest {
 
   // 2. GET /users/{userId} (200 OK) - Retrieve user profile with userId
   @Test
-  public void getUser_validId_userReturned() throws Exception {
+  void getUser_validId_userReturned() throws Exception {
       // given
       User user = new User();
       user.setId(1L);
@@ -172,7 +172,7 @@ public class UserControllerTest {
 
   // 3. GET /users/{userId} (404 Not Found) - User with userId not found
   @Test
-  public void getUser_invalidId_notFound() throws Exception {
+  void getUser_invalidId_notFound() throws Exception {
       // given
       long nonExistentUserId = 99L;
 
@@ -191,7 +191,7 @@ public class UserControllerTest {
 
   // 4. PUT /users/{userId} (204 No Content) - Update user profile
   @Test
-  public void updateUser_validInput_noContent() throws Exception {
+  void updateUser_validInput_noContent() throws Exception {
       // given
       UserProfileUpdatePutDTO userProfileUpdatePutDTO = new UserProfileUpdatePutDTO();
       userProfileUpdatePutDTO.setUsername("updatedUsername");
@@ -228,7 +228,7 @@ public class UserControllerTest {
 
   // 5. PUT /users/{userId} (404 Not Found) - Update non-existent user
   @Test
-  public void updateUser_invalidId_notFound() throws Exception {
+  void updateUser_invalidId_notFound() throws Exception {
       long nonExistentUserId = 99L;
       UserProfileUpdatePutDTO userProfileUpdatePutDTO = new UserProfileUpdatePutDTO();
       userProfileUpdatePutDTO.setUsername("updatedUsername");

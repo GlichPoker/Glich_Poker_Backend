@@ -25,14 +25,14 @@ public class GameSettingsRepositoryTest {
     private GameSettings settings;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         settings = new GameSettings();
         entityManager.persist(settings);
         entityManager.flush();
     }
 
     @Test
-    public void testFindByIdSuccess() {
+    void testFindByIdSuccess() {
         Optional<GameSettings> found = gameSettingsRepository.findById(settings.getId());
 
         assertTrue(found.isPresent());
@@ -40,7 +40,7 @@ public class GameSettingsRepositoryTest {
     }
 
     @Test
-    public void testFindByIdNotFound() {
+    void testFindByIdNotFound() {
         Optional<GameSettings> notFound = gameSettingsRepository.findById(999L);
 
         assertFalse(notFound.isPresent());

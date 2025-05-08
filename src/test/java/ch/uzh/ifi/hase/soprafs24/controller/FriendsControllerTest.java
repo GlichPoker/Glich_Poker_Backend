@@ -38,7 +38,7 @@ public class FriendsControllerTest {
     private User user2;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         user1 = new User();
         user1.setId(1L);
         user1.setUsername("user1");
@@ -49,7 +49,7 @@ public class FriendsControllerTest {
     }
 
     @Test
-    public void addFriendShouldReturnCreated() throws Exception {
+    void addFriendShouldReturnCreated() throws Exception {
         when(userService.getUserById(1L)).thenReturn(user1);
         when(userService.getUserById(2L)).thenReturn(user2);
         when(friendsService.addFriend(1L, 2L)).thenReturn(true);
@@ -61,7 +61,7 @@ public class FriendsControllerTest {
     }
 
     @Test
-    public void acceptFriendRequestShouldReturnOk() throws Exception {
+    void acceptFriendRequestShouldReturnOk() throws Exception {
         when(userService.getUserById(1L)).thenReturn(user1);
         when(userService.getUserById(2L)).thenReturn(user2);
         when(friendsService.acceptFriendRequest(1L, 2L)).thenReturn(true);
@@ -73,7 +73,7 @@ public class FriendsControllerTest {
     }
 
     @Test
-    public void denyFriendRequestShouldReturnOk() throws Exception {
+    void denyFriendRequestShouldReturnOk() throws Exception {
         when(userService.getUserById(1L)).thenReturn(user1);
         when(userService.getUserById(2L)).thenReturn(user2);
         when(friendsService.denyFriendRequest(1L, 2L)).thenReturn(true);
@@ -85,7 +85,7 @@ public class FriendsControllerTest {
     }
 
     @Test
-    public void getAllFriendsShouldReturnOk() throws Exception {
+    void getAllFriendsShouldReturnOk() throws Exception {
         List<User> friends = Arrays.asList(user2);
         when(userService.getUserById(1L)).thenReturn(user1);
         when(friendsService.getAllFriends(1L)).thenReturn(convertUsersToModels(friends));
@@ -96,7 +96,7 @@ public class FriendsControllerTest {
     }
 
     @Test
-    public void getAllPendingRequestsShouldReturnOk() throws Exception {
+    void getAllPendingRequestsShouldReturnOk() throws Exception {
         List<User> pendingRequests = Arrays.asList(user2);
         when(userService.getUserById(1L)).thenReturn(user1);
         when(friendsService.getAllPendingFriendRequests(1L)).thenReturn(convertUsersToModels(pendingRequests));
@@ -107,7 +107,7 @@ public class FriendsControllerTest {
     }
 
     @Test
-    public void getAllFriendsWhichCanBeAddedShouldReturnOk() throws Exception {
+    void getAllFriendsWhichCanBeAddedShouldReturnOk() throws Exception {
         List<User> availableUsers = Arrays.asList(user2);
         when(userService.getUserById(1L)).thenReturn(user1);
         when(friendsService.getAllUsersWhichAreNotFriends(1L)).thenReturn(convertUsersToModels(availableUsers));
@@ -118,7 +118,7 @@ public class FriendsControllerTest {
     }
 
     @Test
-    public void removeFriendShouldReturnOk() throws Exception {
+    void removeFriendShouldReturnOk() throws Exception {
         when(userService.getUserById(1L)).thenReturn(user1);
         when(userService.getUserById(2L)).thenReturn(user2);
         when(friendsService.ifFriendsRemove(1L, 2L)).thenReturn(true);
@@ -130,7 +130,7 @@ public class FriendsControllerTest {
     }
 
     @Test
-    public void checkUserNotFoundShouldReturnNotFound() throws Exception {
+    void checkUserNotFoundShouldReturnNotFound() throws Exception {
         when(userService.getUserById(1L)).thenReturn(null);
 
         mockMvc.perform(post("/friends/add")
@@ -140,7 +140,7 @@ public class FriendsControllerTest {
     }
 
     @Test
-    public void checkFriendNotFoundShouldReturnNotFound() throws Exception {
+    void checkFriendNotFoundShouldReturnNotFound() throws Exception {
         when(userService.getUserById(1L)).thenReturn(user1);
         when(userService.getUserById(2L)).thenReturn(null);
 

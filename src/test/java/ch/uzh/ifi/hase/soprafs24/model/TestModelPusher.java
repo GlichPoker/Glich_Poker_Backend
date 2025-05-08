@@ -31,7 +31,7 @@ public class TestModelPusher {
     private GameService gameService;
 
     @BeforeEach
-    public void setup(){
+    void setup(){
         MockitoAnnotations.openMocks(this);
         List<Player> players = new ArrayList<>() {{
             add(new Player(1, "a", 100));
@@ -47,13 +47,13 @@ public class TestModelPusher {
     }
 
     @Test
-    public void testModelPusher(){
+    void testModelPusher(){
         modelPusher.pushModel(round, game, wsHandler, gameService);
         verify(wsHandler, times(1)).sendModelToAll(any(), eq(game), eq(Model.ROUNDMODEL));
     }
 
     @Test
-    public void testModelPusherRoundOver(){
+    void testModelPusherRoundOver(){
         round.setIsRoundOver(true);
         modelPusher.pushModel(round, game, wsHandler, gameService);
         verify(wsHandler, times(1)).sendRawWinnerModelToPlayer(any(), anyLong(), any());

@@ -8,14 +8,14 @@ import static org.junit.jupiter.api.Assertions.*;
 public class GameTest {
 
     @Test
-    public void testGameConstructorAndAddPlayer() {
+    void testGameConstructorAndAddPlayer() {
         Game game = new Game(new Player(1,"hallo", 100), new GameSettings(1000,10,20, null, true, WeatherType.RAINY, ""));
         game.addPlayer(new Player(2, "das", 200));
         assertEquals(2, game.getPlayers().size());
     }
 
     @Test
-    public void testRemovePlayer() {
+    void testRemovePlayer() {
         Game game = new Game(new Player(1,"hallo", 100), new GameSettings(1000,10,20, null, true, WeatherType.RAINY, ""));
         Player player = new Player(2, "das", 200);
         game.addPlayer(player);
@@ -25,21 +25,21 @@ public class GameTest {
     }
 
     @Test
-    public void testGetPlayer() {
+    void testGetPlayer() {
         Player player = new Player(1,"hallo", 100);
         Game game = new Game(player, new GameSettings(1000,10,20, null, true, WeatherType.RAINY, ""));
         assertEquals(player, game.getPlayer(1));
     }
 
     @Test
-    public void testContainsUser() {
+    void testContainsUser() {
         Player player = new Player(1,"hallo", 100);
         Game game = new Game(player, new GameSettings(1000,10,20, null, true, WeatherType.RAINY, ""));
         assertTrue(game.containsUser(1));
     }
 
     @Test
-    public void testJoinSession(){
+    void testJoinSession(){
         Player player = new Player(1,"hallo", 100);
         Game game = new Game(player, new GameSettings(1000,10,20, null, true, WeatherType.RAINY, ""));
         game.joinSession(1);
@@ -47,7 +47,7 @@ public class GameTest {
     }
 
     @Test
-    public void testJoinSessionPlayerNotInGame(){
+    void testJoinSessionPlayerNotInGame(){
         Player player = new Player(1,"hallo", 100);
         Game game = new Game(player, new GameSettings(1000,10,20, null, true, WeatherType.RAINY, ""));
         game.joinSession(2);
@@ -55,7 +55,7 @@ public class GameTest {
     }
 
     @Test
-    public void testAdjustSettings(){
+    void testAdjustSettings(){
         Player player = new Player(1,"hallo", 100);
         GameSettings gameSettings = new GameSettings(1000,10,20, null, true, WeatherType.RAINY, "");
         Game game = new Game(player, gameSettings);

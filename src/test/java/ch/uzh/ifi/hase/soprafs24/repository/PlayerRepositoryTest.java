@@ -33,7 +33,7 @@ public class PlayerRepositoryTest {
     private Player player;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         user = new User();
         user.setUsername("user1");
         user.setPassword("pw1");
@@ -54,7 +54,7 @@ public class PlayerRepositoryTest {
     }
 
     @Test
-    public void testFindByUserIdSuccess() {
+    void testFindByUserIdSuccess() {
         Optional<Player> found = playerRepository.findByUserId(user.getId());
 
         assertTrue(found.isPresent());
@@ -64,14 +64,14 @@ public class PlayerRepositoryTest {
     }
 
     @Test
-    public void testFindByUserIdNotFound() {
+    void testFindByUserIdNotFound() {
         Optional<Player> notFound = playerRepository.findByUserId(999L);
 
         assertFalse(notFound.isPresent());
     }
 
     @Test
-    public void testFindByGameIdSuccess() {
+    void testFindByGameIdSuccess() {
         List<Player> players = playerRepository.findByGameId(game.getSessionId());
 
         assertNotNull(players);
@@ -80,7 +80,7 @@ public class PlayerRepositoryTest {
     }
 
     @Test
-    public void testFindByGameId_empty() {
+    void testFindByGameId_empty() {
         Game newGame = new Game();
         entityManager.persist(newGame);
         entityManager.flush();

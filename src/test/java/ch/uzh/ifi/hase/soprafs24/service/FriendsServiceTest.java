@@ -35,7 +35,7 @@ public class FriendsServiceTest {
 
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
         user1 = new User();
         user1.setId(1L);
@@ -52,7 +52,7 @@ public class FriendsServiceTest {
     }
 
     @Test
-    public void addFriendShouldReturnTrue() {
+    void addFriendShouldReturnTrue() {
         when(userService.getUserById(1L)).thenReturn(user1);
         when(userService.getUserById(2L)).thenReturn(user2);
         when(friendsRepository.existsByUser1IdAndUser2IdAndStatus(1L, 2L, FriendRequestState.ACCEPTED)).thenReturn(false);
@@ -65,7 +65,7 @@ public class FriendsServiceTest {
     }
 
     @Test
-    public void addFriendFriendNull() {
+    void addFriendFriendNull() {
         when(userService.getUserById(1L)).thenReturn(user1);
         when(userService.getUserById(2L)).thenReturn(null);
 
@@ -74,7 +74,7 @@ public class FriendsServiceTest {
     }
 
     @Test
-    public void addFriendUserNull() {
+    void addFriendUserNull() {
         when(userService.getUserById(1L)).thenReturn(null);
         when(userService.getUserById(2L)).thenReturn(user2);
 
@@ -83,7 +83,7 @@ public class FriendsServiceTest {
     }
 
     @Test
-    public void addFriendAlreadyFriends() {
+    void addFriendAlreadyFriends() {
         when(userService.getUserById(1L)).thenReturn(user1);
         when(userService.getUserById(2L)).thenReturn(user2);
         when(friendsRepository.existsByUser1IdAndUser2IdAndStatus(1L, 2L, FriendRequestState.ACCEPTED)).thenReturn(true);
@@ -93,7 +93,7 @@ public class FriendsServiceTest {
     }
 
     @Test
-    public void acceptFriend() {
+    void acceptFriend() {
         Friends friends = new Friends();
         friends.setUser1(user1);
         friends.setUser2(user2);
@@ -107,7 +107,7 @@ public class FriendsServiceTest {
     }
 
     @Test
-    public void acceptFriendAlreadyFriends() {
+    void acceptFriendAlreadyFriends() {
         when(friendsRepository.findByUser1IdAndUser2IdAndStatus(1L, 2L, FriendRequestState.PENDING)).thenReturn(null);
 
         boolean success = friendsService.acceptFriendRequest(1L, 2L);
@@ -116,7 +116,7 @@ public class FriendsServiceTest {
     }
 
     @Test
-    public void denyFriend() {
+    void denyFriend() {
         Friends friends = new Friends();
         friends.setUser1(user1);
         friends.setUser2(user2);
@@ -130,7 +130,7 @@ public class FriendsServiceTest {
     }
 
     @Test
-    public void denyFriendAlreadyFriends() {
+    void denyFriendAlreadyFriends() {
         when(friendsRepository.findByUser1IdAndUser2IdAndStatus(1L, 2L, FriendRequestState.PENDING)).thenReturn(null);
 
         boolean success = friendsService.denyFriendRequest(1L, 2L);
@@ -139,7 +139,7 @@ public class FriendsServiceTest {
     }
 
     @Test
-    public void getAllFriends() {
+    void getAllFriends() {
         when(friendsRepository.findAllFriends(1L)).thenReturn(new ArrayList<>(){{add(user2); add(user3);}});
 
         List<UserModel> friends = friendsService.getAllFriends(1L);
@@ -148,7 +148,7 @@ public class FriendsServiceTest {
     }
 
     @Test
-    public void getAllPendingRequests() {
+    void getAllPendingRequests() {
         when(friendsRepository.findAllPendingRequests(1L)).thenReturn(new ArrayList<>(){{add(user2);}});
 
         List<UserModel> friends = friendsService.getAllPendingFriendRequests(1L);
@@ -157,7 +157,7 @@ public class FriendsServiceTest {
     }
 
     @Test
-    public void getAllNotFriends() {
+    void getAllNotFriends() {
         when(userService.getAllUsersExceptSelf(1L)).thenReturn(new ArrayList<>(){{add(user2); add(user3);}});
         when(friendsRepository.findAllFriends(1L)).thenReturn(new ArrayList<>(){{add(user2);}});
         when(friendsRepository.findAllPendingRequests(1L)).thenReturn(new ArrayList<>());
@@ -169,7 +169,7 @@ public class FriendsServiceTest {
     }
 
     @Test
-    public void getAllNotFriendsNotFoundAny() {
+    void getAllNotFriendsNotFoundAny() {
         when(userService.getAllUsersExceptSelf(1L)).thenReturn(new ArrayList<>(){{add(user2); add(user3);}});
         when(friendsRepository.findAllFriends(1L)).thenReturn(new ArrayList<>(){{add(user2);}});
         when(friendsRepository.findAllPendingRequests(1L)).thenReturn(new ArrayList<>(){{add(user3);}});
@@ -180,7 +180,7 @@ public class FriendsServiceTest {
     }
 
     @Test
-    public void ifFriendsRemoveSuccess() {
+    void ifFriendsRemoveSuccess() {
         Friends friends = new Friends();
         friends.setUser1(user1);
         friends.setUser2(user2);
@@ -193,7 +193,7 @@ public class FriendsServiceTest {
     }
 
     @Test
-    public void ifFriendsRemoveFail() {
+    void ifFriendsRemoveFail() {
         when(friendsRepository.findByUser1IdAndUser2IdAndStatus(1L, 2L, FriendRequestState.ACCEPTED)).thenReturn(null);
 
         assertThrows(ResponseStatusException.class, () -> friendsService.ifFriendsRemove(1L, 2L));

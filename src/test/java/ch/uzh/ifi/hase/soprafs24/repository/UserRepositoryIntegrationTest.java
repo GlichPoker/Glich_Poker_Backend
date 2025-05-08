@@ -28,7 +28,7 @@ public class UserRepositoryIntegrationTest {
     private User user;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         user = new User();
         user.setPassword("securePassword");
         user.setUsername("testUser");
@@ -39,7 +39,7 @@ public class UserRepositoryIntegrationTest {
     }
 
     @Test
-    public void testFindByUsernameSuccess() {
+    void testFindByUsernameSuccess() {
         User found = userRepository.findByUsername(user.getUsername());
 
         assertNotNull(found);
@@ -50,14 +50,14 @@ public class UserRepositoryIntegrationTest {
     }
 
     @Test
-    public void testFindByUsernameNotFound() {
+    void testFindByUsernameNotFound() {
         User notFound = userRepository.findByUsername("nonExistentUser");
 
         assertNull(notFound);
     }
 
     @Test
-    public void testFindByTokenSuccess() {
+    void testFindByTokenSuccess() {
         User found = userRepository.findByToken(user.getToken());
 
         assertNotNull(found);
@@ -66,14 +66,14 @@ public class UserRepositoryIntegrationTest {
     }
 
     @Test
-    public void testFindByTokenNotFound() {
+    void testFindByTokenNotFound() {
         User notFound = userRepository.findByToken("nonExistentToken");
 
         assertNull(notFound);
     }
 
     @Test
-    public void testFindByIdSuccess() {
+    void testFindByIdSuccess() {
         Optional<User> found = userRepository.findById(user.getId());
 
         assertTrue(found.isPresent());
@@ -81,7 +81,7 @@ public class UserRepositoryIntegrationTest {
     }
 
     @Test
-    public void testFindByIdNotFound() {
+    void testFindByIdNotFound() {
         Optional<User> notFound = userRepository.findById(99L);
 
         assertFalse(notFound.isPresent());
@@ -89,7 +89,7 @@ public class UserRepositoryIntegrationTest {
     }
 
     @Test
-    public void testGetAllUsersSuccess() {
+    void testGetAllUsersSuccess() {
         User user2 = new User();
         user2.setUsername("anotherUser");
         user2.setPassword("password");
@@ -106,7 +106,7 @@ public class UserRepositoryIntegrationTest {
     }
 
     @Test
-    public void testGetAllUsersNoUsers() {
+    void testGetAllUsersNoUsers() {
         List<User> users = userRepository.getAllUsers(user.getId());
 
         assertTrue(users.isEmpty());

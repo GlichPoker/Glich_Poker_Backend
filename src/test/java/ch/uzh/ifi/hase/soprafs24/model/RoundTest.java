@@ -15,7 +15,7 @@ class RoundTest {
 
     public static GameSettings gameSettings;
     @BeforeAll
-    public static void setup() {
+    static void setup() {
         List<HandRank> order = new ArrayList<>(Arrays.stream(HandRank.values()).sorted(Comparator.reverseOrder()).toList());
         gameSettings = new GameSettings(1000,10,20, order, true, WeatherType.CLOUDY, "");
     }
@@ -115,7 +115,7 @@ class RoundTest {
     }
 
     @Test
-    public void testOnRoundCompletion(){
+    void testOnRoundCompletion(){
         Player player1 = new Player(1, "hallo", 1000);
         Player player2 = new Player(2, "hallo2", 1000);
         player1.setTotalBet(300);

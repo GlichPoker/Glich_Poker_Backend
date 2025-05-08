@@ -35,7 +35,7 @@ public class PlayerServiceTest {
 
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
         owner = new User();
         owner.setId(1L);
@@ -50,7 +50,7 @@ public class PlayerServiceTest {
     }
 
     @Test
-    public void getPlayer() {
+    void getPlayer() {
         when(playerRepository.findByUserId(1L)).thenReturn(Optional.of(player));
 
         Player p = playerService.getPlayer(1L);
@@ -59,21 +59,21 @@ public class PlayerServiceTest {
     }
 
     @Test
-    public void getPlayerNotFound() {
+    void getPlayerNotFound() {
         when(playerRepository.findByUserId(1L)).thenReturn(Optional.empty());
 
         assertThrows(ResponseStatusException.class, () -> playerService.getPlayer(1L));
     }
 
     @Test
-    public void savePlayer() {
+    void savePlayer() {
         playerService.savePlayer(player);
         verify(playerRepository, times(1)).save(any(Player.class));
 
     }
 
     @Test
-    public void createPlayer() {
+    void createPlayer() {
         Player createdPlayer = playerService.createPlayer(owner, game.getSettings().getInitialBalance(), game);
         verify(playerRepository, times(1)).save(any(Player.class));
         assertFalse(createdPlayer.isOnline());
@@ -83,7 +83,7 @@ public class PlayerServiceTest {
     }
 
     @Test
-    public void findByGameId() {
+    void findByGameId() {
         when(playerRepository.findByGameId(game.getSessionId())).thenReturn(new ArrayList<>(){{add(player);}});
         List<Player> players = playerService.findByGameId(game.getSessionId());
         assertEquals(1, players.size());
@@ -91,7 +91,7 @@ public class PlayerServiceTest {
     }
 
     @Test
-    public void removePlayer() {
+    void removePlayer() {
         when(playerRepository.findByUserId(1L)).thenReturn(Optional.of(player));
         playerService.removePlayer(owner.getId());
         verify(playerRepository, times(1)).delete(any(Player.class));
@@ -99,13 +99,13 @@ public class PlayerServiceTest {
 
 
     @Test
-    public void testRemovePlayer(){
+    void testRemovePlayer(){
         when(playerRepository.findByUserId(1L)).thenReturn(Optional.empty());
         assertThrows(ResponseStatusException.class, () -> playerService.removePlayer(owner.getId()));
     }
 
     @Test
-    public void deleteAllPlayers() {
+    void deleteAllPlayers() {
         List<Player> players = new ArrayList<>(){{add(player);}};
         playerService.deletePlayers(players);
         verify(playerRepository, times(1)).deleteAll(players);

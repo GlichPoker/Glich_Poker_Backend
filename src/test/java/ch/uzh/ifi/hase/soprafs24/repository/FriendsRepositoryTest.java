@@ -30,7 +30,7 @@ public class FriendsRepositoryTest {
     private User user3;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         user1 = new User();
         user1.setUsername("user1");
         user1.setPassword("pw1");
@@ -56,7 +56,7 @@ public class FriendsRepositoryTest {
     }
 
     @Test
-    public void testFindAllFriendsSuccess() {
+    void testFindAllFriendsSuccess() {
         Friends friendship = new Friends();
         friendship.setUser1(user1);
         friendship.setUser2(user2);
@@ -70,7 +70,7 @@ public class FriendsRepositoryTest {
     }
 
     @Test
-    public void testFindAllPendingRequestsSuccess() {
+    void testFindAllPendingRequestsSuccess() {
         Friends request = new Friends();
         request.setUser1(user1);
         request.setUser2(user3);
@@ -84,7 +84,7 @@ public class FriendsRepositoryTest {
     }
 
     @Test
-    public void testFindByUser1IdAndUser2IdAndStatusSuccess() {
+    void testFindByUser1IdAndUser2IdAndStatusSuccess() {
         Friends friendship = new Friends();
         friendship.setUser1(user1);
         friendship.setUser2(user2);
@@ -101,7 +101,7 @@ public class FriendsRepositoryTest {
     }
 
     @Test
-    public void testExistsByUser1IdAndUser2IdAndStatusTrue() {
+    void testExistsByUser1IdAndUser2IdAndStatusTrue() {
         Friends friendship = new Friends();
         friendship.setUser1(user2);
         friendship.setUser2(user3);
@@ -115,7 +115,7 @@ public class FriendsRepositoryTest {
     }
 
     @Test
-    public void testExistsByUser1IdAndUser2IdAndStatusFalse() {
+    void testExistsByUser1IdAndUser2IdAndStatusFalse() {
         boolean exists = friendsRepository.existsByUser1IdAndUser2IdAndStatus(
                 user1.getId(), user3.getId(), FriendRequestState.ACCEPTED);
         assertFalse(exists);

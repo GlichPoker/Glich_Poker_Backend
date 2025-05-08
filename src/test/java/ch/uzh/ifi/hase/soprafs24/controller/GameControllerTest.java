@@ -70,7 +70,7 @@ public class GameControllerTest {
     private List<HandRank> order;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         // Initialize test data
         order = new ArrayList<>(Arrays.stream(HandRank.values()).sorted(Comparator.reverseOrder()).toList());
         gameSettingsModel = new GameSettings(341, 2, 3, order, true, WeatherType.CLOUDY, "");
@@ -114,7 +114,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testCreateGameUserNotFound() throws Exception {
+    void testCreateGameUserNotFound() throws Exception {
         when(userService.getUserById(anyLong())).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/game/create")
@@ -124,7 +124,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testCreateGame() throws Exception {
+    void testCreateGame() throws Exception {
         when(userService.getUserById(anyLong())).thenReturn(testUser);
         when(gameSettingsService.createGameSettings(any())).thenReturn(gameSettingsEntity);
         when(gameService.createGame(any(), anyLong(), anyBoolean())).thenReturn(testGame);
@@ -142,7 +142,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testCreateGameSettingsNotFound() throws Exception {
+    void testCreateGameSettingsNotFound() throws Exception {
         when(userService.getUserById(anyLong())).thenReturn(testUser);
         when(gameSettingsService.createGameSettings(any())).thenReturn(gameSettingsEntity);
         when(gameService.createGame(any(), anyLong(), anyBoolean())).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -154,7 +154,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testInvitePlayer() throws Exception {
+    void testInvitePlayer() throws Exception {
         when(userService.getUserById(anyLong())).thenReturn(testUser);
         when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
 
@@ -166,7 +166,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testInvitePlayer_GameNotFound() throws Exception {
+    void testInvitePlayer_GameNotFound() throws Exception {
         when(gameService.getGameBySessionId(anyLong())).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/game/invite")
@@ -176,7 +176,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testDenyInvitation() throws Exception {
+    void testDenyInvitation() throws Exception {
         addPlayersToGame(testGame, testUser);
         when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
 
@@ -190,7 +190,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testDenyInvitationGame() throws Exception {
+    void testDenyInvitationGame() throws Exception {
         when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
         when(gameService.removePlayerFromGame(any(), anyLong())).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
 
@@ -201,7 +201,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testJoinGame() throws Exception {
+    void testJoinGame() throws Exception {
         when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
         when(userService.getUserById(anyLong())).thenReturn(testUser);
 
@@ -215,7 +215,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testJoinGameUserAlreadyInGame() throws Exception {
+    void testJoinGameUserAlreadyInGame() throws Exception {
         List<HandRank> revorder = new ArrayList<>(Arrays.stream(HandRank.values()).sorted(Comparator.reverseOrder()).toList());
 
         ch.uzh.ifi.hase.soprafs24.entity.GameSettings gameSettings = new ch.uzh.ifi.hase.soprafs24.entity.GameSettings(33443, 12, 23, revorder, true, WeatherType.CLOUDY, "");
@@ -238,7 +238,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testStartGame() throws Exception {
+    void testStartGame() throws Exception {
         addPlayersToGame(testGame, testUser, testUser2);
         when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
 
@@ -254,7 +254,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testStartGameNotEnoughUsersOnline() throws Exception {
+    void testStartGameNotEnoughUsersOnline() throws Exception {
         // Add only one online player
         ch.uzh.ifi.hase.soprafs24.entity.Player player =
                 new ch.uzh.ifi.hase.soprafs24.entity.Player(testUser, gameSettingsEntity.getInitialBalance(), testGame);
@@ -276,7 +276,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testFoldGame() throws Exception {
+    void testFoldGame() throws Exception {
         addPlayersToGame(testGame, testUser, testUser2);
         when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
 
@@ -298,7 +298,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testFoldGameGameNotStarted() throws Exception {
+    void testFoldGameGameNotStarted() throws Exception {
         gameActionRequest = new GameActionRequest(12341,13,2134);
         mockMvc.perform(MockMvcRequestBuilders.post("/game/fold")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -307,7 +307,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testCompleteRound() throws Exception {
+    void testCompleteRound() throws Exception {
         addPlayersToGame(testGame, testUser, testUser2);
         when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
         when(gameService.completeRound(any())).thenReturn(testGame);
@@ -328,7 +328,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testCallGame() throws Exception {
+    void testCallGame() throws Exception {
         addPlayersToGame(testGame, testUser, testUser2);
         when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
 
@@ -348,7 +348,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testRaiseGame() throws Exception {
+    void testRaiseGame() throws Exception {
         addPlayersToGame(testGame, testUser, testUser2);
         when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
 
@@ -368,7 +368,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testLeaveGame() throws Exception {
+    void testLeaveGame() throws Exception {
         when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/game/leave")
@@ -379,7 +379,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testSaveGame() throws Exception {
+    void testSaveGame() throws Exception {
         when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/game/save")
@@ -390,7 +390,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testDeleteGame() throws Exception {
+    void testDeleteGame() throws Exception {
         when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/game/delete")
@@ -402,7 +402,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testDeleteGameNotOwner() throws Exception {
+    void testDeleteGameNotOwner() throws Exception {
         when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/game/delete")
@@ -413,7 +413,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testDeleteGameRunning() throws Exception {
+    void testDeleteGameRunning() throws Exception {
         testGame.setRoundRunning(true);
         when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
 
@@ -425,7 +425,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testGetAllGames() throws Exception {
+    void testGetAllGames() throws Exception {
         List<Game> games = Collections.singletonList(testGame);
         when(gameService.getAllGames()).thenReturn(games);
 
@@ -436,7 +436,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testGetAllOwned() throws Exception {
+    void testGetAllOwned() throws Exception {
         List<Game> games = Collections.singletonList(testGame);
         when(gameService.getGamesOwnedByUser(anyLong())).thenReturn(games);
 
@@ -447,7 +447,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testGetAllOwnedNoGames() throws Exception {
+    void testGetAllOwnedNoGames() throws Exception {
         when(gameService.getGamesOwnedByUser(anyLong())).thenReturn(Collections.emptyList());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/game/owned/{userId}", 1)
@@ -457,7 +457,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testGetAllNoGames() throws Exception {
+    void testGetAllNoGames() throws Exception {
         when(gameService.getAllGames()).thenReturn(Collections.emptyList());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/game/allGames")
@@ -467,7 +467,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testQuitGame() throws Exception {
+    void testQuitGame() throws Exception {
         when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
         mockMvc.perform(MockMvcRequestBuilders.post("/game/quit")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -477,7 +477,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testCheckGameConflict() throws Exception {
+    void testCheckGameConflict() throws Exception {
         addPlayersToGame(testGame, testUser, testUser2);
         when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
 
@@ -495,7 +495,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testCheckGame() throws Exception {
+    void testCheckGame() throws Exception {
         addPlayersToGame(testGame, testUser, testUser2);
         when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
         testGame.getSettings().setBigBlind(0);
@@ -517,7 +517,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testDefaultOrder() throws Exception {
+    void testDefaultOrder() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/game/defaultOrder")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -525,7 +525,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testModifySettings() throws Exception {
+    void testModifySettings() throws Exception {
         GameSettings s = new GameSettings(1000, 10, 20, order, true, WeatherType.RAINY, "hallo");
         ch.uzh.ifi.hase.soprafs24.entity.GameSettings entity = new ch.uzh.ifi.hase.soprafs24.entity.GameSettings(s.initialBalance(), s.smallBlind(), s.bigBlind(), s.order(), s.descending(), s.weatherType(), s.password());
         ModifyGameSettingsRequest request = new ModifyGameSettingsRequest(testGame.getSessionId(), s);
@@ -544,7 +544,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testReadyForNextGame() throws Exception {
+    void testReadyForNextGame() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post("/game/readyForNextGame")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(gameActionRequest)))
@@ -552,7 +552,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testSettings() throws Exception {
+    void testSettings() throws Exception {
         when(gameSettingsService.getGameSettings(anyLong())).thenReturn(gameSettingsEntity);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/game/settings/{gameId}", testGame.getSessionId())
