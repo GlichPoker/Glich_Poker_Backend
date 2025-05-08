@@ -73,4 +73,12 @@ public class GameModel {
     public int getCurrentRoundStartPlayer() {
         return currentRoundStartPlayer;
     }
+
+    public boolean isPublic() {
+        return isPublic;
+    }
+
+    public String getUsername() {
+        return username;
+    }
 }
