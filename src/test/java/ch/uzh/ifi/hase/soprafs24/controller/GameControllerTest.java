@@ -551,7 +551,7 @@ public class GameControllerTest {
                 .andExpect(jsonPath("$.smallBlind").value(s.smallBlind()))
                 .andExpect(jsonPath("$.initialBalance").value(s.initialBalance()))
                 .andExpect(jsonPath("$.descending").value(s.descending()))
-                .andExpect(jsonPath("$.weatherTyp").value(s.weatherType().toString()));
+                .andExpect(jsonPath("$.weatherType").value(s.weatherType().toString()));
     }
 
 }

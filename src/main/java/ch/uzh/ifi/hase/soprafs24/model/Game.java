@@ -82,8 +82,8 @@ public class Game {
         this.players.add(player);
     }
 
-    public Player removePlayer(long userId) {
-        return this.players.stream().filter(x -> x.getUserId() == userId).findFirst().orElse(null);
+    public void removePlayer(long userId) {
+        players =  this.players.stream().filter(x -> x.getUserId() != userId).toList();
     }
 
     public Player getPlayer(long userId) {
