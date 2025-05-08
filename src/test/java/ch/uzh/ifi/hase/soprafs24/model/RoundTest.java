@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs24.model;
 import ch.uzh.ifi.hase.soprafs24.constant.HandRank;
 import ch.uzh.ifi.hase.soprafs24.constant.Rank;
 import ch.uzh.ifi.hase.soprafs24.constant.Suit;
+import ch.uzh.ifi.hase.soprafs24.constant.WeatherType;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,7 +17,7 @@ class RoundTest {
     @BeforeAll
     public static void setup() {
         List<HandRank> order = new ArrayList<>(Arrays.stream(HandRank.values()).sorted(Comparator.reverseOrder()).toList());
-        gameSettings = new GameSettings(1000,10,20, order, true);
+        gameSettings = new GameSettings(1000,10,20, order, true, WeatherType.CLOUDY, "");
     }
     @Test
     void testRoundComplete_singleWinner() {

@@ -69,4 +69,7 @@ public class Game {
     public void setSettings(GameSettings settings) { this.settings = settings; }
     public boolean isPublic() { return isPublic; }
     public void setIsPublic(boolean isPublic) { this.isPublic = isPublic; }
+    public ch.uzh.ifi.hase.soprafs24.model.Game toGameModel() {
+        return new ch.uzh.ifi.hase.soprafs24.model.Game(this, false);
+    }
 }

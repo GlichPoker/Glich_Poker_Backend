@@ -114,10 +114,10 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
     @PostMapping("/join")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public ch.uzh.ifi.hase.soprafs24.model.Game joinGame(@RequestBody GameActionRequest request) {
+    public ch.uzh.ifi.hase.soprafs24.model.Game joinGame(@RequestBody JoinGameRequest request) {
         Game game = gameService.getGameBySessionId(request.sessionId());
         User user = userService.getUserById(request.userId());
-        gameService.handlePlayerJoinOrRejoin(game, user);
+        gameService.handlePlayerJoinOrRejoin(game, user, request.password());
         Game updatedGame = gameService.getGameBySessionId(request.sessionId());
 
         ch.uzh.ifi.hase.soprafs24.model.Game gameModel = new ch.uzh.ifi.hase.soprafs24.model.Game(updatedGame, false);
@@ -301,14 +301,24 @@ public class GameController implements ch.uzh.ifi.hase.soprafs24.model.Game.Game
 
     @GetMapping("/allGames")
     @ResponseStatus(HttpStatus.OK)
-    public List<Game> getAllGames() {
-        return gameService.getAllGames();
+    public List<GameModel> getAllGames() {
+        List<Game> games =  gameService.getAllGames();
+        List<GameModel> gameModels = new ArrayList<>();
+        for (Game game : games) {
+            gameModels.add(new GameModel(game.toGameModel(), -1));
+        }
+        return gameModels;
     }
 
     @GetMapping("/owned/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public List<Game> getAllOwnedGames(@PathVariable long userId) {
-        return gameService.getGamesOwnedByUser(userId);
+    public List<GameModel> getAllOwnedGames(@PathVariable long userId) {
+        List<Game> games = gameService.getGamesOwnedByUser(userId);
+        List<GameModel> gameModels = new ArrayList<>();
+        for (Game game : games) {
+            gameModels.add(new GameModel(game.toGameModel(), -1));
+        }
+        return gameModels;
     }
 
     @GetMapping("/settings/{gameId}")

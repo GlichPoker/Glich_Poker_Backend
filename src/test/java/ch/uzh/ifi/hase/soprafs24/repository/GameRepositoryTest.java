@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.repository;
 
 import ch.uzh.ifi.hase.soprafs24.constant.HandRank;
+import ch.uzh.ifi.hase.soprafs24.constant.WeatherType;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.GameSettings;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
@@ -38,7 +39,7 @@ public class GameRepositoryTest {
         owner.setStatus(UserStatus.ONLINE);
         owner.setToken("ownerToken");
         List<HandRank> order = new ArrayList<>(Arrays.stream(HandRank.values()).sorted(Comparator.reverseOrder()).toList());
-        gameSettings = new GameSettings(1000, 5, 10, order, true);
+        gameSettings = new GameSettings(1000, 5, 10, order, true, WeatherType.CLOUDY, "");
 
         entityManager.persist(owner);
         entityManager.persist(gameSettings);

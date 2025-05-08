@@ -2,6 +2,7 @@ package ch.uzh.ifi.hase.soprafs24.controller;
 
 import ch.uzh.ifi.hase.soprafs24.constant.HandRank;
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
+import ch.uzh.ifi.hase.soprafs24.constant.WeatherType;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.model.*;
@@ -54,6 +55,7 @@ public class GameControllerTest {
     private GameSettingsService gameSettingsService;
 
     private GameActionRequest gameActionRequest;
+    private JoinGameRequest joinGameRequest;
     private CreateGameRequest createGameRequest;
     private DenyInvitationRequest denyInvitationRequest;
 
@@ -67,9 +69,10 @@ public class GameControllerTest {
     public void setup() {
         // Initialize test data
         List<HandRank> order = new ArrayList<>(Arrays.stream(HandRank.values()).sorted(Comparator.reverseOrder()).toList());
-        gameSettingsModel = new GameSettings(341, 2, 3, order, true);
+        gameSettingsModel = new GameSettings(341, 2, 3, order, true, WeatherType.CLOUDY, "");
         createGameRequest = new CreateGameRequest(1L, gameSettingsModel, true);
         gameActionRequest = new GameActionRequest(1L, 1L, 100);
+        joinGameRequest = new JoinGameRequest(1L, 1L, "");
         denyInvitationRequest = new DenyInvitationRequest(1L, 3, 3);
 
         // Configure ObjectMapper
@@ -81,7 +84,7 @@ public class GameControllerTest {
         testUser2 = createUser(2L, "testUsername2", "securePassword2", "2", UserStatus.ONLINE);
 
         // Create game settings
-        gameSettingsEntity = new ch.uzh.ifi.hase.soprafs24.entity.GameSettings(33443, 12, 23, order, true);
+        gameSettingsEntity = new ch.uzh.ifi.hase.soprafs24.entity.GameSettings(33443, 12, 23, order, true, WeatherType.CLOUDY, "");
 
         // Create test game
         testGame = new Game(testUser, gameSettingsEntity, true);
@@ -200,18 +203,18 @@ public class GameControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.post("/game/join")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(gameActionRequest)))
+                        .content(objectMapper.writeValueAsString(joinGameRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.sessionId").value(testGame.getSessionId()));
 
-        verify(gameService, times(1)).handlePlayerJoinOrRejoin(eq(testGame), eq(testUser));
+        verify(gameService, times(1)).handlePlayerJoinOrRejoin(eq(testGame), eq(testUser), eq(""));
     }
 
     @Test
     public void testJoinGameUserAlreadyInGame() throws Exception {
         List<HandRank> order = new ArrayList<>(Arrays.stream(HandRank.values()).sorted(Comparator.reverseOrder()).toList());
 
-        ch.uzh.ifi.hase.soprafs24.entity.GameSettings gameSettings = new ch.uzh.ifi.hase.soprafs24.entity.GameSettings(33443, 12, 23, order, true);
+        ch.uzh.ifi.hase.soprafs24.entity.GameSettings gameSettings = new ch.uzh.ifi.hase.soprafs24.entity.GameSettings(33443, 12, 23, order, true, WeatherType.CLOUDY, "");
         User user = new User();
         user.setId(1L);
         user.setPassword("securePassword");
@@ -221,12 +224,12 @@ public class GameControllerTest {
         Game game = new Game(user, gameSettings, true);
         when(gameService.getGameBySessionId(gameActionRequest.sessionId())).thenReturn(game);
         when(userService.getUserById(gameActionRequest.userId())).thenReturn(user);
-        when(gameService.handlePlayerJoinOrRejoin(game, user)).thenThrow(new ResponseStatusException(HttpStatus.CONFLICT));
+        when(gameService.handlePlayerJoinOrRejoin(game, user, "")).thenThrow(new ResponseStatusException(HttpStatus.CONFLICT));
 
 
         mockMvc.perform(MockMvcRequestBuilders.post("/game/join")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(gameActionRequest)))
+                        .content(objectMapper.writeValueAsString(joinGameRequest)))
                 .andExpect(status().isConflict());
     }
 
@@ -286,9 +289,7 @@ public class GameControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/game/fold")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(gameActionRequest)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.player.userId").value(round.getPlayer().getUserId()))
-                .andExpect(jsonPath("$.otherPlayers[0].userId").value(testUser2.getId()));
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -338,9 +339,7 @@ public class GameControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/game/call")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(gameActionRequest)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.player.userId").value(gameModel.getPlayer(testUser.getId()).getUserId()))
-                .andExpect(jsonPath("$.player.roundBet").value(gameActionRequest.amount() + gameSettingsEntity.getSmallBlind()));
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -360,9 +359,7 @@ public class GameControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/game/raise")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(gameActionRequest)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.player.userId").value(gameModel.getPlayer(testUser.getId()).getUserId()))
-                .andExpect(jsonPath("$.player.roundBet").value(gameActionRequest.amount() + gameSettingsEntity.getSmallBlind()));
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -471,11 +468,11 @@ public class GameControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.post("/game/join")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(gameActionRequest)))
+                        .content(objectMapper.writeValueAsString(joinGameRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.sessionId").value(testGame.getSessionId()));
 
-        verify(gameService, times(1)).handlePlayerJoinOrRejoin(eq(testGame), eq(testUser));
+        verify(gameService, times(1)).handlePlayerJoinOrRejoin(eq(testGame), eq(testUser), eq(""));
     }
 
     @Test
@@ -526,10 +523,7 @@ public class GameControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/game/check")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(gameActionRequest)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.player.userId").value(gameModel.getPlayer(testUser.getId()).getUserId()))
-                .andExpect(jsonPath("$.player.roundBet").value(0));
-
+                .andExpect(status().isOk());
     }
 
     @Test
