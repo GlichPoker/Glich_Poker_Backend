@@ -48,7 +48,7 @@ import java.time.LocalDate;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-public class UserControllerTest {
+class UserControllerTest {
 
   @Autowired
   private MockMvc mockMvc;

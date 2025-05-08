@@ -19,7 +19,7 @@ import static org.mockito.Mockito.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class GameSettingsServiceTest {
+class GameSettingsServiceTest {
 
     @Mock
     private GameSettingsRepository settingsRepository;

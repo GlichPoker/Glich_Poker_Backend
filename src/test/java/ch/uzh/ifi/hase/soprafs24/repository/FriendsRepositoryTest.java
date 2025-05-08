@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @ActiveProfiles("test")
-public class FriendsRepositoryTest {
+class FriendsRepositoryTest {
 
     @Autowired
     private TestEntityManager entityManager;

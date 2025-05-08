@@ -20,7 +20,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-public class TestModelPusher {
+class TestModelPusher {
     @InjectMocks
     private ModelPusher modelPusher;
     private Round round;

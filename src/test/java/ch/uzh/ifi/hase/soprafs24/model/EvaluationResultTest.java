@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class EvaluationResultTest {
+class EvaluationResultTest {
 
     private List<EvaluationResult> highHands;
     private List<EvaluationResult> lowHands;

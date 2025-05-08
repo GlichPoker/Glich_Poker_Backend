@@ -19,7 +19,7 @@ import static org.mockito.Mockito.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class PlayerServiceTest {
+class PlayerServiceTest {
 
     @Mock
     private PlayerRepository playerRepository;
@@ -27,7 +27,6 @@ public class PlayerServiceTest {
     @InjectMocks
     private PlayerService playerService;
 
-    private GameSettings gameSettings;
 
     private User owner;
     private Game game;
@@ -42,7 +41,7 @@ public class PlayerServiceTest {
         owner.setUsername("owner");
         List<HandRank> order = new ArrayList<>(Arrays.stream(HandRank.values()).sorted(Comparator.reverseOrder()).toList());
 
-        gameSettings = new GameSettings(1000L, 1L,2L, order, true, WeatherType.CLOUDY, "");
+        GameSettings gameSettings = new GameSettings(1000L, 1L,2L, order, true, WeatherType.CLOUDY, "");
 
 
         game = new Game(owner, gameSettings, true);

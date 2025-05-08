@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @ActiveProfiles("test")
-public class GameSettingsRepositoryTest {
+class GameSettingsRepositoryTest {
 
     @Autowired
     private TestEntityManager entityManager;

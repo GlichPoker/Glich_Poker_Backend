@@ -8,7 +8,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class DealerTest {
+class DealerTest {
 
     private Deck deck;
     private Dealer dealer;
