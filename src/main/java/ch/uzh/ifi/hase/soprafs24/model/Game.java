@@ -7,18 +7,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Game implements RoundCompletionListener {
+public class Game {
     private final long sessionId;
     private Round round;
     private List<Player> players;
     private GameSettings settings;
     private final long ownerId;
     private final int currentRoundStartPlayer;
-    private GameCompletionCallback gameCompletionCallback;
-
-    public interface GameCompletionCallback {
-        void onGameComplete(Game game, List<Player> winners);
-    }
 
     public Game(Player player, GameSettings settings) {
         this.sessionId = System.nanoTime();
@@ -54,18 +49,6 @@ public class Game implements RoundCompletionListener {
         return currentRoundStartPlayer;
     }
 
-    public void setGameCompletionCallback(GameCompletionCallback gameCompletionCallback) {
-        this.gameCompletionCallback = gameCompletionCallback;
-    }
-
-    @Override
-    public void onRoundComplete(List<Player> winners) {
-        if (gameCompletionCallback != null) {
-            gameCompletionCallback.onGameComplete(this, winners);
-        } else {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No GameCompletionCallback set");
-        }
-    }
 
     public GameModel getGameModel(long userId) {
         return new GameModel(this, userId);
@@ -119,7 +102,6 @@ public class Game implements RoundCompletionListener {
         }
 
         this.round = new Round(players, this.currentRoundStartPlayer, this.settings);
-        this.round.setRoundCompletionListener(this);
     }
 
     public boolean containsUser(long userId) {

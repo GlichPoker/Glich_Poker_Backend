@@ -18,7 +18,6 @@ public class Round {
     private int betState;
     private final GameSettings gameSettings;
     protected List<Card> communityCards;
-    private RoundCompletionListener roundCompletionListener;
     private boolean roundOver;
     private boolean firstActionOccurred = false;
     private boolean hasProgressedOnce = false;
@@ -47,9 +46,6 @@ public class Round {
         return roundOver;
     }
 
-    public void setRoundCompletionListener(RoundCompletionListener roundCompletionListener) {
-        this.roundCompletionListener = roundCompletionListener;
-    }
 
     public Round(List<Player> players, int startPlayer, GameSettings gameSettings) {
         this(players, startPlayer, false, gameSettings);

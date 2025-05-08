@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
 import ch.uzh.ifi.hase.soprafs24.constant.HandRank;
+import ch.uzh.ifi.hase.soprafs24.constant.WeatherType;
 import ch.uzh.ifi.hase.soprafs24.entity.*;
 
 import ch.uzh.ifi.hase.soprafs24.repository.GameSettingsRepository;
@@ -77,5 +78,18 @@ public class GameSettingsServiceTest {
     public void deleteSettings() {
         gameSettingsService.deleteSettings(gameSettings);
         verify(settingsRepository, times(1)).delete(any(GameSettings.class));
+    }
+
+
+    @Test
+    public void updateSettings() {
+        when(settingsRepository.save(any(GameSettings.class))).thenReturn(gameSettings);
+
+        ch.uzh.ifi.hase.soprafs24.model.GameSettings model = new ch.uzh.ifi.hase.soprafs24.model.GameSettings(1000, 10, 20, null, true, WeatherType.RAINY, "");
+        GameSettings newSettings = gameSettingsService.updateSettings(gameSettings, model);
+        verify(settingsRepository, times(1)).save(any(GameSettings.class));
+        assertEquals(newSettings.getBigBlind(), model.bigBlind());
+        assertEquals(newSettings.getSmallBlind(), model.smallBlind());
+        assertEquals(newSettings.getInitialBalance(), model.initialBalance());
     }
 }
