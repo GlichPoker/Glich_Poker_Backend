@@ -31,7 +31,7 @@ public class Game {
         this.sessionId = game.getSessionId();
 
         List<Player> playerList = game.getPlayers() != null
-                ? game.getPlayers().stream().map(Player::new).collect(Collectors.toList())
+                ? game.getPlayers().stream().map(Player::new).toList()
                 : new ArrayList<>();
 
         this.players = playerList;

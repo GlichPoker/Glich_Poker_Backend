@@ -56,7 +56,6 @@ public class GameController {
 
     @PostMapping("/invite")
     @ResponseStatus(HttpStatus.CREATED)
-    @ResponseBody
     public boolean invitePlayer(@RequestBody GameActionRequest request) {
         Game game = gameService.getGameBySessionId(request.sessionId());
         User user = userService.getUserById(request.userId());
@@ -66,7 +65,6 @@ public class GameController {
 
     @PostMapping("/denyInvitation")
     @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
     public boolean denyInvitation(@RequestBody DenyInvitationRequest request) {
         Game game = gameService.getGameBySessionId(request.sessionId());
         gameService.removePlayerFromGame(game, request.userId());

@@ -58,7 +58,6 @@ public class FriendsController {
 
     @GetMapping("/allFriends/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
     public List<UserModel> getAllFriends(@PathVariable("userId") Long userId) {
         checkIdExists(userId);
         return friendshipService.getAllFriends(userId);
@@ -66,7 +65,6 @@ public class FriendsController {
 
     @GetMapping("/pendingRequests/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
     public List<UserModel> getAllPendingRequests(@PathVariable("userId") Long userId) {
         checkIdExists(userId);
         return friendshipService.getAllPendingFriendRequests(userId);
@@ -74,7 +72,6 @@ public class FriendsController {
 
     @GetMapping("/availableUsers/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
     public List<UserModel> getAllFriendsWhichCanBeAdded(@PathVariable("userId") Long userId) {
         checkIdExists(userId);
         return friendshipService.getAllUsersWhichAreNotFriends(userId);

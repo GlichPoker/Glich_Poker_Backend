@@ -186,7 +186,7 @@ public class GameControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(result -> assertTrue(Boolean.parseBoolean(result.getResponse().getContentAsString())));
 
-        verify(gameService, times(1)).removePlayerFromGame(eq(testGame), eq(denyInvitationRequest.userId()));
+        verify(gameService, times(1)).removePlayerFromGame(testGame, denyInvitationRequest.userId());
     }
 
     @Test
@@ -211,14 +211,14 @@ public class GameControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.sessionId").value(testGame.getSessionId()));
 
-        verify(gameService, times(1)).handlePlayerJoinOrRejoin(eq(testGame), eq(testUser), eq(""));
+        verify(gameService, times(1)).handlePlayerJoinOrRejoin(testGame, testUser, "");
     }
 
     @Test
     public void testJoinGameUserAlreadyInGame() throws Exception {
-        List<HandRank> order = new ArrayList<>(Arrays.stream(HandRank.values()).sorted(Comparator.reverseOrder()).toList());
+        List<HandRank> revorder = new ArrayList<>(Arrays.stream(HandRank.values()).sorted(Comparator.reverseOrder()).toList());
 
-        ch.uzh.ifi.hase.soprafs24.entity.GameSettings gameSettings = new ch.uzh.ifi.hase.soprafs24.entity.GameSettings(33443, 12, 23, order, true, WeatherType.CLOUDY, "");
+        ch.uzh.ifi.hase.soprafs24.entity.GameSettings gameSettings = new ch.uzh.ifi.hase.soprafs24.entity.GameSettings(33443, 12, 23, revorder, true, WeatherType.CLOUDY, "");
         User user = new User();
         user.setId(1L);
         user.setPassword("securePassword");
@@ -280,8 +280,7 @@ public class GameControllerTest {
         addPlayersToGame(testGame, testUser, testUser2);
         when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
 
-        ch.uzh.ifi.hase.soprafs24.model.Game gameModel = new ch.uzh.ifi.hase.soprafs24.model.Game(testGame, true);
-        RoundModel round = gameModel.getRoundModel(testUser.getId());
+        new ch.uzh.ifi.hase.soprafs24.model.Game(testGame, true);
 
         // First start the game
         mockMvc.perform(MockMvcRequestBuilders.post("/game/start")
@@ -333,8 +332,6 @@ public class GameControllerTest {
         addPlayersToGame(testGame, testUser, testUser2);
         when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
 
-        ch.uzh.ifi.hase.soprafs24.model.Game gameModel = new ch.uzh.ifi.hase.soprafs24.model.Game(testGame, false);
-
         // First start the game
         mockMvc.perform(MockMvcRequestBuilders.post("/game/start")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -354,8 +351,6 @@ public class GameControllerTest {
     public void testRaiseGame() throws Exception {
         addPlayersToGame(testGame, testUser, testUser2);
         when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
-
-        ch.uzh.ifi.hase.soprafs24.model.Game gameModel = new ch.uzh.ifi.hase.soprafs24.model.Game(testGame, false);
 
         // First start the game
         mockMvc.perform(MockMvcRequestBuilders.post("/game/start")
@@ -472,35 +467,19 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testRejoinGame() throws Exception {
-        when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
-        when(userService.getUserById(anyLong())).thenReturn(testUser);
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/game/join")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(joinGameRequest)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.sessionId").value(testGame.getSessionId()));
-
-        verify(gameService, times(1)).handlePlayerJoinOrRejoin(eq(testGame), eq(testUser), eq(""));
-    }
-
-    @Test
     public void testQuitGame() throws Exception {
         when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
         mockMvc.perform(MockMvcRequestBuilders.post("/game/quit")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(gameActionRequest)))
                 .andExpect(status().isOk());
-        verify(gameService, times(1)).removePlayerFromGame(eq(testGame), eq(gameActionRequest.userId()));
+        verify(gameService, times(1)).removePlayerFromGame(testGame, gameActionRequest.userId());
     }
 
     @Test
     public void testCheckGameConflict() throws Exception {
         addPlayersToGame(testGame, testUser, testUser2);
         when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
-
-        ch.uzh.ifi.hase.soprafs24.model.Game gameModel = new ch.uzh.ifi.hase.soprafs24.model.Game(testGame, false);
 
         // First start the game
         mockMvc.perform(MockMvcRequestBuilders.post("/game/start")
@@ -521,7 +500,6 @@ public class GameControllerTest {
         when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
         testGame.getSettings().setBigBlind(0);
         testGame.getSettings().setSmallBlind(0);
-        ch.uzh.ifi.hase.soprafs24.model.Game gameModel = new ch.uzh.ifi.hase.soprafs24.model.Game(testGame, false);
 
         // First start the game
         mockMvc.perform(MockMvcRequestBuilders.post("/game/start")

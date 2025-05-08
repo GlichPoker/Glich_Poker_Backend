@@ -297,20 +297,8 @@ public class Round {
     }
 
     private boolean shouldProgressRound() {
-
-        // if (roundBet == 0) {
-        // return false;
-        // }
-
         long activePlayers = players.stream().filter(Player::isActive).count();
         return (activePlayers < 2 || haveNotRaiseCount == players.size());
-
-        // for (Player player : players) {
-        // if (player.isActive() && player.getRoundBet() < roundBet) {
-        // return false;
-        // }
-        // }
-
     }
 
     public GameSettings getGameSettings() {

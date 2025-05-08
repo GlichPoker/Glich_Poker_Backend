@@ -39,17 +39,12 @@ public class FriendsService {
         // Create a new friend request
         Friends newFriendship = new Friends();
         
-        try {
-            newFriendship.setUser1(user);
-            newFriendship.setUser2(user2);
-            newFriendship.setRequestStatus(FriendRequestState.PENDING);
-            
-            friendsRepository.save(newFriendship);
-            return true;
-        }
-        catch (Exception e) {
-            throw e;
-        }
+        newFriendship.setUser1(user);
+        newFriendship.setUser2(user2);
+        newFriendship.setRequestStatus(FriendRequestState.PENDING);
+
+        friendsRepository.save(newFriendship);
+        return true;
     }
 
     public boolean acceptFriendRequest(Long userId, Long friendId) {

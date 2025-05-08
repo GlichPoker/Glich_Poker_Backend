@@ -6,7 +6,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
 
@@ -16,11 +15,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class WinnerModelTest {
 
     private Round round;
-    private List<Player> players;
 
     @BeforeEach
     public void setup(){
-        players = new ArrayList<>() {{
+        List<Player> players = new ArrayList<>() {{
             add(new Player(1, "a", 100));
             add(new Player(2, "b", 100));
             add(new Player(3, "c", 100));

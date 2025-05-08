@@ -86,8 +86,8 @@ public class PlayerServiceTest {
     public void findByGameId() {
         when(playerRepository.findByGameId(game.getSessionId())).thenReturn(new ArrayList<>(){{add(player);}});
         List<Player> players = playerService.findByGameId(game.getSessionId());
-        assertEquals(players.size(), 1);
-        assertEquals(players.get(0), player);
+        assertEquals(1, players.size());
+        assertEquals(player, players.get(0));
     }
 
     @Test

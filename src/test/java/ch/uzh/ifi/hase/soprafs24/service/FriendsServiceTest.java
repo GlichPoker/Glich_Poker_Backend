@@ -103,7 +103,7 @@ public class FriendsServiceTest {
         boolean success = friendsService.acceptFriendRequest(1L, 2L);
         verify(friendsRepository, times(1)).save(any(Friends.class));
         assertTrue(success);
-        assertEquals(friends.getRequestStatus(), FriendRequestState.ACCEPTED);
+        assertEquals(FriendRequestState.ACCEPTED,friends.getRequestStatus());
     }
 
     @Test
@@ -126,7 +126,7 @@ public class FriendsServiceTest {
         boolean success = friendsService.denyFriendRequest(1L, 2L);
         verify(friendsRepository, times(1)).save(any(Friends.class));
         assertTrue(success);
-        assertEquals(friends.getRequestStatus(), FriendRequestState.DECLINED);
+        assertEquals(FriendRequestState.DECLINED,friends.getRequestStatus());
     }
 
     @Test
@@ -144,7 +144,7 @@ public class FriendsServiceTest {
 
         List<UserModel> friends = friendsService.getAllFriends(1L);
         verify(friendsRepository, times(0)).save(any(Friends.class));
-        assertEquals(friends.size(), 2);
+        assertEquals(2,friends.size());
     }
 
     @Test
@@ -153,7 +153,7 @@ public class FriendsServiceTest {
 
         List<UserModel> friends = friendsService.getAllPendingFriendRequests(1L);
         verify(friendsRepository, times(0)).save(any(Friends.class));
-        assertEquals(friends.size(), 1);
+        assertEquals(1,friends.size());
     }
 
     @Test
@@ -164,8 +164,8 @@ public class FriendsServiceTest {
 
         List<UserModel> availableForFriendRequest = friendsService.getAllUsersWhichAreNotFriends(1L);
         verify(friendsRepository, times(0)).save(any(Friends.class));
-        assertEquals(availableForFriendRequest.size(), 1);
-        assertEquals(availableForFriendRequest.get(0).getUsername(), user3.toUserModel().getUsername());
+        assertEquals(1,availableForFriendRequest.size());
+        assertEquals(user3.toUserModel().getUsername(), availableForFriendRequest.get(0).getUsername());
     }
 
     @Test
@@ -176,7 +176,7 @@ public class FriendsServiceTest {
 
         List<UserModel> availableForFriendRequest = friendsService.getAllUsersWhichAreNotFriends(1L);
         verify(friendsRepository, times(0)).save(any(Friends.class));
-        assertEquals(availableForFriendRequest.size(), 0);
+        assertEquals(0, availableForFriendRequest.size());
     }
 
     @Test

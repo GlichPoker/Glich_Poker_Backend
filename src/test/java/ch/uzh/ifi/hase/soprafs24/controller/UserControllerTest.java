@@ -155,7 +155,7 @@ public class UserControllerTest {
       user.setBirthDate(birthDate);
 
       // Setup service to return user when getUserById is called
-      given(userService.getUserById(Mockito.eq(1L))).willReturn(user);
+      given(userService.getUserById(1L)).willReturn(user);
 
       // when/then
       MockHttpServletRequestBuilder getRequest = get("/users/1")
@@ -177,7 +177,7 @@ public class UserControllerTest {
       long nonExistentUserId = 99L;
 
       // Setup service to throw not found exception
-      given(userService.getUserById(Mockito.eq(nonExistentUserId)))
+      given(userService.getUserById(nonExistentUserId))
           .willThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
       // when/then

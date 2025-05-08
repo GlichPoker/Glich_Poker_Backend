@@ -1,7 +1,5 @@
 package ch.uzh.ifi.hase.soprafs24.model;
 
-import ch.uzh.ifi.hase.soprafs24.constant.HandRank;
-
 public class Player {
     private final long userId;
     private final String name;

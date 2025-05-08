@@ -80,19 +80,19 @@ public class EvaluationResultTest {
     public void testEquals(){
         EvaluationResult res = highHands.get(0);
         EvaluationResult res2 = lowHands.get(0);
-        assertTrue(res.equals(res2));
+        assertEquals(res, res2);
     }
     @Test
     public void testEqualsNull(){
         EvaluationResult res = highHands.get(0);
         EvaluationResult res2 = null;
-        assertFalse(res.equals(res2));
+        assertNotEquals(res, res2);
     }
 
     @Test
     public void testEqualsSelf(){
         EvaluationResult res = highHands.get(0);
-        assertTrue(res.equals(res));
+        assertEquals(res, res);
     }
 
     @Test

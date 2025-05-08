@@ -41,14 +41,14 @@ public class DealerTest {
 
     @Test
     public void testDealOne(){
-        assertEquals(cards.size(), 0);
+        assertEquals(0, cards.size());
         dealer.deal(cards, 1);
         assertNotNull(cards.get(0));
     }
 
     @Test
     public void testDealThree(){
-        assertEquals(cards.size(), 0);
+        assertEquals(0, cards.size());
         dealer.deal(cards, 3);
         assertNotNull(cards.get(1));
         assertNotNull(cards.get(2));
@@ -57,16 +57,16 @@ public class DealerTest {
 
     @Test
     public void testDealZero(){
-        assertEquals(cards.size(), 0);
+        assertEquals(0, cards.size());
         dealer.deal(cards, 0);
-        assertEquals(cards.size(), 0);
+        assertEquals(0, cards.size());
     }
 
     @Test
     public void testRestore(){
         dealer.deal(cards, 1);
-        assertEquals(deck.getCards().size(), 51);
+        assertEquals(51, deck.getCards().size());
         dealer.restore();
-        assertEquals(deck.getCards().size(), 52);
+        assertEquals(52, deck.getCards().size());
     }
 }

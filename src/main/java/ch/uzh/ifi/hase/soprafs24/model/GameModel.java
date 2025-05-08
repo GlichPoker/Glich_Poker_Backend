@@ -27,17 +27,17 @@ public class GameModel {
         }
 
         if(userId > 0) {
-            List<Player> players = game.getPlayers();
-            int playerIdx = IntStream.range(0, players.size())
-                    .filter(i -> players.get(i).getUserId() == userId)
+            List<Player> p = game.getPlayers();
+            int playerIdx = IntStream.range(0, p.size())
+                    .filter(i -> p.get(i).getUserId() == userId)
                     .findFirst()
                     .orElse(-1);
 
             if (playerIdx == -1) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found");
 
             List<Player> orderedPlayers = new ArrayList<>();
-            orderedPlayers.addAll(players.subList(playerIdx, players.size()));
-            orderedPlayers.addAll(players.subList(0, playerIdx));
+            orderedPlayers.addAll(p.subList(playerIdx, p.size()));
+            orderedPlayers.addAll(p.subList(0, playerIdx));
             this.players = orderedPlayers;
 
         }else{

@@ -24,5 +24,5 @@ public class PlayerModel {
     public boolean isActive() {return isActive;}
     public long getRoundBet() {return roundBet;}
     public boolean isOnline() {return isOnline;}
-
+    public EvaluationResult getEvaluationResult() {return evaluationResult;}
 }
