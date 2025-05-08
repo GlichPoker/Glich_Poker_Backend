@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CardTest {
 
@@ -37,7 +38,8 @@ public class CardTest {
 
     @Test
     public void testCompareTo(){
-        assert(testCards[0].compareTo(testCards[1]) > 0);
+
+        assertTrue(testCards[0].compareTo(testCards[1]) > 0);
     }
 
     @Test

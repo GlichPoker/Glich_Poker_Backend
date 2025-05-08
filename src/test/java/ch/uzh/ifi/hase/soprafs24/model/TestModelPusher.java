@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.model;
 
 import ch.uzh.ifi.hase.soprafs24.constant.HandRank;
+import ch.uzh.ifi.hase.soprafs24.constant.Model;
 import ch.uzh.ifi.hase.soprafs24.constant.WeatherType;
 import ch.uzh.ifi.hase.soprafs24.service.GameService;
 import ch.uzh.ifi.hase.soprafs24.websockets.WS_Handler;
@@ -14,6 +15,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class TestModelPusher {
     @InjectMocks
@@ -44,11 +49,14 @@ public class TestModelPusher {
     @Test
     public void testModelPusher(){
         modelPusher.pushModel(round, game, wsHandler, gameService);
+        verify(wsHandler, times(1)).sendModelToAll(any(), eq(game), eq(Model.ROUNDMODEL));
     }
 
     @Test
     public void testModelPusherRoundOver(){
         round.setIsRoundOver(true);
         modelPusher.pushModel(round, game, wsHandler, gameService);
+        verify(wsHandler, times(1)).sendRawWinnerModelToPlayer(any(), anyLong(), any());
+
     }
 }
