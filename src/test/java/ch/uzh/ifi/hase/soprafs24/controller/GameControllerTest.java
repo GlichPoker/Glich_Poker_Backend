@@ -24,7 +24,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
@@ -54,6 +53,9 @@ public class GameControllerTest {
 
     @MockBean
     private GameSettingsService gameSettingsService;
+
+    @MockBean
+    private ModelPusher modelPusher;
 
     private GameActionRequest gameActionRequest;
     private JoinGameRequest joinGameRequest;
@@ -292,6 +294,8 @@ public class GameControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(gameActionRequest)))
                 .andExpect(status().isOk());
+        verify(modelPusher, times(1)).pushModel(any(), any(), any(), any());
+
     }
 
     @Test
@@ -342,6 +346,8 @@ public class GameControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(gameActionRequest)))
                 .andExpect(status().isOk());
+        verify(modelPusher, times(1)).pushModel(any(), any(), any(), any());
+
     }
 
     @Test
@@ -362,6 +368,8 @@ public class GameControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(gameActionRequest)))
                 .andExpect(status().isOk());
+        verify(modelPusher, times(1)).pushModel(any(), any(), any(), any());
+
     }
 
     @Test
@@ -526,6 +534,8 @@ public class GameControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(gameActionRequest)))
                 .andExpect(status().isOk());
+        verify(modelPusher, times(1)).pushModel(any(), any(), any(), any());
+
     }
 
     @Test

@@ -27,33 +27,18 @@ public class GameController {
     private final GameSettingsService gameSettingsService;
     private final UserService userService;
     private final WS_Handler wsHandler;
+    private final ModelPusher modelPusher;
 
     @Autowired
     public GameController(GameService gameService, GameSettingsService gameSettingsService, UserService userService,
-            WS_Handler wsHandler) {
+            WS_Handler wsHandler, ModelPusher modelPusher) {
         this.gameService = gameService;
         this.gameSettingsService = gameSettingsService;
         this.userService = userService;
         this.wsHandler = wsHandler;
+        this.modelPusher = modelPusher;
     }
 
-    private void pushModel(Round round, ch.uzh.ifi.hase.soprafs24.model.Game game){
-        if (round.isRoundOver()) {
-            Map<Long, Double> winnings = round.onRoundCompletion(game.getSettings());
-
-            for (Player p : game.getPlayers()) {
-                WinnerModel winnerModel = new WinnerModel(round, p.getUserId(), winnings);
-                wsHandler.sendRawWinnerModelToPlayer(
-                        String.valueOf(game.getSessionId()),
-                        p.getUserId(),
-                        winnerModel);
-            }
-
-            gameService.completeRound(game);
-        } else
-            wsHandler.sendModelToAll(Long.toString(game.getSessionId()), game, Model.ROUNDMODEL);
-
-    }
 
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
@@ -134,7 +119,7 @@ public class GameController {
         Round round = game.getRound();
         round.handleFold(request.userId());
 
-        pushModel(round, game);
+        modelPusher.pushModel(round, game, wsHandler, gameService);
     }
 
     @PostMapping("/roundComplete")
@@ -161,7 +146,7 @@ public class GameController {
         Round round = game.getRound();
         round.handleCall(request.userId(), request.amount());
 
-        pushModel(round, game);
+        modelPusher.pushModel(round, game, wsHandler, gameService);
     }
 
     @PostMapping("/raise")
@@ -174,7 +159,7 @@ public class GameController {
         Round round = game.getRound();
         round.handleRaise(request.userId(), request.amount());
 
-        pushModel(round, game);
+        modelPusher.pushModel(round, game, wsHandler, gameService);
 
     }
 
@@ -275,8 +260,7 @@ public class GameController {
         Round round = game.getRound();
         round.handleCheck(request.userId());
 
-        pushModel(round, game);
-
+        modelPusher.pushModel(round, game, wsHandler, gameService);
     }
 
     @PostMapping("/readyForNextGame")
