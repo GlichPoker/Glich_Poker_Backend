@@ -97,6 +97,13 @@ public class PlayerServiceTest {
         verify(playerRepository, times(1)).delete(any(Player.class));
     }
 
+
+    @Test
+    public void testRemovePlayer(){
+        when(playerRepository.findByUserId(1L)).thenReturn(Optional.empty());
+        assertThrows(ResponseStatusException.class, () -> playerService.removePlayer(owner.getId()));
+    }
+
     @Test
     public void deleteAllPlayers() {
         List<Player> players = new ArrayList<>(){{add(player);}};
