@@ -49,6 +49,9 @@ public class Round {
         return roundOver;
     }
 
+    public void setIsRoundOver(boolean roundOver) {
+        this.roundOver = roundOver;
+    }
 
     public void setHaveNotRaiseCount(int count) {
         haveNotRaiseCount = count;
