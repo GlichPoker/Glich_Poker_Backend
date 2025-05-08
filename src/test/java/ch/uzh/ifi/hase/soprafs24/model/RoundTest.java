@@ -113,4 +113,104 @@ class RoundTest {
         assertEquals(300, winnings.get(player1), 0.01);
         assertEquals(100, winnings.get(player2), 0.01);
     }
+
+    @Test
+    public void testOnRoundCompletion(){
+        Player player1 = new Player(1, "hallo", 1000);
+        Player player2 = new Player(2, "hallo2", 1000);
+        player1.setTotalBet(300);
+        player2.setTotalBet(100);
+        ArrayList<Player> players = new ArrayList<>(Arrays.asList(player1, player2));
+        Round round = new Round(players, 0, true, null);
+        assertEquals(2, round.onRoundCompletion(gameSettings).size());
+    }
+
+    @Test
+    void testProgressRound() {
+        // Arrange
+        Player player1 = new Player(1, "hallo", 1000);
+        Player player2 = new Player(2, "hallo2", 1000);
+        player1.setRoundBet(200);
+        player2.setRoundBet(200);
+        ArrayList<Player> players = new ArrayList<>(Arrays.asList(player1, player2));
+        Round round = new Round(players, 0, true, null);
+
+        round.potSize = 400;
+
+        // Act
+        round.progressRound();
+
+        // Assert
+        assertEquals(0, player1.getRoundBet());
+        assertEquals(0, player2.getRoundBet());
+
+        player1.setRoundBet(200);
+        player2.setRoundBet(200);
+
+        // Act
+        round.progressRound();
+
+        // Assert
+        assertEquals(0, player1.getRoundBet());
+        assertEquals(0, player2.getRoundBet());
+        player1.setRoundBet(200);
+        player2.setRoundBet(200);
+
+        // Act
+        round.progressRound();
+
+        // Assert
+        assertEquals(0, player1.getRoundBet());
+        assertEquals(0, player2.getRoundBet());
+        player1.setRoundBet(200);
+        player2.setRoundBet(200);
+
+        // Act
+        round.progressRound();
+
+        // Assert
+        assertEquals(0, player1.getRoundBet());
+        assertEquals(0, player2.getRoundBet());
+        assertTrue(round.isRoundOver());
+    }
+
+    @Test
+    void testCalculateWinningsZeroBet() {
+        // Arrange
+        Player player1 = new Player(1, "hallo", 1000);
+        Player player2 = new Player(2, "hallo2", 1000);
+        ArrayList<Player> players = new ArrayList<>(Arrays.asList(player1, player2));
+        Round round = new Round(players, 0, true, null);
+
+        round.potSize = 0;
+
+        // Act
+        Map<Player, Double> winnings = round.calculateWinnings(players);
+
+        // Assert
+        assertEquals(2, winnings.size());
+        assertEquals(0, winnings.get(player1), 0.01);
+        assertEquals(0, winnings.get(player2), 0.01);
+    }
+
+    @Test
+    void testProgressPlayer() {
+        // Arrange
+        Player player1 = new Player(1, "hallo", 1000);
+        Player player2 = new Player(2, "hallo2", 1000);
+        player1.setTotalBet(200);
+        player2.setTotalBet(200);
+        ArrayList<Player> players = new ArrayList<>(Arrays.asList(player1, player2));
+        Round round = new Round(players, 0, true, null);
+        round.setHaveNotRaiseCount(1);
+        round.setFirstActionOccurred(true);
+        round.setHasProgressedOnce(true);
+        int oldbetState = round.getBetState();
+        round.potSize = 400;
+
+        // Act
+        round.progressPlayer();
+        // Assert
+        assertEquals(oldbetState + 1, round.getBetState());
+    }
 }

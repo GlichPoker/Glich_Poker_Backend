@@ -56,6 +56,13 @@ public class DealerTest {
     }
 
     @Test
+    public void testDealZero(){
+        assertEquals(cards.size(), 0);
+        dealer.deal(cards, 0);
+        assertEquals(cards.size(), 0);
+    }
+
+    @Test
     public void testRestore(){
         dealer.deal(cards, 1);
         assertEquals(deck.getCards().size(), 51);

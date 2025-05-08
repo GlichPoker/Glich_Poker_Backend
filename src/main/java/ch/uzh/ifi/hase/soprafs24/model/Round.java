@@ -1,6 +1,5 @@
 package ch.uzh.ifi.hase.soprafs24.model;
 
-import ch.uzh.ifi.hase.soprafs24.constant.HandRank;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -9,7 +8,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Round {
-    private List<Player> players;
+    private final List<Player> players;
     protected long potSize;
     protected long roundBet;
     private final Dealer dealer;
@@ -42,11 +41,26 @@ public class Round {
         // notify update
     }
 
+
+    public int getBetState(){
+        return betState;
+    }
     public boolean isRoundOver() {
         return roundOver;
     }
 
 
+    public void setHaveNotRaiseCount(int count) {
+        haveNotRaiseCount = count;
+    }
+
+    public void setFirstActionOccurred(boolean firstActionOccurred) {
+        this.firstActionOccurred = firstActionOccurred;
+    }
+
+    public void setHasProgressedOnce(boolean hasProgressedOnce) {
+        this.hasProgressedOnce = hasProgressedOnce;
+    }
     public Round(List<Player> players, int startPlayer, GameSettings gameSettings) {
         this(players, startPlayer, false, gameSettings);
     }
@@ -186,19 +200,19 @@ public class Round {
         // notify update client
     }
 
-    public void dealPlayers() {
+    private void dealPlayers() {
         dealer.dealPlayers(players, playersTurn);
     }
 
-    public void dealFlop() {
+    private void dealFlop() {
         dealer.deal(communityCards, 3);
     }
 
-    public void dealTurn() {
+    private void dealTurn() {
         dealer.deal(communityCards, 1);
     }
 
-    public void dealRiver() {
+    private void dealRiver() {
         dealer.deal(communityCards, 1);
         dealer.restore();
     }
