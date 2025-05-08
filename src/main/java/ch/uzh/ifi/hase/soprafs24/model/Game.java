@@ -14,7 +14,8 @@ public class Game {
     private GameSettings settings;
     private final long ownerId;
     private final int currentRoundStartPlayer;
-
+    private final boolean isPublic;
+    private final String username;
     public Game(Player player, GameSettings settings) {
         this.sessionId = System.nanoTime();
         this.players = new ArrayList<>();
@@ -22,6 +23,8 @@ public class Game {
         this.ownerId = player.getUserId();
         this.currentRoundStartPlayer = 0;
         this.settings = settings;
+        this.isPublic = true;
+        this.username = "";
     }
 
     public Game(ch.uzh.ifi.hase.soprafs24.entity.Game game, boolean start) {
@@ -35,6 +38,8 @@ public class Game {
         this.ownerId = game.getOwner().getId();
         this.currentRoundStartPlayer = game.getStartPlayer();
         this.settings = new GameSettings(game.getSettings());
+        this.isPublic = game.isPublic();
+        this.username = game.getOwner().getUsername();
 
         if (start) {
             startRound();
@@ -58,6 +63,9 @@ public class Game {
         return players;
     }
 
+    public boolean isPublic() {return isPublic;}
+
+    public String getUsername() {return username;}
     public long getOwnerId() {
         return ownerId;
     }

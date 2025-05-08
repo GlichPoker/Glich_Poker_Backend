@@ -14,6 +14,8 @@ public class GameModel {
     private final GameSettings settings;
     private final long ownerId;
     private final int currentRoundStartPlayer;
+    private final boolean isPublic;
+    private final String username;
 
     public GameModel(Game game, long userId) {
         this.sessionId = game.getSessionId();
@@ -44,6 +46,8 @@ public class GameModel {
         this.settings = game.getSettings();
         this.ownerId = game.getOwnerId();
         this.currentRoundStartPlayer = game.getCurrentRoundStartPlayer();
+        this.isPublic = game.isPublic();
+        this.username = game.getUsername();
     }
 
     public long getSessionId() {
