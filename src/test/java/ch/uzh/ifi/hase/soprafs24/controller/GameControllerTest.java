@@ -64,11 +64,12 @@ public class GameControllerTest {
     private ch.uzh.ifi.hase.soprafs24.entity.GameSettings gameSettingsEntity;
     private GameSettings gameSettingsModel;
     private Game testGame;
+    private List<HandRank> order;
 
     @BeforeEach
     public void setup() {
         // Initialize test data
-        List<HandRank> order = new ArrayList<>(Arrays.stream(HandRank.values()).sorted(Comparator.reverseOrder()).toList());
+        order = new ArrayList<>(Arrays.stream(HandRank.values()).sorted(Comparator.reverseOrder()).toList());
         gameSettingsModel = new GameSettings(341, 2, 3, order, true, WeatherType.CLOUDY, "");
         createGameRequest = new CreateGameRequest(1L, gameSettingsModel, true);
         gameActionRequest = new GameActionRequest(1L, 1L, 100);
@@ -110,6 +111,16 @@ public class GameControllerTest {
     }
 
     @Test
+    public void testCreateGameUserNotFound() throws Exception {
+        when(userService.getUserById(anyLong())).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/game/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createGameRequest)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     public void testCreateGame() throws Exception {
         when(userService.getUserById(anyLong())).thenReturn(testUser);
         when(gameSettingsService.createGameSettings(any())).thenReturn(gameSettingsEntity);
@@ -125,16 +136,6 @@ public class GameControllerTest {
                 .andExpect(jsonPath("$.round", is(nullValue())))
                 .andExpect(jsonPath("$.players", hasSize(0)))
                 .andExpect(jsonPath("$.currentRoundStartPlayer").value(testGame.getStartPlayer()));
-    }
-
-    @Test
-    public void testCreateGameUserNotFound() throws Exception {
-        when(userService.getUserById(anyLong())).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/game/create")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createGameRequest)))
-                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -533,4 +534,24 @@ public class GameControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0]").value(HandRank.ROYALFLUSH.toString()));
     }
+
+    @Test
+    public void testModifySettings() throws Exception {
+        GameSettings s = new GameSettings(1000, 10, 20, order, true, WeatherType.RAINY, "hallo");
+        ch.uzh.ifi.hase.soprafs24.entity.GameSettings entity = new ch.uzh.ifi.hase.soprafs24.entity.GameSettings(s.initialBalance(), s.smallBlind(), s.bigBlind(), s.order(), s.descending(), s.weatherType(), s.password());
+        ModifyGameSettingsRequest request = new ModifyGameSettingsRequest(testGame.getSessionId(), s);
+        when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
+        when(gameSettingsService.updateSettings(gameSettingsEntity, s)).thenReturn(entity);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/game/settings")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.bigBlind").value(s.bigBlind()))
+                .andExpect(jsonPath("$.smallBlind").value(s.smallBlind()))
+                .andExpect(jsonPath("$.initialBalance").value(s.initialBalance()))
+                .andExpect(jsonPath("$.descending").value(s.descending()))
+                .andExpect(jsonPath("$.weatherTyp").value(s.weatherType().toString()));
+    }
+
 }

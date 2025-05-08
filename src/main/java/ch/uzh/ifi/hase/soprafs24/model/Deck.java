@@ -25,6 +25,9 @@ public class Deck {
         shuffle(cards);
     }
 
+    public List<Card> getCards(){
+        return Collections.unmodifiableList(cards);
+    }
     public void shuffle(List<Card> cards){
         Collections.shuffle(cards);
     }
