@@ -57,7 +57,6 @@ public class GameController {
 
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
-    @ResponseBody
     public ch.uzh.ifi.hase.soprafs24.model.Game createGame(@RequestBody CreateGameRequest request) {
         ch.uzh.ifi.hase.soprafs24.entity.GameSettings settings = gameSettingsService
                 .createGameSettings(request.gameSettings());
@@ -91,7 +90,6 @@ public class GameController {
 
     @PostMapping("/join")
     @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
     public ch.uzh.ifi.hase.soprafs24.model.Game joinGame(@RequestBody JoinGameRequest request) {
         Game game = gameService.getGameBySessionId(request.sessionId());
         User user = userService.getUserById(request.userId());
@@ -106,7 +104,6 @@ public class GameController {
 
     @PostMapping("/start")
     @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
     public RoundModel startGame(@RequestBody GameActionRequest request) {
         Game game = gameService.getGameBySessionId(request.sessionId());
 
@@ -129,7 +126,6 @@ public class GameController {
 
     @PostMapping("/fold")
     @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
     public void foldGame(@RequestBody GameActionRequest request) {
         ch.uzh.ifi.hase.soprafs24.model.Game game = activeGames.get(request.sessionId());
         if (game == null) {
@@ -143,7 +139,6 @@ public class GameController {
 
     @PostMapping("/roundComplete")
     @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
     public ch.uzh.ifi.hase.soprafs24.model.Game completeRound(@RequestBody GameActionRequest request) {
         ch.uzh.ifi.hase.soprafs24.model.Game game = activeGames.get(request.sessionId());
         if (game == null) {
@@ -158,7 +153,6 @@ public class GameController {
 
     @PostMapping("/call")
     @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
     public void callGame(@RequestBody GameActionRequest request) {
         ch.uzh.ifi.hase.soprafs24.model.Game game = activeGames.get(request.sessionId());
         if (game == null) {
@@ -172,7 +166,6 @@ public class GameController {
 
     @PostMapping("/raise")
     @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
     public void raiseGame(@RequestBody GameActionRequest request) {
         ch.uzh.ifi.hase.soprafs24.model.Game game = activeGames.get(request.sessionId());
         if (game == null) {
@@ -187,7 +180,6 @@ public class GameController {
 
     @PostMapping("/leave")
     @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
     public boolean leaveGame(@RequestBody GameActionRequest request) {
         Game game = gameService.getGameBySessionId(request.sessionId());
         gameService.setPlayerOffline(game, request.userId());
@@ -196,7 +188,6 @@ public class GameController {
 
     @PostMapping("/quit")
     @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
     public boolean quitGame(@RequestBody GameActionRequest request) {
         Game game = gameService.getGameBySessionId(request.sessionId());
         gameService.removePlayerFromGame(game, request.userId());
@@ -210,7 +201,6 @@ public class GameController {
 
     @PostMapping("/save")
     @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
     public boolean saveGame(@RequestParam long sessionId) {
         Game game = gameService.getGameBySessionId(sessionId);
         activeGames.remove(sessionId);
@@ -220,7 +210,6 @@ public class GameController {
 
     @PostMapping("/delete")
     @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
     public boolean deleteGame(@RequestParam long sessionId, @RequestParam long userId) {
         Game game = gameService.getGameBySessionId(sessionId);
         if (game == null) {
@@ -278,7 +267,6 @@ public class GameController {
 
     @PostMapping("/check")
     @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
     public void checkGame(@RequestBody GameActionRequest request) {
         ch.uzh.ifi.hase.soprafs24.model.Game game = activeGames.get(request.sessionId());
         if (game == null) {
@@ -293,7 +281,6 @@ public class GameController {
 
     @PostMapping("/readyForNextGame")
     @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
     public ch.uzh.ifi.hase.soprafs24.model.Game readyForNextGame(@RequestBody GameActionRequest request) {
         ch.uzh.ifi.hase.soprafs24.model.Game game = activeGames.get(request.sessionId());
         if (game == null) {
