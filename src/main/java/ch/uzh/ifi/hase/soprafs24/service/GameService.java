@@ -83,7 +83,7 @@ public class GameService {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                     String.format("Player with id %d was not invited to game", user.getId()));
         }
-        Player player = game.getPlayer(user.getId());
+        Player player = playerService.getPlayer(user.getId());
         player.setIsOnline(true);
         playerService.savePlayer(player);
         return true;
