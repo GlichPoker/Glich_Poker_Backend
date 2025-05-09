@@ -99,9 +99,6 @@ public class GameController {
         }
 
         Round round = game.getRound();
-        if (round == null) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Round not started");
-        }
 
         return round.updatePlayerHand(request.userId(), request.card());
     }
@@ -306,5 +303,43 @@ public class GameController {
     @ResponseStatus(HttpStatus.OK)
     public List<HandRank> getDefaultOrder() {
         return new ArrayList<>(Arrays.stream(HandRank.values()).sorted(Comparator.reverseOrder()).toList());
+    }
+
+    @GetMapping("/bluffCards")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Card> getBluffCards(@RequestParam long playerId, @RequestParam long sessionId) {
+        ch.uzh.ifi.hase.soprafs24.model.Game game = activeGames.get(sessionId);
+        if (game == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
+        }
+
+        Player player = game.getPlayer(playerId);
+        if(player == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found");
+        }
+
+        Round round = game.getRound();
+        List<Card> availableBluffCards = round.getRemainingCards();
+        availableBluffCards.addAll(Arrays.asList(player.getHand()));
+        return availableBluffCards;
+    }
+
+    @PostMapping("/bluff")
+    @ResponseStatus(HttpStatus.OK)
+    public void bluff(@RequestBody SwapCardRequest request) {
+        ch.uzh.ifi.hase.soprafs24.model.Game game = activeGames.get(request.sessionId());
+        if (game == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
+        }
+
+        if(game.getSettings().weatherType() != WeatherType.SUNNY){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Can only bluff if its sunny weather");
+        }
+        Player player = game.getPlayer(request.userId());
+        if(player == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found");
+        }
+        BluffModel model = new BluffModel(request.userId(), request.card());
+        wsHandler.sendBluffModelToAll(Long.toString(game.getSessionId()), model);
     }
 }

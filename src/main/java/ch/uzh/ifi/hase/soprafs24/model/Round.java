@@ -335,4 +335,9 @@ public class Round {
         player.setCard(newCard, idx);
         return player.getHand();
     }
+
+    public List<Card> getRemainingCards() {
+        return dealer.getRemainingCards();
+    }
+
 }

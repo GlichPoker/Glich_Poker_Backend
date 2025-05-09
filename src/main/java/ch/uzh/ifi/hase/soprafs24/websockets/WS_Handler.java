@@ -9,6 +9,7 @@ import java.util.Map;
 
 import ch.uzh.ifi.hase.soprafs24.constant.Model;
 
+import ch.uzh.ifi.hase.soprafs24.model.BluffModel;
 import ch.uzh.ifi.hase.soprafs24.model.WinnerModel;
 import org.springframework.stereotype.Component;
 import org.springframework.lang.NonNull;
@@ -248,6 +249,31 @@ public class WS_Handler extends TextWebSocketHandler {
                 String json = mapper.writeValueAsString(winnerModel);
                 JSONObject wrapped = new JSONObject(json);
                 wrapped.put("event", Model.WINNINGMODEL.name());
+
+                session.sendMessage(new TextMessage(wrapped.toString()));
+            } catch (Exception e) {
+
+            }
+        }
+    }
+
+
+    public void sendBluffModelToAll(String gameId, BluffModel model) {
+        CopyOnWriteArraySet<WebSocketSession> sessions = gameSessions.get(gameId);
+        if (sessions == null) {
+            return;
+        }
+
+        for (WebSocketSession session : sessions) {
+            URI sessionUri = session.getUri();
+            if (sessionUri == null) {
+                continue;
+            }
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                String json = mapper.writeValueAsString(model);
+                JSONObject wrapped = new JSONObject(json);
+                wrapped.put("event", Model.BLUFFMODEl.name());
 
                 session.sendMessage(new TextMessage(wrapped.toString()));
             } catch (Exception e) {

@@ -29,6 +29,10 @@ public class Dealer {
         return deck.drawCard();
     }
 
+    public List<Card> getRemainingCards(){
+        return deck.getCards();
+    }
+
     public void restore() {
         deck.recycle();
     }
