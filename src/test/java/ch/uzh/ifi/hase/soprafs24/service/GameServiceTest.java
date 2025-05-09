@@ -112,6 +112,7 @@ class GameServiceTest {
         player.setBalance(1000);
         when(playerService.createPlayer(any(User.class), anyLong(), any(Game.class))).thenReturn(player);
         when(gameRepository.save(any(Game.class))).thenReturn(game);
+        when(playerService.getPlayer(1L)).thenReturn(player);
         gameService.addPlayerToGame(game, owner, 1L);
         gameService.handlePlayerJoinOrRejoin(game, owner, "");
         verify(gameRepository, times(1)).save(any(Game.class));
@@ -138,6 +139,7 @@ class GameServiceTest {
         player.setBalance(1000);
         when(playerService.createPlayer(any(User.class), anyLong(), any(Game.class))).thenReturn(player);
         when(gameRepository.save(any(Game.class))).thenReturn(game);
+        when(playerService.getPlayer(1L)).thenReturn(player);
         gameService.addPlayerToGame(game, owner, 1L);
         gameService.handlePlayerJoinOrRejoin(game, owner, "");
         assertTrue(game.getAllPlayers().contains(player));
@@ -246,6 +248,7 @@ class GameServiceTest {
         player.setBalance(1000);
         player.setIsOnline(false);
         game.addPlayer(player);
+        when(playerService.getPlayer(1L)).thenReturn(player);
 
         boolean success =gameService.handlePlayerJoinOrRejoin(game, owner, "");
 

@@ -1,5 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.model;
 
+import ch.uzh.ifi.hase.soprafs24.constant.WeatherType;
+
 import java.util.List;
 
 public class RoundModel {
@@ -14,7 +16,7 @@ public class RoundModel {
     private final List<Card> communityCards;
     private final List<PlayerModel> otherPlayers;
 
-    public RoundModel(Round round, long userId) {
+    public RoundModel(Round round, long userId, WeatherType weatherType) {
         this.player = round.getPlayers()
                 .stream()
                 .filter(x -> x.getUserId() == userId)
@@ -27,7 +29,7 @@ public class RoundModel {
         this.startPlayer = round.getStartPlayer();
         this.startPlayerId = round.getPlayers().get(round.getStartPlayer()).getUserId();
         this.gameSettings = round.getGameSettings();
-        this.communityCards = round.communityCards;
+        this.communityCards = weatherType == WeatherType.CLOUDY && round.communityCards.size() > 2 ? round.communityCards.subList(2, round.communityCards.size()) : round.communityCards;
         this.otherPlayers = round.getPlayerModelsOfOtherParticipants(userId);
     }
 

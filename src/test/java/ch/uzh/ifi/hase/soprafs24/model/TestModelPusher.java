@@ -43,7 +43,7 @@ class TestModelPusher {
 
         GameSettings gameSettings = new GameSettings(1000,10,20,order, true, WeatherType.RAINY, "");
         game = new Game(players.get(3), gameSettings);
-        round = new Round(players, 0, true, gameSettings);
+        round = new Round(players, 0, true, gameSettings, 2);
     }
 
     @Test

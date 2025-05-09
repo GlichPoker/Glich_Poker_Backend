@@ -2,6 +2,7 @@ package ch.uzh.ifi.hase.soprafs24.controller;
 
 import ch.uzh.ifi.hase.soprafs24.constant.HandRank;
 import ch.uzh.ifi.hase.soprafs24.constant.Model;
+import ch.uzh.ifi.hase.soprafs24.constant.WeatherType;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.model.*;
@@ -85,10 +86,35 @@ public class GameController {
         return gameModel;
     }
 
+    @PostMapping("/swap")
+    @ResponseStatus(HttpStatus.OK)
+    public Card[] swapCard(@RequestBody SwapCardRequest request) {
+        ch.uzh.ifi.hase.soprafs24.model.Game game = activeGames.get(request.sessionId());
+        if (game == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
+        }
+
+        if(game.getSettings().weatherType() != WeatherType.RAINY){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only allowed if rainy weather");
+        }
+
+        Round round = game.getRound();
+        if (round == null) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Round not started");
+        }
+
+        return round.updatePlayerHand(request.userId(), request.card());
+    }
+
     @PostMapping("/start")
     @ResponseStatus(HttpStatus.OK)
     public RoundModel startGame(@RequestBody GameActionRequest request) {
         Game game = gameService.getGameBySessionId(request.sessionId());
+
+        if(game.getRoundCount() % 3 == 0 && game.getSettings().getWeatherType() == WeatherType.SUNNY){
+            ch.uzh.ifi.hase.soprafs24.entity.GameSettings settings = game.getSettings();
+            gameSettingsService.updateBlinds(settings, settings.getSmallBlind(), settings.getBigBlind());
+        }
 
         gameService.startRound(game);
 

@@ -24,11 +24,11 @@ class WinnerModelTest {
             add(new Player(3, "c", 100));
         }};
         ch.uzh.ifi.hase.soprafs24.model.GameSettings gameSettings = new GameSettings(1000, 10, 20, null, true, WeatherType.RAINY, "");
-        round = new Round(players, 0, gameSettings);
+        round = new Round(players, 0, gameSettings, 2);
     }
     @Test
     void testGetWinnings(){
-        WinnerModel winnerModel = new WinnerModel(round, 1, new HashMap<Long, Double>(){{put(1L, 40.0);}});
+        WinnerModel winnerModel = new WinnerModel(round, 1, new HashMap<Long, Double>(){{put(1L, 40.0);}}, WeatherType.RAINY);
         assertEquals(1, winnerModel.getWinnings().size());
         assertTrue(winnerModel.getWinnings().containsKey(1L));
         assertEquals(40.0, winnerModel.getWinnings().get(1L));

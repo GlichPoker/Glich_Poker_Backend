@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.model;
 
+import ch.uzh.ifi.hase.soprafs24.constant.WeatherType;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -78,7 +79,7 @@ public class Game {
     }
 
     public RoundModel getRoundModel(long userId) {
-        return new RoundModel(round, userId);
+        return new RoundModel(round, userId, settings.weatherType());
     }
 
     public GameSettings getSettings() {
@@ -108,7 +109,8 @@ public class Game {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "at least two players required to start a round");
         }
 
-        this.round = new Round(players, this.currentRoundStartPlayer, this.settings);
+        int dealCount = settings.weatherType() == WeatherType.SNOWY ? 3 : 2;
+        this.round = new Round(players, this.currentRoundStartPlayer, this.settings, dealCount);
     }
 
     public boolean containsUser(long userId) {

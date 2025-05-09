@@ -22,6 +22,9 @@ public class Game {
     @Column(nullable = false)
     private boolean roundRunning;
 
+    @Column(nullable = false)
+    private long roundCount;
+
     @ManyToOne
     @JoinColumn(name = "ownerId", referencedColumnName = "id")
     private User owner;
@@ -72,4 +75,7 @@ public class Game {
     public ch.uzh.ifi.hase.soprafs24.model.Game toGameModel() {
         return new ch.uzh.ifi.hase.soprafs24.model.Game(this, false);
     }
+
+    public long getRoundCount() { return roundCount; }
+    public void setRoundCount(long roundCount) { this.roundCount = roundCount; }
 }

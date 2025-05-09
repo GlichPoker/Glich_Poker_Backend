@@ -27,7 +27,7 @@ class RoundTest {
         player1.setHand(new Card[] { new Card(Rank.ACE, Suit.CLUBS), new Card(Rank.KING, Suit.HEARTS) });
         player2.setHand(new Card[] { new Card(Rank.QUEEN, Suit.DIAMONDS), new Card(Rank.TEN, Suit.SPADES)});
         ArrayList<Player> players = new ArrayList<>(Arrays.asList(player1, player2));
-        Round round = new Round(players, 0, true, null);
+        Round round = new Round(players, 0, true, null, 2);
 
         round.communityCards = new ArrayList<>(Arrays.asList(
                 new Card(Rank.EIGHT, Suit.HEARTS),
@@ -53,7 +53,7 @@ class RoundTest {
         player1.setHand(new Card[] { new Card(Rank.ACE, Suit.CLUBS), new Card(Rank.KING, Suit.HEARTS)});
         player2.setHand(new Card[] { new Card(Rank.ACE, Suit.DIAMONDS), new Card(Rank.KING, Suit.SPADES)});
         ArrayList<Player> players = new ArrayList<>(Arrays.asList(player1, player2));
-        Round round = new Round(players, 0, true, null);
+        Round round = new Round(players, 0, true, null, 2);
 
         round.communityCards = new ArrayList<>(Arrays.asList(
                 new Card(Rank.TEN, Suit.HEARTS),
@@ -80,7 +80,7 @@ class RoundTest {
         player1.setTotalBet(200);
         player2.setTotalBet(200);
         ArrayList<Player> players = new ArrayList<>(Arrays.asList(player1, player2));
-        Round round = new Round(players, 0, true, null);
+        Round round = new Round(players, 0, true, null, 2);
 
         round.potSize = 400;
 
@@ -101,7 +101,7 @@ class RoundTest {
         player1.setTotalBet(300);
         player2.setTotalBet(100);
         ArrayList<Player> players = new ArrayList<>(Arrays.asList(player1, player2));
-        Round round = new Round(players, 0, true, null);
+        Round round = new Round(players, 0, true, null, 2);
 
         round.potSize = 400;
 
@@ -121,7 +121,7 @@ class RoundTest {
         player1.setTotalBet(300);
         player2.setTotalBet(100);
         ArrayList<Player> players = new ArrayList<>(Arrays.asList(player1, player2));
-        Round round = new Round(players, 0, true, null);
+        Round round = new Round(players, 0, true, null, 2);
         assertEquals(2, round.onRoundCompletion(gameSettings).size());
     }
 
@@ -133,7 +133,7 @@ class RoundTest {
         player1.setRoundBet(200);
         player2.setRoundBet(200);
         ArrayList<Player> players = new ArrayList<>(Arrays.asList(player1, player2));
-        Round round = new Round(players, 0, true, null);
+        Round round = new Round(players, 0, true, null, 2);
 
         round.potSize = 400;
 
@@ -180,7 +180,7 @@ class RoundTest {
         Player player1 = new Player(1, "hallo", 1000);
         Player player2 = new Player(2, "hallo2", 1000);
         ArrayList<Player> players = new ArrayList<>(Arrays.asList(player1, player2));
-        Round round = new Round(players, 0, true, null);
+        Round round = new Round(players, 0, true, null, 2);
 
         round.potSize = 0;
 
@@ -201,7 +201,7 @@ class RoundTest {
         player1.setTotalBet(200);
         player2.setTotalBet(200);
         ArrayList<Player> players = new ArrayList<>(Arrays.asList(player1, player2));
-        Round round = new Round(players, 0, true, null);
+        Round round = new Round(players, 0, true, null, 2);
         round.setHaveNotRaiseCount(1);
         round.setFirstActionOccurred(true);
         round.setHasProgressedOnce(true);

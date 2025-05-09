@@ -30,7 +30,7 @@ class DealerTest {
     void testDealPlayers(){
         assertNull(players.get(0).getHand()[0]);
 
-        dealer.dealPlayers(players, 0);
+        dealer.dealPlayers(players, 0, 2);
         assertNotNull( players.get(0).getHand()[0]);
         assertNotNull(players.get(1).getHand()[0]);
         assertNotNull(players.get(2).getHand()[0]);

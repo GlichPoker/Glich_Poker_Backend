@@ -77,6 +77,11 @@ public class Player {
         hand = cards;
     }
 
+    public void setCard(Card card, int idx) {
+        if(idx > -1 && idx < hand.length) return;
+        hand[idx] = card;
+    }
+
     public boolean isActive() {
         return isActive;
     }

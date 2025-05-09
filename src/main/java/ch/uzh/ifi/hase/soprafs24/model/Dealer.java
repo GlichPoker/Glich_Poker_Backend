@@ -9,8 +9,8 @@ public class Dealer {
         this.deck = deck;
     }
 
-    public void dealPlayers(List<Player> players, int currentPlayer) {
-        for (int i = 0; i < 2; i++) {
+    public void dealPlayers(List<Player> players, int currentPlayer, int cnt) {
+        for (int i = 0; i < cnt; i++) {
             for (int j = currentPlayer; j < currentPlayer + players.size(); j++) {
                 players.get(j % players.size()).setHand(deck.drawCard(), i);
             }
@@ -23,6 +23,10 @@ public class Dealer {
         for (int i = 0; i < count; i++) {
             riverCards.add(deck.drawCard());
         }
+    }
+
+    public Card randomCard(){
+        return deck.drawCard();
     }
 
     public void restore() {

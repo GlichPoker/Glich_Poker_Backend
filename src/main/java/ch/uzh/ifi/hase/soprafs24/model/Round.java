@@ -22,7 +22,7 @@ public class Round {
     private boolean hasProgressedOnce = false;
     private int haveNotRaiseCount;
 
-    public Round(List<Player> players, int startPlayer, boolean isTest, GameSettings gameSettings) {
+    public Round(List<Player> players, int startPlayer, boolean isTest, GameSettings gameSettings, int dealCount) {
         this.players = players;
         this.dealer = new Dealer(new Deck());
         this.startPlayer = startPlayer;
@@ -36,7 +36,7 @@ public class Round {
         haveNotRaiseCount = 0;
 
         if (!isTest)
-            dealPlayers(); // deal with this for tests
+            dealPlayers(dealCount); // deal with this for tests
         handleBlinds();
         // notify update
     }
@@ -64,8 +64,8 @@ public class Round {
     public void setHasProgressedOnce(boolean hasProgressedOnce) {
         this.hasProgressedOnce = hasProgressedOnce;
     }
-    public Round(List<Player> players, int startPlayer, GameSettings gameSettings) {
-        this(players, startPlayer, false, gameSettings);
+    public Round(List<Player> players, int startPlayer, GameSettings gameSettings, int dealCount) {
+        this(players, startPlayer, false, gameSettings, dealCount);
     }
 
     public Map<Long, Double> onRoundCompletion(GameSettings settings) {
@@ -203,8 +203,8 @@ public class Round {
         // notify update client
     }
 
-    private void dealPlayers() {
-        dealer.dealPlayers(players, playersTurn);
+    private void dealPlayers(int cnt) {
+        dealer.dealPlayers(players, playersTurn, cnt);
     }
 
     private void dealFlop() {
@@ -315,5 +315,24 @@ public class Round {
 
     public List<Player> getPlayers() {
         return players;
+    }
+    
+    public Card[] updatePlayerHand(long userId, Card card){
+        Player player = findPlayerById(userId);
+        if (player == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found");
+        }
+        Card[] hand = player.getHand();
+        if(hand[0] == null || hand[1] == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Player has no cards");
+
+        }
+        int idx = hand[0] == card ? 0 : hand[1] == card ? 1 : -1;
+        if(idx == -1){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Player does not have this card");
+        }
+        Card newCard = dealer.randomCard();
+        player.setCard(newCard, idx);
+        return player.getHand();
     }
 }

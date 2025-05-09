@@ -13,7 +13,7 @@ public class ModelPusher {
         if (round.isRoundOver()) {
             Map<Long, Double> winnings = round.onRoundCompletion(game.getSettings());
             for (Player p : game.getPlayers()) {
-                WinnerModel winnerModel = new WinnerModel(round, p.getUserId(), winnings);
+                WinnerModel winnerModel = new WinnerModel(round, p.getUserId(), winnings, game.getSettings().weatherType());
                 wsHandler.sendRawWinnerModelToPlayer(
                         String.valueOf(game.getSessionId()),
                         p.getUserId(),

@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
+import ch.uzh.ifi.hase.soprafs24.constant.WeatherType;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.GameSettings;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
@@ -46,6 +47,7 @@ public class GameService {
                     String.format("Game with session id %d not found", sessionId));
         }
         Game game = optionalGame.get();
+
 
         List<Player> players = playerService.findByGameId(sessionId);
         game.setPlayers(players);
@@ -134,6 +136,7 @@ public class GameService {
             player.setIsActive(true);
             playerService.savePlayer(player);
         }
+        gameEntity.setRoundCount(gameEntity.getRoundCount() + 1);
         game.roundComplete();
         gameRepository.save(gameEntity);
         return gameEntity;

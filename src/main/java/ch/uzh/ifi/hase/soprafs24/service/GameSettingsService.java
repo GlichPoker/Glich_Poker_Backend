@@ -53,6 +53,13 @@ public class GameSettingsService {
         GameSettings savedGameSettings = gameSettingsRepository.save(gameSettings);
         gameSettingsRepository.flush();
         return savedGameSettings;
+    }
 
+    public GameSettings updateBlinds(GameSettings gameSettings, long smallBlind, long bigBlind) {
+        gameSettings.setSmallBlind(smallBlind);
+        gameSettings.setBigBlind(bigBlind);
+        GameSettings savedGameSettings = gameSettingsRepository.save(gameSettings);
+        gameSettingsRepository.flush();
+        return savedGameSettings;
     }
 }
