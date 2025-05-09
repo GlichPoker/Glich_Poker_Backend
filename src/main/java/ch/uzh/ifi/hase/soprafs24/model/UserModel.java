@@ -6,7 +6,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.User;
 import java.time.LocalDate;
 
 public class UserModel {
-    private Long id;
+    private long id;
     private String username;
     private UserStatus status;
     private LocalDate birthdDate;
@@ -18,11 +18,13 @@ public class UserModel {
         birthdDate = user.getBirthDate();
     }
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
     public String getUsername() {
         return username;
     }
+    public UserStatus getStatus() {return status;}
+    public LocalDate getBirthdDate() {return birthdDate;}
 }
