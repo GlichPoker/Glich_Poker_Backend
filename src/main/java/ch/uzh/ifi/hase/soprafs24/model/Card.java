@@ -26,6 +26,10 @@ public record Card(@JsonProperty("rank") Rank rank, @JsonProperty("suit") Suit s
         return -this.rank.compareTo(o.rank);
     }
 
+    public boolean equals(Card o){
+        return this.rank() == o.rank() && this.suit() == o.suit();
+    }
+
     @Override
     public String toString() {
         return suit + ":" + rank;

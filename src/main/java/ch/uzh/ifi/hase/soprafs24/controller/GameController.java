@@ -110,7 +110,7 @@ public class GameController {
 
         if(game.getRoundCount() % 3 == 0 && game.getSettings().getWeatherType() == WeatherType.SUNNY){
             ch.uzh.ifi.hase.soprafs24.entity.GameSettings settings = game.getSettings();
-            gameSettingsService.updateBlinds(settings, settings.getSmallBlind(), settings.getBigBlind());
+            gameSettingsService.updateBlinds(settings, (long)(settings.getSmallBlind() * 1.05), (long)(settings.getBigBlind() * 1.05));
         }
 
         gameService.startRound(game);

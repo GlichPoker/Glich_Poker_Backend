@@ -327,7 +327,7 @@ public class Round {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Player has no cards");
 
         }
-        int idx = hand[0] == card ? 0 : hand[1] == card ? 1 : -1;
+        int idx = hand[0].equals(card) ? 0 : hand[1].equals(card) ? 1 : -1;
         if(idx == -1){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Player does not have this card");
         }
