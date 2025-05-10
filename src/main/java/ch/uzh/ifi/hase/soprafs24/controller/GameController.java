@@ -317,11 +317,12 @@ public class GameController {
         if(player == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found");
         }
-
+/*
         Round round = game.getRound();
         List<Card> availableBluffCards = round.getRemainingCards();
         availableBluffCards.addAll(Arrays.asList(player.getHand()));
-        return availableBluffCards;
+        return availableBluffCards;*/
+        return new Deck().getCards();
     }
 
     @PostMapping("/bluff")
