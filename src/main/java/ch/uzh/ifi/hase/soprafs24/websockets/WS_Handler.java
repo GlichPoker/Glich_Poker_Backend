@@ -273,7 +273,7 @@ public class WS_Handler extends TextWebSocketHandler {
                 ObjectMapper mapper = new ObjectMapper();
                 String json = mapper.writeValueAsString(model);
                 JSONObject wrapped = new JSONObject(json);
-                wrapped.put("event", Model.BLUFFMODEl.name());
+                wrapped.put("event", Model.BLUFFMODEL.name());
 
                 session.sendMessage(new TextMessage(wrapped.toString()));
             } catch (Exception e) {

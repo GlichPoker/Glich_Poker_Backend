@@ -108,9 +108,11 @@ public class GameController {
     public RoundModel startGame(@RequestBody GameActionRequest request) {
         Game game = gameService.getGameBySessionId(request.sessionId());
 
-        if(game.getRoundCount() % 3 == 0 && game.getSettings().getWeatherType() == WeatherType.SUNNY){
+        if(game.getRoundCount() % 3 == 0 && game.getRoundCount() > 0 && game.getSettings().getWeatherType() == WeatherType.SUNNY){
             ch.uzh.ifi.hase.soprafs24.entity.GameSettings settings = game.getSettings();
-            gameSettingsService.updateBlinds(settings, (long)(settings.getSmallBlind() * 1.05), (long)(settings.getBigBlind() * 1.05));
+            long smallBlindIncreased = settings.getSmallBlind() > 19 ? (long)(settings.getSmallBlind() * 1.05) : settings.getSmallBlind() + 1;
+            long bigBlindIncreased = settings.getBigBlind() > 19 ? (long)(settings.getBigBlind() * 1.05) : settings.getBigBlind() + 1;
+            gameSettingsService.updateBlinds(settings, smallBlindIncreased, bigBlindIncreased);
         }
 
         gameService.startRound(game);
