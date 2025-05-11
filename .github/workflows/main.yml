@@ -47,7 +47,7 @@ jobs:
         run: echo 'spring.datasource.password=${{ secrets.DB_PASSWORD }}' >> src/main/resources/application-prod.properties
 
       - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v0.10.0
+        uses: google-github-actions/auth@v0.4.0
         with:
           credentials_json: ${{ secrets.GCP_SERVICE_CREDENTIALS }}
 
