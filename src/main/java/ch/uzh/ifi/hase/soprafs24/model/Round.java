@@ -298,7 +298,7 @@ public class Round {
 
     private boolean shouldProgressRound() {
         long activePlayers = players.stream().filter(Player::isActive).count();
-        return (activePlayers < 2 || haveNotRaiseCount == players.size());
+        return (activePlayers < 2 || haveNotRaiseCount == activePlayers);
     }
 
     public GameSettings getGameSettings() {

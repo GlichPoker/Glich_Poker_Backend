@@ -23,7 +23,7 @@ public class Game {
     private boolean roundRunning;
 
     @Column(nullable = false)
-    private long roundCount;
+    private long roundCount = 0;
 
     @ManyToOne
     @JoinColumn(name = "ownerId", referencedColumnName = "id")
