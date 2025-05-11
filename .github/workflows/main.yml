@@ -62,21 +62,18 @@ jobs:
           version: ${{ github.run_id }}
           credentials: ${{ secrets.GCP_SERVICE_CREDENTIALS }}
 
-      - name: Get Active Version
-        id: active_version
-        run: |
-          ACTIVE_VERSION=$(gcloud app versions list --filter="TRAFFIC_SPLIT > 0.0" --format="value(id)")
-          echo "active_version=$ACTIVE_VERSION" >> $GITHUB_ENV
-
       - name: Delete Old Versions
         run: |
-          VERSIONS=$(gcloud app versions list --format="value(id)" --sort-by="version.createTime")
-          for version in $VERSIONS; do
-            if [ "$version" != "$ACTIVE_VERSION" ]; then
-              echo "Deleting version: $version"
-              gcloud app versions delete $version --quiet
-            fi
-          done
+          # Get all versions with no traffic split
+          VERSIONS=$(gcloud app versions list --filter="traffic_split=0.00"   --format="value(id)")
+          
+          if [ -z "$VERSIONS" ]; then
+            echo "No old versions to delete."
+          else
+            echo "Deleting the following old versions:"
+            echo "$VERSIONS"
+            echo "$VERSIONS" | xargs gcloud app versions delete -q
+          fi
 
       - name: Test
         run: curl "${{ steps.deploy.outputs.url }}"
