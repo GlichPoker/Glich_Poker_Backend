@@ -181,6 +181,9 @@ public class Round {
     public void progressRound() {
         haveNotRaiseCount = 0;
         playersTurn = startPlayer;
+        while (!players.get(playersTurn).isActive()){
+            playersTurn++;
+        }
         betState++;
         switch (betState) {
             case 1:
