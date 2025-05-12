@@ -49,6 +49,21 @@ public class User implements Serializable {
     @Column
     private LocalDate birthDate;
 
+    @Column
+    private int bankruptCount = 0;
+
+    @Column
+    private int gameCount = 0;
+
+    @Column
+    private long roundCount = 0;
+
+    @Column(nullable = false)
+    private float bb_100_record = 0;
+
+    @Column
+    private long bb_100_count = 0;
+
     @Transient
     private List<Game> games;
 
@@ -108,6 +123,47 @@ public class User implements Serializable {
     public LocalDate getBirthDate(){
     return this.birthDate;
     }
+
+    public int getBankruptCount() {
+        return bankruptCount;
+    }
+
+    public void setBankruptCount(int bankruptCount) {
+        this.bankruptCount = bankruptCount;
+    }
+
+    public int getGameCount() {
+        return gameCount;
+    }
+
+    public void setGameCount(int gameCount) {
+        this.gameCount = gameCount;
+    }
+
+    public long getRoundCount() {
+        return roundCount;
+    }
+
+    public void setRoundCount(long roundCount) {
+        this.roundCount = roundCount;
+    }
+
+    public float getBB_100_record() {
+        return bb_100_record;
+    }
+
+    public void setBB_100_record(float bb_100_record) {
+        this.bb_100_record = bb_100_record;
+    }
+
+    public long getBB_100_count() {
+        return bb_100_count;
+    }
+
+    public void setBB_100_count(long bb_100_count) {
+        this.bb_100_count = bb_100_count;
+    }
+
     public List<Game> getGames() {return games;}
     public UserModel toUserModel(){return new UserModel(this);}
 }

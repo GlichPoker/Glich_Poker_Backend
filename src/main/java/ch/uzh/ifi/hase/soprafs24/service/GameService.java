@@ -155,7 +155,7 @@ public class GameService {
     }
 
     public void deleteSession(Game game) {
-        List<Player> players = game.getPlayers();
+        List<Player> players = game.getAllPlayers();
         playerService.deletePlayers(players);
         gameRepository.delete(game);
         gameRepository.flush();
