@@ -259,14 +259,20 @@ public class WS_Handler extends TextWebSocketHandler {
 
 
     public void sendBluffModelToAll(String gameId, BluffModel model) {
+        System.out.println("[DEBUG] sendBluffModelToAll - gameId: " + gameId + ", model: " + model);
+        
         CopyOnWriteArraySet<WebSocketSession> sessions = gameSessions.get(gameId);
         if (sessions == null) {
+            System.out.println("[DEBUG] sendBluffModelToAll - No sessions found for gameId: " + gameId);
             return;
         }
 
+        System.out.println("[DEBUG] sendBluffModelToAll - Found " + sessions.size() + " sessions");
+        
         for (WebSocketSession session : sessions) {
             URI sessionUri = session.getUri();
             if (sessionUri == null) {
+                System.out.println("[DEBUG] sendBluffModelToAll - Session URI is null, skipping");
                 continue;
             }
             try {
@@ -274,10 +280,15 @@ public class WS_Handler extends TextWebSocketHandler {
                 String json = mapper.writeValueAsString(model);
                 JSONObject wrapped = new JSONObject(json);
                 wrapped.put("event", Model.BLUFFMODEL.name());
-
+                
+                System.out.println("[DEBUG] sendBluffModelToAll - Sending message: " + wrapped.toString());
+                
                 session.sendMessage(new TextMessage(wrapped.toString()));
+                
+                System.out.println("[DEBUG] sendBluffModelToAll - Message sent successfully");
             } catch (Exception e) {
-
+                System.out.println("[DEBUG] sendBluffModelToAll - Error sending message: " + e.getMessage());
+                e.printStackTrace();
             }
         }
     }
