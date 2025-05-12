@@ -29,7 +29,7 @@ public enum Rank {
         return value;
     }
 
-    @JsonCreator
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static Rank fromValue(int value) {
         for (Rank rank : Rank.values()) {
             if (rank.value == value) {
