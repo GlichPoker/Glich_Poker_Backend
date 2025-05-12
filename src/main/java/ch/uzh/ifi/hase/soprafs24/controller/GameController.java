@@ -241,6 +241,7 @@ public class GameController {
         for (Game game : games) {
             gameModels.add(new GameModel(game.toGameModel(), -1));
         }
+        System.out.println("hallo" + gameModels);
         return gameModels;
     }
 
@@ -342,6 +343,7 @@ public class GameController {
         if(player == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found");
         }
+        System.out.println(request.card());
         BluffModel model = new BluffModel(request.userId(), request.card());
         wsHandler.sendBluffModelToAll(Long.toString(game.getSessionId()), model);
     }

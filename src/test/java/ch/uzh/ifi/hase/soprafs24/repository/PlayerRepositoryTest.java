@@ -55,7 +55,7 @@ class PlayerRepositoryTest {
 
     @Test
     void testFindByUserIdSuccess() {
-        Optional<Player> found = playerRepository.findByUserId(user.getId());
+        Optional<Player> found = playerRepository.findByUserAndGameId(user.getId(), game.getSessionId());
 
         assertTrue(found.isPresent());
         assertEquals(player.getUserId(), found.get().getUserId());
@@ -65,7 +65,7 @@ class PlayerRepositoryTest {
 
     @Test
     void testFindByUserIdNotFound() {
-        Optional<Player> notFound = playerRepository.findByUserId(999L);
+        Optional<Player> notFound = playerRepository.findByUserAndGameId(999L, game.getSessionId());
 
         assertFalse(notFound.isPresent());
     }

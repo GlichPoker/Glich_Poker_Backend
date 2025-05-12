@@ -23,8 +23,8 @@ public class PlayerService {
     }
 
     // Get a player
-    public Player getPlayer(long userId) {
-        Optional<Player> p = playerRepository.findByUserId(userId);
+    public Player getPlayer(long userId, long sessionId) {
+        Optional<Player> p = playerRepository.findByUserAndGameId(userId, sessionId);
         if (p.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Player with id " + userId + " not found");
         }
@@ -48,8 +48,8 @@ public class PlayerService {
         return playerRepository.findByGameId(gameId);
     }
 
-    public void removePlayer(long userId) {
-        Optional<Player> p = playerRepository.findByUserId(userId);
+    public void removePlayer(long userId, long sessionId) {
+        Optional<Player> p = playerRepository.findByUserAndGameId(userId, sessionId);
         if (p.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Player with id " + userId + " not found");
         }
