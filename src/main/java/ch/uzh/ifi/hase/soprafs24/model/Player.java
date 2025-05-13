@@ -16,7 +16,7 @@ public class Player {
         this.name = name;
         this.balance = balance;
         this.isActive = true;
-        this.hand = new Card[2];
+        this.hand = new Card[3];
         this.roundBet = 0;
         this.isOnline = false;
         this.totalBet = 0;
@@ -27,7 +27,7 @@ public class Player {
         this.name = player.getName();
         this.balance = player.getBalance();
         this.isActive = player.isActive();
-        this.hand = new Card[2];
+        this.hand = new Card[3];
         this.roundBet = 0;
         this.isOnline = player.isOnline();
         this.totalBet = 0;
@@ -78,7 +78,8 @@ public class Player {
     }
 
     public void setCard(Card card, int idx) {
-        if(idx >= 0 && idx < hand.length) hand[idx] = card;
+        if (idx >= 0 && idx < hand.length)
+            hand[idx] = card;
     }
 
     public boolean isActive() {
