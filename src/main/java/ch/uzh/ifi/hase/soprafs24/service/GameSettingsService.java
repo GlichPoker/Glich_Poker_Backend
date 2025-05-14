@@ -50,6 +50,9 @@ public class GameSettingsService {
         gameSettings.setSmallBlind(newGameSettings.smallBlind());
         gameSettings.setInitialBalance(newGameSettings.initialBalance());
         gameSettings.setBigBlind(newGameSettings.bigBlind());
+        if (newGameSettings.weatherType() != null) {
+            gameSettings.setWeatherType(newGameSettings.weatherType());
+        }
         GameSettings savedGameSettings = gameSettingsRepository.save(gameSettings);
         gameSettingsRepository.flush();
         return savedGameSettings;

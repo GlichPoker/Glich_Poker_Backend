@@ -183,6 +183,16 @@ public class WS_Handler extends TextWebSocketHandler {
         JSONObject jsonObject = new JSONObject(message);
         String eventString = jsonObject.getString(event);
 
+        if ("START_WEATHER_VOTE".equals(eventString)) {
+            String gameId = jsonObject.getString("gameID");
+
+            JSONObject showVoteButtonMessage = new JSONObject();
+            showVoteButtonMessage.put("event", "SHOW_VOTE_MAP_BUTTON");
+
+            broadcastMessage(gameId, showVoteButtonMessage.toString(), gameSessions);
+            return null;
+        }
+
         if ("WEATHER_VOTE".equals(eventString)) {
             handleWeatherVote(jsonObject);
             return null;
@@ -238,6 +248,14 @@ public class WS_Handler extends TextWebSocketHandler {
                 result.put("weatherType", resultWeather);
 
                 broadcastMessage(gameId, result.toString(), gameSessions);
+
+                try {
+                    ch.uzh.ifi.hase.soprafs24.model.Game gameModel = new ch.uzh.ifi.hase.soprafs24.model.Game(
+                            gameEntity, false);
+                    sendModelToAll(gameId, gameModel, Model.GAMEMODEL);
+                } catch (Exception e) {
+                    System.err.println("Failed to send updated game model: " + e.getMessage());
+                }
 
                 weatherVotes.remove(gameId);
             }
@@ -339,6 +357,18 @@ public class WS_Handler extends TextWebSocketHandler {
                 System.out.println("[DEBUG] sendBluffModelToAll - Error sending message: " + e.getMessage());
                 e.printStackTrace();
             }
+        }
+    }
+
+    // to send changed weatherType to client
+    public void sendGenericToAll(String gameId, Map<String, Object> payload) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            String json = mapper.writeValueAsString(payload);
+
+            broadcastMessage(gameId, json, gameSessions);
+        } catch (IOException e) {
+            System.err.println("Failed to send generic message to all: " + e.getMessage());
         }
     }
 
