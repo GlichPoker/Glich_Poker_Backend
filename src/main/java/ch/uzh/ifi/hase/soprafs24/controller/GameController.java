@@ -146,7 +146,6 @@ public class GameController {
         }
         Round round = game.getRound();
         round.handleFold(request.userId());
-        playerService.setIsActive(request.userId(), request.sessionId(), false);
 
         modelPusher.pushModel(round, game, wsHandler, gameService);
     }

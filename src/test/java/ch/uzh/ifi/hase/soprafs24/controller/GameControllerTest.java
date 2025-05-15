@@ -9,6 +9,7 @@ import ch.uzh.ifi.hase.soprafs24.model.*;
 import ch.uzh.ifi.hase.soprafs24.service.GameService;
 import ch.uzh.ifi.hase.soprafs24.service.GameSettingsService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
+import ch.uzh.ifi.hase.soprafs24.websockets.WS_Handler;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -56,6 +57,9 @@ class GameControllerTest {
 
     @MockBean
     private ModelPusher modelPusher;
+
+    @MockBean
+    private WS_Handler wsHandler;
 
     private GameActionRequest gameActionRequest;
     private JoinGameRequest joinGameRequest;
@@ -286,7 +290,7 @@ class GameControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/game/start")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(gameActionRequest)))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk()).andReturn();
 
         // Then test fold
         mockMvc.perform(MockMvcRequestBuilders.post("/game/fold")

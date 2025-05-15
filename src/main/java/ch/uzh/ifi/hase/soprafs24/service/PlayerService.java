@@ -36,16 +36,6 @@ public class PlayerService {
         playerRepository.flush();
     }
 
-    public void setIsActive(long playerId, long gameId, boolean isActive) {
-        Optional<Player> p = playerRepository.findByUserAndGameId(playerId, gameId);
-        if (p.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Player with id " + playerId + " not found");
-        }
-        Player player = p.get();
-        player.setIsActive(isActive);
-        playerRepository.save(player);
-        playerRepository.flush();
-    }
     // create a player
     public Player createPlayer(User user, long balance, Game game) {
         Player p = new Player(user, balance, game);
