@@ -89,7 +89,7 @@ public class GameService {
             createAndAddPlayerToGame(game, user, game.getSettings().getInitialBalance());
         }
 
-        Player player = playerService.getPlayer(user.getId());
+        Player player = playerService.getPlayer(user.getId(), game.getSessionId());
         player.setIsOnline(true);
         playerService.savePlayer(player);
         return true;
