@@ -16,6 +16,7 @@ public class GameModel {
     private final int currentRoundStartPlayer;
     private final boolean isPublic;
     private final String username;
+    private final boolean roundRunning;
 
     public GameModel(Game game, long userId) {
         this.sessionId = game.getSessionId();
@@ -26,21 +27,22 @@ public class GameModel {
             this.round = null;
         }
 
-        if(userId > 0) {
+        if (userId > 0) {
             List<Player> p = game.getPlayers();
             int playerIdx = IntStream.range(0, p.size())
                     .filter(i -> p.get(i).getUserId() == userId)
                     .findFirst()
                     .orElse(-1);
 
-            if (playerIdx == -1) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found");
+            if (playerIdx == -1)
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found");
 
             List<Player> orderedPlayers = new ArrayList<>();
             orderedPlayers.addAll(p.subList(playerIdx, p.size()));
             orderedPlayers.addAll(p.subList(0, playerIdx));
             this.players = orderedPlayers;
 
-        }else{
+        } else {
             this.players = game.getPlayers();
         }
         this.settings = game.getSettings();
@@ -48,6 +50,7 @@ public class GameModel {
         this.currentRoundStartPlayer = game.getCurrentRoundStartPlayer();
         this.isPublic = game.isPublic();
         this.username = game.getUsername();
+        this.roundRunning = game.isRoundRunning();
     }
 
     public long getSessionId() {
@@ -80,5 +83,9 @@ public class GameModel {
 
     public String getUsername() {
         return username;
+    }
+
+    public boolean isRoundRunning() {
+        return roundRunning;
     }
 }
