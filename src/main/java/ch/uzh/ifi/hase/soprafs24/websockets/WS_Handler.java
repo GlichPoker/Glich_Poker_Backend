@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.websockets;
 
 import java.net.URI;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
@@ -238,10 +239,13 @@ public class WS_Handler extends TextWebSocketHandler {
             if (votes.size() >= totalPlayers) {
                 Map<String, Long> voteCounts = votes.values().stream()
                         .collect(Collectors.groupingBy(v -> v, Collectors.counting()));
-
-                String resultWeather = voteCounts.entrySet().stream()
-                        .max(Map.Entry.comparingByValue())
-                        .get().getKey();
+                Optional<Map.Entry<String, Long>> map = voteCounts.entrySet().stream()
+                        .max(Map.Entry.comparingByValue());
+                if(map.isEmpty()) {
+                    return;
+                }
+                Map.Entry<String, Long> entry = map.get();
+                String resultWeather = entry.getKey();
 
                 JSONObject result = new JSONObject();
                 result.put("event", "WEATHER_VOTE_RESULT");
@@ -261,7 +265,7 @@ public class WS_Handler extends TextWebSocketHandler {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 
@@ -355,7 +359,6 @@ public class WS_Handler extends TextWebSocketHandler {
                 System.out.println("[DEBUG] sendBluffModelToAll - Message sent successfully");
             } catch (Exception e) {
                 System.out.println("[DEBUG] sendBluffModelToAll - Error sending message: " + e.getMessage());
-                e.printStackTrace();
             }
         }
     }
