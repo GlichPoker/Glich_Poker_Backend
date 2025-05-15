@@ -92,4 +92,16 @@ class GameSettingsServiceTest {
         assertEquals(newSettings.getSmallBlind(), model.smallBlind());
         assertEquals(newSettings.getInitialBalance(), model.initialBalance());
     }
+
+
+    @Test
+    void updateBlinds() {
+        when(settingsRepository.save(any(GameSettings.class))).thenReturn(gameSettings);
+
+        ch.uzh.ifi.hase.soprafs24.model.GameSettings model = new ch.uzh.ifi.hase.soprafs24.model.GameSettings(1000, 103, 206, null, true, WeatherType.RAINY, "");
+        GameSettings newSettings = gameSettingsService.updateBlinds(gameSettings, 103, 206);
+        verify(settingsRepository, times(1)).save(any(GameSettings.class));
+        assertEquals(model.smallBlind(), newSettings.getSmallBlind());
+        assertEquals(model.bigBlind(), newSettings.getBigBlind());
+    }
 }

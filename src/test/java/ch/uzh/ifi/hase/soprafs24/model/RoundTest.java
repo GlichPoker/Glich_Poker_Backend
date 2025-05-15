@@ -213,4 +213,23 @@ class RoundTest {
         // Assert
         assertEquals(oldbetState + 1, round.getBetState());
     }
+
+    @Test
+    void testUpdateHand(){
+        Player player1 = new Player(1, "hallo", 1000);
+        Player player2 = new Player(2, "hallo2", 1000);
+        player1.setTotalBet(200);
+        player2.setTotalBet(200);
+        Card card = new Card(Rank.ACE, Suit.SPADES);
+        Card card2 = new Card(Rank.ACE, Suit.CLUBS);
+
+        player1.setHand(card, 0);
+        player1.setHand(card2, 1);
+        ArrayList<Player> players = new ArrayList<>(Arrays.asList(player1, player2));
+        Round round = new Round(players, 0, true, null, 2);
+        Card[] res = round.updatePlayerHand(player1.getUserId(), card);
+
+        assertEquals(card2, res[1]);
+        assertNotEquals(card, res[0]);
+    }
 }
