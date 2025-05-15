@@ -17,7 +17,7 @@ class RoundTest {
     @BeforeAll
     static void setup() {
         List<HandRank> order = new ArrayList<>(Arrays.stream(HandRank.values()).sorted(Comparator.reverseOrder()).toList());
-        gameSettings = new GameSettings(1000,10,20, order, true, WeatherType.CLOUDY, "");
+        gameSettings = new GameSettings(1000,10,20, order, true, WeatherType.DEFAULT, "");
     }
     @Test
     void testRoundComplete_singleWinner() {

@@ -34,8 +34,9 @@ public class Round {
         this.gameSettings = gameSettings;
         this.roundOver = false;
         haveNotRaiseCount = 0;
-
+        if(!isTest) {
             dealPlayers(dealCount); // deal with this for tests
+        }
         handleBlinds();
         // notify update
     }
