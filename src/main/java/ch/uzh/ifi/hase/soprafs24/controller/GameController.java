@@ -45,7 +45,6 @@ public class GameController {
         this.modelPusher = modelPusher;
     }
 
-
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
     public ch.uzh.ifi.hase.soprafs24.model.Game createGame(@RequestBody CreateGameRequest request) {

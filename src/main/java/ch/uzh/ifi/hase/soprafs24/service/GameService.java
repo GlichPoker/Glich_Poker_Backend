@@ -19,13 +19,15 @@ public class GameService {
     private final GameRepository gameRepository;
     private final PlayerService playerService;
     private final GameSettingsService gameSettingsService;
+    private final AllowedUserService allowedUserService;
 
     @Autowired
     public GameService(GameRepository gameRepository, PlayerService playerService,
-            GameSettingsService gameSettingsService) {
+            GameSettingsService gameSettingsService, AllowedUserService allowedUserService) {
         this.gameRepository = gameRepository;
         this.playerService = playerService;
         this.gameSettingsService = gameSettingsService;
+        this.allowedUserService = allowedUserService;
     }
 
     // Create a new game with a player as the owner
@@ -73,17 +75,20 @@ public class GameService {
 
 
     public boolean handlePlayerJoinOrRejoin(Game game, User user, String password) {
+        password = (password == null) ? "" : password;
 
-        if(!game.isPublic() && !game.getSettings().getPassword().equals(password))
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "password does not match");
+        if (!game.isPublic()) {
+            if (!allowedUserService.isUserAllowed(game.getSessionId(), user.getId())) {
+                if (!game.getSettings().getPassword().equals(password)) {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, "password does not match and you are not on the allowed list");
+                }
+            }
+        }
+
         if (!game.containsPlayer(user.getId())) {
             createAndAddPlayerToGame(game, user, game.getSettings().getInitialBalance());
         }
 
-        if (!game.containsPlayer(user.getId())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    String.format("Player with id %d was not invited to game", user.getId()));
-        }
         Player player = playerService.getPlayer(user.getId());
         player.setIsOnline(true);
         playerService.savePlayer(player);
