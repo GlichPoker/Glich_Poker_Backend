@@ -50,18 +50,18 @@ class PlayerServiceTest {
 
     @Test
     void getPlayer() {
-        when(playerRepository.findByUserId(1L)).thenReturn(Optional.of(player));
+        when(playerRepository.findByUserAndGameId(1L, game.getSessionId())).thenReturn(Optional.of(player));
 
-        Player p = playerService.getPlayer(1L);
+        Player p = playerService.getPlayer(1L, game.getSessionId());
 
         assertEquals(player, p);
     }
 
     @Test
     void getPlayerNotFound() {
-        when(playerRepository.findByUserId(1L)).thenReturn(Optional.empty());
+        when(playerRepository.findByUserAndGameId(1L, game.getSessionId())).thenReturn(Optional.empty());
 
-        assertThrows(ResponseStatusException.class, () -> playerService.getPlayer(1L));
+        assertThrows(ResponseStatusException.class, () -> playerService.getPlayer(1L, game.getSessionId()));
     }
 
     @Test
@@ -91,16 +91,16 @@ class PlayerServiceTest {
 
     @Test
     void removePlayer() {
-        when(playerRepository.findByUserId(1L)).thenReturn(Optional.of(player));
-        playerService.removePlayer(owner.getId());
+        when(playerRepository.findByUserAndGameId(1L, game.getSessionId())).thenReturn(Optional.of(player));
+        playerService.removePlayer(owner.getId(), game.getSessionId());
         verify(playerRepository, times(1)).delete(any(Player.class));
     }
 
 
     @Test
     void testRemovePlayer(){
-        when(playerRepository.findByUserId(1L)).thenReturn(Optional.empty());
-        assertThrows(ResponseStatusException.class, () -> playerService.removePlayer(owner.getId()));
+        when(playerRepository.findByUserAndGameId(1L, game.getSessionId())).thenReturn(Optional.empty());
+        assertThrows(ResponseStatusException.class, () -> playerService.removePlayer(owner.getId(), game.getSessionId()));
     }
 
     @Test

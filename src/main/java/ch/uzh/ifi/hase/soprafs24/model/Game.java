@@ -16,6 +16,8 @@ public class Game {
     private final int currentRoundStartPlayer;
     private final boolean isPublic;
     private final String username;
+    private boolean roundRunning;
+
     public Game(Player player, GameSettings settings) {
         this.sessionId = System.nanoTime();
         this.players = new ArrayList<>();
@@ -25,6 +27,7 @@ public class Game {
         this.settings = settings;
         this.isPublic = true;
         this.username = "";
+        this.roundRunning = false;
     }
 
     public Game(ch.uzh.ifi.hase.soprafs24.entity.Game game, boolean start) {
@@ -40,6 +43,7 @@ public class Game {
         this.settings = new GameSettings(game.getSettings());
         this.isPublic = game.isPublic();
         this.username = game.getOwner().getUsername();
+        this.roundRunning = game.isRoundRunning();
 
         if (start) {
             startRound();
@@ -54,7 +58,6 @@ public class Game {
         return currentRoundStartPlayer;
     }
 
-
     public GameModel getGameModel(long userId) {
         return new GameModel(this, userId);
     }
@@ -63,9 +66,14 @@ public class Game {
         return players;
     }
 
-    public boolean isPublic() {return isPublic;}
+    public boolean isPublic() {
+        return isPublic;
+    }
 
-    public String getUsername() {return username;}
+    public String getUsername() {
+        return username;
+    }
+
     public long getOwnerId() {
         return ownerId;
     }
@@ -91,7 +99,7 @@ public class Game {
     }
 
     public void removePlayer(long userId) {
-        players =  this.players.stream().filter(x -> x.getUserId() != userId).toList();
+        players = this.players.stream().filter(x -> x.getUserId() != userId).toList();
     }
 
     public Player getPlayer(long userId) {
@@ -130,5 +138,9 @@ public class Game {
 
     public void adjustSettings(GameSettings gameSettings) {
         this.settings = gameSettings;
+    }
+
+    public boolean isRoundRunning() {
+        return roundRunning;
     }
 }

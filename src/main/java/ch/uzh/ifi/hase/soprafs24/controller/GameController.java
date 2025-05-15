@@ -37,7 +37,7 @@ public class GameController {
 
     @Autowired
     public GameController(GameService gameService, GameSettingsService gameSettingsService, UserService userService,
-            WS_Handler wsHandler, ModelPusher modelPusher) {
+                          WS_Handler wsHandler, ModelPusher modelPusher) {
         this.gameService = gameService;
         this.gameSettingsService = gameSettingsService;
         this.userService = userService;
@@ -98,7 +98,7 @@ public class GameController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
         }
 
-        if(game.getSettings().weatherType() != WeatherType.RAINY){
+        if (game.getSettings().weatherType() != WeatherType.RAINY) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only allowed if rainy weather");
         }
 
@@ -112,11 +112,15 @@ public class GameController {
     public RoundModel startGame(@RequestBody GameActionRequest request) {
         Game game = gameService.getGameBySessionId(request.sessionId());
 
-        if(game.getRoundCount() % 3 == 0 && game.getRoundCount() > 0 && game.getSettings().getWeatherType() == WeatherType.SUNNY){
+        if (game.getRoundCount() % 3 == 0 && game.getRoundCount() > 0
+                && game.getSettings().getWeatherType() == WeatherType.SUNNY) {
             ch.uzh.ifi.hase.soprafs24.entity.GameSettings settings = game.getSettings();
-            long smallBlindIncreased = settings.getSmallBlind() > 19 ? (long)(settings.getSmallBlind() * 1.05) : settings.getSmallBlind() + 1;
-            long bigBlindIncreased = settings.getBigBlind() > 19 ? (long)(settings.getBigBlind() * 1.05) : settings.getBigBlind() + 1;
+            long smallBlindIncreased = settings.getSmallBlind() > 19 ? (long) (settings.getSmallBlind() * 1.05)
+                    : settings.getSmallBlind() + 1;
+            long bigBlindIncreased = settings.getBigBlind() > 19 ? (long) (settings.getBigBlind() * 1.05)
+                    : settings.getBigBlind() + 1;
             gameSettingsService.updateBlinds(settings, smallBlindIncreased, bigBlindIncreased);
+            game = gameService.getGameBySessionId(request.sessionId());
         }
 
         gameService.startRound(game);
@@ -248,7 +252,7 @@ public class GameController {
     @GetMapping("/allGames")
     @ResponseStatus(HttpStatus.OK)
     public List<GameModel> getAllGames() {
-        List<Game> games =  gameService.getAllGames();
+        List<Game> games = gameService.getAllGames();
         List<GameModel> gameModels = new ArrayList<>();
         for (Game game : games) {
             gameModels.add(new GameModel(game.toGameModel(), -1));
@@ -281,7 +285,14 @@ public class GameController {
         Game game = gameService.getGameBySessionId(request.sessionId());
         ch.uzh.ifi.hase.soprafs24.entity.GameSettings savedSettings = gameSettingsService
                 .updateSettings(game.getSettings(), request.gameSettings());
+
         // TODO: push to all clients which are in the game
+        Map<String, Object> weatherUpdateMessage = new HashMap<>();
+        weatherUpdateMessage.put("event", "WEATHER_UPDATED");
+        weatherUpdateMessage.put("weatherType", savedSettings.getWeatherType().toString());
+
+        wsHandler.sendGenericToAll(Long.toString(game.getSessionId()), weatherUpdateMessage);
+
         return savedSettings.toModel();
     }
 
@@ -328,14 +339,15 @@ public class GameController {
         }
 
         Player player = game.getPlayer(playerId);
-        if(player == null) {
+        if (player == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found");
         }
-/*
-        Round round = game.getRound();
-        List<Card> availableBluffCards = round.getRemainingCards();
-        availableBluffCards.addAll(Arrays.asList(player.getHand()));
-        return availableBluffCards;*/
+        /*
+         * Round round = game.getRound();
+         * List<Card> availableBluffCards = round.getRemainingCards();
+         * availableBluffCards.addAll(Arrays.asList(player.getHand()));
+         * return availableBluffCards;
+         */
         return new Deck().getCards();
     }
 
@@ -347,11 +359,11 @@ public class GameController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
         }
 
-        if(game.getSettings().weatherType() != WeatherType.SUNNY){
+        if (game.getSettings().weatherType() != WeatherType.SUNNY) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Can only bluff if its sunny weather");
         }
         Player player = game.getPlayer(request.userId());
-        if(player == null) {
+        if (player == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found");
         }
         BluffModel model = new BluffModel(request.userId(), request.card());

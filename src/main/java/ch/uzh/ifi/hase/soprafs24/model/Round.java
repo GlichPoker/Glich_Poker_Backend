@@ -34,9 +34,9 @@ public class Round {
         this.gameSettings = gameSettings;
         this.roundOver = false;
         haveNotRaiseCount = 0;
-
-        if (!isTest)
+        if(!isTest) {
             dealPlayers(dealCount); // deal with this for tests
+        }
         handleBlinds();
         // notify update
     }
@@ -181,6 +181,9 @@ public class Round {
     public void progressRound() {
         haveNotRaiseCount = 0;
         playersTurn = startPlayer;
+        while (!players.get(playersTurn).isActive()){
+            playersTurn++;
+        }
         betState++;
         switch (betState) {
             case 1:
@@ -232,9 +235,14 @@ public class Round {
                 return;
             }
 
-            if (shouldProgressRound()) {
-                progressRound();
-            }
+        }
+        long activePlayers = players.stream().filter(Player::isActive).count();
+        if(players.size() < 2 || activePlayers < 2){
+            roundOver = true;
+            return;
+        }
+        if (shouldProgressRound()) {
+            progressRound();
         }
     }
 
@@ -252,7 +260,7 @@ public class Round {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found");
         if (!player.isActive())
             throw new ResponseStatusException(HttpStatus.CONFLICT, "user already folded");
-        player.fold();
+        player.setIsActive(false);
         progressPlayer();
     }
 
@@ -288,6 +296,9 @@ public class Round {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "player not found");
         if (!player.isActive())
             throw new ResponseStatusException(HttpStatus.CONFLICT, "player already folded");
+        if(player.getBalance() < balance){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "cannot call or raise if balance less than amount to be called");
+        }
         boolean successful = player.call(balance);
 
         if (successful) {
@@ -298,7 +309,7 @@ public class Round {
 
     private boolean shouldProgressRound() {
         long activePlayers = players.stream().filter(Player::isActive).count();
-        return (activePlayers < 2 || haveNotRaiseCount == players.size());
+        return (haveNotRaiseCount == activePlayers);
     }
 
     public GameSettings getGameSettings() {

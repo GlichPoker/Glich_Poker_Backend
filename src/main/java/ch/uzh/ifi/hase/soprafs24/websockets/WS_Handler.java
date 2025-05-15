@@ -1,8 +1,10 @@
 package ch.uzh.ifi.hase.soprafs24.websockets;
 
 import java.net.URI;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.stream.Collectors;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +32,7 @@ public class WS_Handler extends TextWebSocketHandler {
     private final Map<String, CopyOnWriteArraySet<WebSocketSession>> chatSessions = new ConcurrentHashMap<>();
     private final GameService gameService;
     private final String event = "event";
+    private final Map<String, Map<Long, String>> weatherVotes = new ConcurrentHashMap<>();
 
     @Autowired
     public WS_Handler(GameService gameService) {
@@ -41,7 +44,8 @@ public class WS_Handler extends TextWebSocketHandler {
         String clientMessage = message.getPayload();
 
         URI sessionUri = session.getUri();
-        if(sessionUri == null) return;
+        if (sessionUri == null)
+            return;
 
         if (sessionUri.getPath().equals("/ws/chat")) {
             handleChatMessage(session, clientMessage);
@@ -55,7 +59,8 @@ public class WS_Handler extends TextWebSocketHandler {
     @Override
     public void afterConnectionEstablished(@NonNull WebSocketSession session) throws Exception {
         URI sessionUri = session.getUri();
-        if(sessionUri == null) return;
+        if (sessionUri == null)
+            return;
         String query = sessionUri.getQuery();
         Map<String, String> params = splitQuery(query);
 
@@ -178,6 +183,22 @@ public class WS_Handler extends TextWebSocketHandler {
     public Void handleGamemessage(WebSocketSession session, String message) {
         JSONObject jsonObject = new JSONObject(message);
         String eventString = jsonObject.getString(event);
+
+        if ("START_WEATHER_VOTE".equals(eventString)) {
+            String gameId = jsonObject.getString("gameID");
+
+            JSONObject showVoteButtonMessage = new JSONObject();
+            showVoteButtonMessage.put("event", "SHOW_VOTE_MAP_BUTTON");
+
+            broadcastMessage(gameId, showVoteButtonMessage.toString(), gameSessions);
+            return null;
+        }
+
+        if ("WEATHER_VOTE".equals(eventString)) {
+            handleWeatherVote(jsonObject);
+            return null;
+        }
+
         Model eventModel = eventString.equals("GAMEMODEL") ? Model.GAMEMODEL
                 : eventString.equals("ROUNDMODEL") ? Model.ROUNDMODEL : Model.SETTINGSMODEL;
         String gameId = jsonObject.getString("gameID");
@@ -195,6 +216,57 @@ public class WS_Handler extends TextWebSocketHandler {
         }
 
         return null;
+    }
+
+    private void handleWeatherVote(JSONObject jsonObject) {
+        String gameId = jsonObject.getString("lobbyId");
+        long userId = jsonObject.getLong("userId");
+        String weather = jsonObject.getString("weather");
+
+        weatherVotes.putIfAbsent(gameId, new ConcurrentHashMap<>());
+        Map<Long, String> votes = weatherVotes.get(gameId);
+
+        if (votes.containsKey(userId)) {
+            return;
+        }
+
+        votes.put(userId, weather);
+
+        try {
+            ch.uzh.ifi.hase.soprafs24.entity.Game gameEntity = gameService.getGameBySessionId(Long.parseLong(gameId));
+            int totalPlayers = gameEntity.getPlayers().size();
+
+            if (votes.size() >= totalPlayers) {
+                Map<String, Long> voteCounts = votes.values().stream()
+                        .collect(Collectors.groupingBy(v -> v, Collectors.counting()));
+                Optional<Map.Entry<String, Long>> map = voteCounts.entrySet().stream()
+                        .max(Map.Entry.comparingByValue());
+                if(map.isEmpty()) {
+                    return;
+                }
+                Map.Entry<String, Long> entry = map.get();
+                String resultWeather = entry.getKey();
+
+                JSONObject result = new JSONObject();
+                result.put("event", "WEATHER_VOTE_RESULT");
+                result.put("weatherType", resultWeather);
+
+                broadcastMessage(gameId, result.toString(), gameSessions);
+
+                try {
+                    ch.uzh.ifi.hase.soprafs24.model.Game gameModel = new ch.uzh.ifi.hase.soprafs24.model.Game(
+                            gameEntity, false);
+                    sendModelToAll(gameId, gameModel, Model.GAMEMODEL);
+                } catch (Exception e) {
+                    System.err.println("Failed to send updated game model: " + e.getMessage());
+                }
+
+                weatherVotes.remove(gameId);
+            }
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     public void sendGameStateToAll(String gameId, String state) {
@@ -257,16 +329,21 @@ public class WS_Handler extends TextWebSocketHandler {
         }
     }
 
-
     public void sendBluffModelToAll(String gameId, BluffModel model) {
+        System.out.println("[DEBUG] sendBluffModelToAll - gameId: " + gameId + ", model: " + model);
+
         CopyOnWriteArraySet<WebSocketSession> sessions = gameSessions.get(gameId);
         if (sessions == null) {
+            System.out.println("[DEBUG] sendBluffModelToAll - No sessions found for gameId: " + gameId);
             return;
         }
+
+        System.out.println("[DEBUG] sendBluffModelToAll - Found " + sessions.size() + " sessions");
 
         for (WebSocketSession session : sessions) {
             URI sessionUri = session.getUri();
             if (sessionUri == null) {
+                System.out.println("[DEBUG] sendBluffModelToAll - Session URI is null, skipping");
                 continue;
             }
             try {
@@ -275,10 +352,26 @@ public class WS_Handler extends TextWebSocketHandler {
                 JSONObject wrapped = new JSONObject(json);
                 wrapped.put("event", Model.BLUFFMODEL.name());
 
-                session.sendMessage(new TextMessage(wrapped.toString()));
-            } catch (Exception e) {
+                System.out.println("[DEBUG] sendBluffModelToAll - Sending message: " + wrapped.toString());
 
+                session.sendMessage(new TextMessage(wrapped.toString()));
+
+                System.out.println("[DEBUG] sendBluffModelToAll - Message sent successfully");
+            } catch (Exception e) {
+                System.out.println("[DEBUG] sendBluffModelToAll - Error sending message: " + e.getMessage());
             }
+        }
+    }
+
+    // to send changed weatherType to client
+    public void sendGenericToAll(String gameId, Map<String, Object> payload) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            String json = mapper.writeValueAsString(payload);
+
+            broadcastMessage(gameId, json, gameSessions);
+        } catch (IOException e) {
+            System.err.println("Failed to send generic message to all: " + e.getMessage());
         }
     }
 

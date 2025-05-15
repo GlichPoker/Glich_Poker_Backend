@@ -14,6 +14,7 @@ class DealerTest {
     private Dealer dealer;
     private List<Player> players;
     private List<Card> cards;
+    
     @BeforeEach
     void setup(){
         deck = new Deck();

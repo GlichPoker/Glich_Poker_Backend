@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.constant;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum Rank {
@@ -26,5 +27,15 @@ public enum Rank {
     @JsonValue
     public int getValue() {
         return value;
+    }
+
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+    public static Rank fromValue(int value) {
+        for (Rank rank : Rank.values()) {
+            if (rank.value == value) {
+                return rank;
+            }
+        }
+        throw new IllegalArgumentException("Invalid rank value: " + value);
     }
 }

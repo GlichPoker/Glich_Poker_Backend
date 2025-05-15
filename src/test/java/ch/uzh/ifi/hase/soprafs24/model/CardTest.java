@@ -46,4 +46,9 @@ class CardTest {
     void testToString(){
         assertEquals("CLUBS:FOUR", testCards[0].toString());
     }
+
+    @Test
+    void testEquals() {
+        assertTrue(testCards[0].equals(new Card(Rank.FOUR, Suit.CLUBS)));
+    }
 }

@@ -99,7 +99,7 @@ public class GameService {
         if (game.isRoundRunning())
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Round is still running");
         game.removePlayer(userId);
-        playerService.removePlayer(userId);
+        playerService.removePlayer(userId, game.getSessionId());
         gameRepository.save(game);
         return true;
     }
@@ -135,7 +135,7 @@ public class GameService {
         gameEntity.setStartPlayer((game.getCurrentRoundStartPlayer() + 1) % game.getPlayers().size());
         List<ch.uzh.ifi.hase.soprafs24.model.Player> newPlayers = game.getPlayers();
         for (ch.uzh.ifi.hase.soprafs24.model.Player activePlayer : newPlayers) {
-            Player player = playerService.getPlayer(activePlayer.getUserId());
+            Player player = playerService.getPlayer(activePlayer.getUserId(), game.getSessionId());
             player.setBalance(activePlayer.getBalance());
             player.setIsActive(true);
             playerService.savePlayer(player);
@@ -162,9 +162,12 @@ public class GameService {
     public void deleteSession(Game game) {
         List<Player> players = game.getAllPlayers();
         playerService.deletePlayers(players);
+        GameSettings gameSettings = game.getSettings();
         gameRepository.delete(game);
+
         gameRepository.flush();
-        gameSettingsService.deleteSettings(game.getSettings());
+        gameSettingsService.deleteSettings(gameSettings);
+
     }
 
     public List<Game> getGamesOwnedByUser(long userId) {
