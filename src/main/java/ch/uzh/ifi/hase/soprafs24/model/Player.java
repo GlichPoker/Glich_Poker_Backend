@@ -33,6 +33,9 @@ public class Player {
         this.totalBet = 0;
     }
 
+    public void setIsActive(boolean isActive) {
+        this.isActive = isActive;
+    }
     public EvaluationResult getEvaluationResult() {
         return evaluationResult;
     }

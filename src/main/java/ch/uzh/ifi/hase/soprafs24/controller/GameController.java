@@ -8,6 +8,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.model.*;
 import ch.uzh.ifi.hase.soprafs24.service.GameService;
 import ch.uzh.ifi.hase.soprafs24.service.GameSettingsService;
+import ch.uzh.ifi.hase.soprafs24.service.PlayerService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import ch.uzh.ifi.hase.soprafs24.websockets.WS_Handler;
 
@@ -29,15 +30,17 @@ public class GameController {
     private final UserService userService;
     private final WS_Handler wsHandler;
     private final ModelPusher modelPusher;
+    private final PlayerService playerService;
 
     @Autowired
     public GameController(GameService gameService, GameSettingsService gameSettingsService, UserService userService,
-            WS_Handler wsHandler, ModelPusher modelPusher) {
+                          WS_Handler wsHandler, ModelPusher modelPusher, PlayerService playerService) {
         this.gameService = gameService;
         this.gameSettingsService = gameSettingsService;
         this.userService = userService;
         this.wsHandler = wsHandler;
         this.modelPusher = modelPusher;
+        this.playerService = playerService;
     }
 
     @PostMapping("/create")
@@ -143,6 +146,7 @@ public class GameController {
         }
         Round round = game.getRound();
         round.handleFold(request.userId());
+        playerService.setIsActive(request.userId(), request.sessionId(), false);
 
         modelPusher.pushModel(round, game, wsHandler, gameService);
     }
@@ -243,7 +247,6 @@ public class GameController {
         for (Game game : games) {
             gameModels.add(new GameModel(game.toGameModel(), -1));
         }
-        System.out.println("hallo" + gameModels);
         return gameModels;
     }
 

@@ -235,9 +235,14 @@ public class Round {
                 return;
             }
 
-            if (shouldProgressRound()) {
-                progressRound();
-            }
+        }
+        long activePlayers = players.stream().filter(Player::isActive).count();
+        if(players.size() < 2 || activePlayers < 2){
+            roundOver = true;
+            return;
+        }
+        if (shouldProgressRound()) {
+            progressRound();
         }
     }
 
@@ -255,7 +260,7 @@ public class Round {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found");
         if (!player.isActive())
             throw new ResponseStatusException(HttpStatus.CONFLICT, "user already folded");
-        player.fold();
+        player.setIsActive(false);
         progressPlayer();
     }
 
@@ -301,7 +306,7 @@ public class Round {
 
     private boolean shouldProgressRound() {
         long activePlayers = players.stream().filter(Player::isActive).count();
-        return (activePlayers < 2 || haveNotRaiseCount == activePlayers);
+        return (haveNotRaiseCount == activePlayers);
     }
 
     public GameSettings getGameSettings() {
