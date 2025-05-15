@@ -30,17 +30,15 @@ public class GameController {
     private final UserService userService;
     private final WS_Handler wsHandler;
     private final ModelPusher modelPusher;
-    private final PlayerService playerService;
 
     @Autowired
     public GameController(GameService gameService, GameSettingsService gameSettingsService, UserService userService,
-                          WS_Handler wsHandler, ModelPusher modelPusher, PlayerService playerService) {
+                          WS_Handler wsHandler, ModelPusher modelPusher) {
         this.gameService = gameService;
         this.gameSettingsService = gameSettingsService;
         this.userService = userService;
         this.wsHandler = wsHandler;
         this.modelPusher = modelPusher;
-        this.playerService = playerService;
     }
 
     @PostMapping("/create")
@@ -117,7 +115,7 @@ public class GameController {
                     : settings.getSmallBlind() + 1;
             long bigBlindIncreased = settings.getBigBlind() > 19 ? (long) (settings.getBigBlind() * 1.05)
                     : settings.getBigBlind() + 1;
-            ch.uzh.ifi.hase.soprafs24.entity.GameSettings saved = gameSettingsService.updateBlinds(settings, smallBlindIncreased, bigBlindIncreased);
+            gameSettingsService.updateBlinds(settings, smallBlindIncreased, bigBlindIncreased);
             game = gameService.getGameBySessionId(request.sessionId());
         }
 
@@ -356,7 +354,6 @@ public class GameController {
         if (player == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found");
         }
-        System.out.println(request.card());
         BluffModel model = new BluffModel(request.userId(), request.card());
         wsHandler.sendBluffModelToAll(Long.toString(game.getSessionId()), model);
     }
