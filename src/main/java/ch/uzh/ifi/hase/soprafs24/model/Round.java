@@ -35,7 +35,6 @@ public class Round {
         this.roundOver = false;
         haveNotRaiseCount = 0;
 
-        if (!isTest)
             dealPlayers(dealCount); // deal with this for tests
         handleBlinds();
         // notify update
@@ -296,6 +295,9 @@ public class Round {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "player not found");
         if (!player.isActive())
             throw new ResponseStatusException(HttpStatus.CONFLICT, "player already folded");
+        if(player.getBalance() < balance){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "cannot call or raise if balance less than amount to be called");
+        }
         boolean successful = player.call(balance);
 
         if (successful) {

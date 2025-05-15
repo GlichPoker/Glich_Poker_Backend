@@ -1,8 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
-import ch.uzh.ifi.hase.soprafs24.constant.HandRank;
-import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
-import ch.uzh.ifi.hase.soprafs24.constant.WeatherType;
+import ch.uzh.ifi.hase.soprafs24.constant.*;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.model.*;
@@ -24,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -258,6 +257,29 @@ class GameControllerTest {
     }
 
     @Test
+    void testStartGameBlindIncreaseApplied() throws Exception {
+        addPlayersToGame(testGame, testUser, testUser2);
+        testGame.setRoundCount(3);
+        testGame.getSettings().setWeatherType(WeatherType.SUNNY);
+        testGame.getSettings().setSmallBlind(103);
+        testGame.getSettings().setBigBlind(206);
+        when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
+        when(gameSettingsService.updateBlinds(testGame.getSettings(), 103, 206)).thenReturn(testGame.getSettings());
+
+        ch.uzh.ifi.hase.soprafs24.model.Game gameModel = new ch.uzh.ifi.hase.soprafs24.model.Game(testGame, true);
+        RoundModel round = gameModel.getRoundModel(testUser.getId());
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/game/start")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(gameActionRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.potSize").value(round.getPotSize()))
+                .andExpect(jsonPath("$.player.userId").value(round.getPlayer().getUserId()))
+                .andExpect((jsonPath("$.gameSettings.smallBlind").value(103)))
+                .andExpect(jsonPath("$.gameSettings.bigBlind").value(206));
+    }
+
+    @Test
     void testStartGameNotEnoughUsersOnline() throws Exception {
         // Add only one online player
         ch.uzh.ifi.hase.soprafs24.entity.Player player =
@@ -370,6 +392,44 @@ class GameControllerTest {
         verify(modelPusher, times(1)).pushModel(any(), any(), any(), any());
 
     }
+
+    @Test
+    void testSwapCardNotRainy() throws Exception {
+        addPlayersToGame(testGame, testUser, testUser2);
+        testGame.getSettings().setWeatherType(WeatherType.SUNNY);
+        when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
+
+        // First start the game
+        mockMvc.perform(MockMvcRequestBuilders.post("/game/start")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(gameActionRequest)))
+                .andExpect(status().isOk()).andReturn();
+
+        SwapCardRequest req = new SwapCardRequest(gameActionRequest.sessionId(), 1L, new Card(Rank.ACE, Suit.CLUBS));
+        mockMvc.perform(MockMvcRequestBuilders.post("/game/swap")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isForbidden()).andReturn();
+    }
+
+    @Test
+    void testSwapCardNotCard() throws Exception {
+        addPlayersToGame(testGame, testUser, testUser2);
+        testGame.getSettings().setWeatherType(WeatherType.RAINY);
+        when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
+        // First start the game
+        mockMvc.perform(MockMvcRequestBuilders.post("/game/start")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(gameActionRequest)))
+                .andExpect(status().isOk()).andReturn();
+
+        SwapCardRequest req = new SwapCardRequest(gameActionRequest.sessionId(), 1L, new Card(Rank.ACE, Suit.CLUBS));
+        mockMvc.perform(MockMvcRequestBuilders.post("/game/swap")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isNotFound());
+    }
+
 
     @Test
     void testLeaveGame() throws Exception {
@@ -563,5 +623,62 @@ class GameControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(gameActionRequest)))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void testBluffCards() throws Exception {
+        addPlayersToGame(testGame, testUser, testUser2);
+        when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
+
+        // First start the game
+        mockMvc.perform(MockMvcRequestBuilders.post("/game/start")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(gameActionRequest)))
+                .andExpect(status().isOk()).andReturn();
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/game/bluffCards")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("sessionId", String.valueOf(gameActionRequest.sessionId()))
+                        .param("playerId", String.valueOf(testUser.getId())))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value(52));
+    }
+
+    @Test
+    void testBluff() throws Exception {
+        addPlayersToGame(testGame, testUser, testUser2);
+        testGame.getSettings().setWeatherType(WeatherType.SUNNY);
+        when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
+
+        // First start the game
+        mockMvc.perform(MockMvcRequestBuilders.post("/game/start")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(gameActionRequest)))
+                .andExpect(status().isOk()).andReturn();
+
+        SwapCardRequest req = new SwapCardRequest(gameActionRequest.sessionId(), testUser.getId(), new Card(Rank.ACE, Suit.CLUBS));
+        mockMvc.perform(MockMvcRequestBuilders.post("/game/bluff")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isOk());
+        verify(wsHandler, times(1)).sendBluffModelToAll(any(), any());
+    }
+
+    @Test
+    void testBluffNotSunny() throws Exception {
+        addPlayersToGame(testGame, testUser, testUser2);
+        when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
+
+        // First start the game
+        mockMvc.perform(MockMvcRequestBuilders.post("/game/start")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(gameActionRequest)))
+                .andExpect(status().isOk()).andReturn();
+
+        SwapCardRequest req = new SwapCardRequest(gameActionRequest.sessionId(), testUser.getId(), new Card(Rank.ACE, Suit.CLUBS));
+        mockMvc.perform(MockMvcRequestBuilders.post("/game/bluff")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isForbidden());
     }
 }

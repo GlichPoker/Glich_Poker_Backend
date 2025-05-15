@@ -8,6 +8,7 @@ public class PlayerModel {
     private final long roundBet;
     private final boolean isOnline;
     private final EvaluationResult evaluationResult;
+
     public PlayerModel(Player player) {
         this.userId = player.getUserId();
         this.name = player.getName();

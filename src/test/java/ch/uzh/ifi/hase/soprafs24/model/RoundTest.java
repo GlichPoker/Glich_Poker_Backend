@@ -42,7 +42,7 @@ class RoundTest {
 
         // Assert
         assertEquals(1, winners.size());
-        assertEquals(player2, winners.get(0));
+        assertEquals(player2.getUserId(), winners.get(0).getUserId());
     }
 
     @Test

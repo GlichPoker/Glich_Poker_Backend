@@ -117,7 +117,8 @@ public class GameController {
                     : settings.getSmallBlind() + 1;
             long bigBlindIncreased = settings.getBigBlind() > 19 ? (long) (settings.getBigBlind() * 1.05)
                     : settings.getBigBlind() + 1;
-            gameSettingsService.updateBlinds(settings, smallBlindIncreased, bigBlindIncreased);
+            ch.uzh.ifi.hase.soprafs24.entity.GameSettings saved = gameSettingsService.updateBlinds(settings, smallBlindIncreased, bigBlindIncreased);
+            game = gameService.getGameBySessionId(request.sessionId());
         }
 
         gameService.startRound(game);
