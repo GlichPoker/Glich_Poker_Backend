@@ -119,9 +119,9 @@ public class GameController {
             game = gameService.getGameBySessionId(request.sessionId());
         }
 
-        gameService.startRound(game);
 
         ch.uzh.ifi.hase.soprafs24.model.Game newGame = new ch.uzh.ifi.hase.soprafs24.model.Game(game, true);
+        gameService.startRound(game);
 
         for (Player player : newGame.getPlayers()) {
             player.setIsOnline(true);

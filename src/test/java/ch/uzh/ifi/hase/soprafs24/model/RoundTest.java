@@ -203,8 +203,6 @@ class RoundTest {
         ArrayList<Player> players = new ArrayList<>(Arrays.asList(player1, player2));
         Round round = new Round(players, 0, true, null, 2);
         round.setHaveNotRaiseCount(1);
-        round.setFirstActionOccurred(true);
-        round.setHasProgressedOnce(true);
         int oldbetState = round.getBetState();
         round.potSize = 400;
 

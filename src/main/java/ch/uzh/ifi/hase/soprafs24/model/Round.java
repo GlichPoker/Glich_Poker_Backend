@@ -18,8 +18,7 @@ public class Round {
     private final GameSettings gameSettings;
     protected List<Card> communityCards;
     private boolean roundOver;
-    private boolean firstActionOccurred = false;
-    private boolean hasProgressedOnce = false;
+
     private int haveNotRaiseCount;
 
     public Round(List<Player> players, int startPlayer, boolean isTest, GameSettings gameSettings, int dealCount) {
@@ -57,13 +56,7 @@ public class Round {
         haveNotRaiseCount = count;
     }
 
-    public void setFirstActionOccurred(boolean firstActionOccurred) {
-        this.firstActionOccurred = firstActionOccurred;
-    }
 
-    public void setHasProgressedOnce(boolean hasProgressedOnce) {
-        this.hasProgressedOnce = hasProgressedOnce;
-    }
     public Round(List<Player> players, int startPlayer, GameSettings gameSettings, int dealCount) {
         this(players, startPlayer, false, gameSettings, dealCount);
     }
@@ -229,13 +222,6 @@ public class Round {
             playersTurn = (playersTurn + 1) % players.size();
         } while (!players.get(playersTurn).isActive());
 
-        if (firstActionOccurred) {
-            if (!hasProgressedOnce) {
-                hasProgressedOnce = true;
-                return;
-            }
-
-        }
         long activePlayers = players.stream().filter(Player::isActive).count();
         if(players.size() < 2 || activePlayers < 2){
             roundOver = true;
@@ -254,7 +240,6 @@ public class Round {
     }
 
     public void handleFold(long userId) {
-        firstActionOccurred = true;
         Player player = findPlayerById(userId);
         if (player == null)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found");
@@ -265,20 +250,17 @@ public class Round {
     }
 
     public void handleCall(long userId, long balance) {
-        firstActionOccurred = true;
         handleCallOrRaise(userId, balance, false);
         progressPlayer();
     }
 
     public void handleRaise(long userId, long balance) {
         haveNotRaiseCount = 0;
-        firstActionOccurred = true;
         handleCallOrRaise(userId, balance, true);
         progressPlayer();
     }
 
     public void handleCheck(long userId) {
-        firstActionOccurred = true;
         Player player = findPlayerById(userId);
         if (player == null)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "player not found");
