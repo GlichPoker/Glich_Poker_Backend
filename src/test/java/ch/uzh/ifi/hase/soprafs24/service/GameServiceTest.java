@@ -34,6 +34,8 @@ class GameServiceTest {
     private GameSettingsService gameSettingsService;
     @InjectMocks
     private GameService gameService;
+    @Mock
+    private AllowedUserService allowedUserService;
 
     private User owner;
     private GameSettings gameSettings;
@@ -261,6 +263,7 @@ class GameServiceTest {
     @Test
     void handlePlayerRejoinPlayerNotInGame() {
         game.setIsPublic(false);
+        when(allowedUserService.isUserAllowed(game.getSessionId(), owner.getId())).thenReturn(false);
         assertThrows(ResponseStatusException.class, () -> gameService.handlePlayerJoinOrRejoin(game, owner, "asdf"));
     }
 }

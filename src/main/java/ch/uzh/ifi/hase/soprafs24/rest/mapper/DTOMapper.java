@@ -4,6 +4,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.*;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
+import org.mapstruct.BeanMapping;
 
 /**
  * DTOMapper
@@ -23,6 +24,7 @@ public interface DTOMapper {
 
   @Mapping(source = "username", target = "username")
   @Mapping(source = "password", target = "password")
+  @BeanMapping(ignoreByDefault = true)
   User convertUserPostDTOtoEntity(UserPostDTO userPostDTO);
 
   @Mapping(source = "id", target = "id")
@@ -42,5 +44,6 @@ public interface DTOMapper {
   @Mapping(source = "birthDate", target = "birthDate")
   @Mapping(source = "status", target = "status")
   @Mapping(source = "id", target = "id")
+  @BeanMapping(ignoreByDefault = true)
   User convertUserPutDTOToEntity(UserProfileUpdatePutDTO userProfileUpdatePutDTO);
 }

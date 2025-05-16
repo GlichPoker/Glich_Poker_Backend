@@ -8,6 +8,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.model.*;
 import ch.uzh.ifi.hase.soprafs24.service.GameService;
 import ch.uzh.ifi.hase.soprafs24.service.GameSettingsService;
+import ch.uzh.ifi.hase.soprafs24.service.PlayerStatisticsService;
 import ch.uzh.ifi.hase.soprafs24.service.PlayerService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import ch.uzh.ifi.hase.soprafs24.websockets.WS_Handler;
@@ -30,6 +31,9 @@ public class GameController {
     private final UserService userService;
     private final WS_Handler wsHandler;
     private final ModelPusher modelPusher;
+
+    @Autowired
+    PlayerStatisticsService playerStatisticsService;
 
     @Autowired
     public GameController(GameService gameService, GameSettingsService gameSettingsService, UserService userService,
@@ -232,6 +236,14 @@ public class GameController {
         }
         if (game.isRoundRunning())
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Game is still running");
+        // add the statistics to the user
+        for (ch.uzh.ifi.hase.soprafs24.entity.Player player : game.getAllPlayers()) {
+            User user = player.getUser();
+            playerStatisticsService.incrementUser_games_played(user);
+            playerStatisticsService.updateUser_round_played(user, game.getRoundCount());
+            playerStatisticsService.updateUser_BB_100_record(user, game, player);
+        }
+
         activeGames.remove(sessionId);
         gameService.deleteSession(game);
         return true;
@@ -356,5 +368,22 @@ public class GameController {
         }
         BluffModel model = new BluffModel(request.userId(), request.card());
         wsHandler.sendBluffModelToAll(Long.toString(game.getSessionId()), model);
+    }
+
+    @GetMapping("/stats/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public Map<String, Object> getPlayerStatistics(@PathVariable long userId) {
+        User user = userService.getUserById(userId);
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("gamesPlayed", playerStatisticsService.getPlayer_games_played(user));
+        stats.put("roundsPlayed", playerStatisticsService.getPlayer_round_played(user));
+        stats.put("bb100", playerStatisticsService.getPlayer_BB_100(user));
+        double bb_won = playerStatisticsService.getPlayer_BB_100(user) * (playerStatisticsService.getPlayer_BB_100_count(user) / 100.0);
+        stats.put("bbWon", bb_won);
+        stats.put("bankrupts", playerStatisticsService.getPlayer_bankrupt(user));
+        return stats;
     }
 }

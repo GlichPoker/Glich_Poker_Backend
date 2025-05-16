@@ -49,6 +49,10 @@ public class Player {
 
     public void fold() { isActive = false; }
 
+    public User getUser() {
+        return user;
+    }
+
     public void reset() {
         isActive = true;
         this.balance = 0;
