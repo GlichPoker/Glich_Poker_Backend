@@ -41,7 +41,7 @@ public class AllowedUserService {
         List<AllowedUser> allowedUsers = allowedUserRepository.findById_GameId(gameId);
         return allowedUsers.stream()
                 .map(AllowedUser::getUser)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public void removeAllowedUser(Long gameId, Long userId) {

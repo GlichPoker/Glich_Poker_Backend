@@ -30,18 +30,17 @@ public class GameController {
     private final UserService userService;
     private final WS_Handler wsHandler;
     private final ModelPusher modelPusher;
-
-    @Autowired
-    PlayerStatisticsService playerStatisticsService;
+    private final PlayerStatisticsService playerStatisticsService;
 
     @Autowired
     public GameController(GameService gameService, GameSettingsService gameSettingsService, UserService userService,
-                          WS_Handler wsHandler, ModelPusher modelPusher) {
+                          WS_Handler wsHandler, ModelPusher modelPusher, PlayerStatisticsService playerStatisticsService) {
         this.gameService = gameService;
         this.gameSettingsService = gameSettingsService;
         this.userService = userService;
         this.wsHandler = wsHandler;
         this.modelPusher = modelPusher;
+        this.playerStatisticsService = playerStatisticsService;
     }
 
     @PostMapping("/create")
@@ -355,12 +354,6 @@ public class GameController {
         if (player == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found");
         }
-        /*
-         * Round round = game.getRound();
-         * List<Card> availableBluffCards = round.getRemainingCards();
-         * availableBluffCards.addAll(Arrays.asList(player.getHand()));
-         * return availableBluffCards;
-         */
         return new Deck().getCards();
     }
 

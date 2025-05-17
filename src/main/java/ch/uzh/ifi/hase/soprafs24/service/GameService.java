@@ -77,12 +77,8 @@ public class GameService {
     public boolean handlePlayerJoinOrRejoin(Game game, User user, String password) {
         password = (password == null) ? "" : password;
 
-        if (!game.isPublic()) {
-            if (!allowedUserService.isUserAllowed(game.getSessionId(), user.getId())) {
-                if (!game.getSettings().getPassword().equals(password)) {
-                    throw new ResponseStatusException(HttpStatus.CONFLICT, "password does not match and you are not on the allowed list");
-                }
-            }
+        if (!game.isPublic() && !allowedUserService.isUserAllowed(game.getSessionId(), user.getId()) && !game.getSettings().getPassword().equals(password)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "password does not match and you are not on the allowed list");
         }
 
         if (!game.containsPlayer(user.getId())) {
