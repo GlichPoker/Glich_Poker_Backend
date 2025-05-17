@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Round {
-    private List<Player> players;
+    private final List<Player> players;
     protected long potSize;
     protected long roundBet;
     private final Dealer dealer;
@@ -91,7 +91,7 @@ public class Round {
 
     private void resetPlayers() {
         for (Player player : players) {
-            player.reset();
+            player.resetAfterRound();
         }
     }
 
@@ -140,7 +140,7 @@ public class Round {
     public List<Player> roundComplete(GameSettings settings) {
         List<Player> winners = new ArrayList<>();
         EvaluationResult winner = null;
-        for (Player player : players) {
+        for (Player player : players.stream().filter(Player::isActive).toList()) {
             List<Card> mergedCards = mergeHands(player.getHand());
 
             EvaluationResult res = HandEvaluator.evaluateHand(mergedCards, settings);
@@ -231,22 +231,25 @@ public class Round {
     }
 
     public Player findPlayerById(long userId) {
-        boolean found = players.stream().anyMatch(player -> player.getUserId() == userId);
-        if (!found)
-            return null;
-        return players.stream().filter(x -> x.getUserId() == userId).findFirst().orElse(null);
+        return players.stream()
+                .filter(p -> p.getUserId() == userId)
+                .findFirst()
+                .orElse(null);
     }
 
     public void handleFold(long userId) {
-        Player player = findPlayerById(userId);
-        if (player == null)
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found");
-        if (!player.isActive())
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "user already folded");
-        player.setIsActive(false);
-        players = players.stream().filter(Player::isActive).toList();
-        playersTurn = ((playersTurn - 1) + players.size()) % players.size();
-        progressPlayer();
+        for (Player p : players) {
+            if (p.getUserId() == userId) {
+                if (!p.isActive())
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, "User already folded");
+
+                p.fold();
+                haveNotRaiseCount--;
+                progressPlayer();
+                return;
+            }
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found");
     }
 
     public void handleCall(long userId, long balance) {
@@ -332,5 +335,4 @@ public class Round {
     public List<Card> getRemainingCards() {
         return dealer.getRemainingCards();
     }
-
 }

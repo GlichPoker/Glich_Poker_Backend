@@ -130,8 +130,6 @@ public class GameService {
     public Game completeRound(ch.uzh.ifi.hase.soprafs24.model.Game game) {
         Game gameEntity = getGameBySessionId(game.getSessionId());
         gameEntity.setRoundRunning(false);
-        // TODO shouldn't this be the active players in case some of the palyers are
-        // offline?
         gameEntity.setStartPlayer((game.getCurrentRoundStartPlayer() + 1) % game.getPlayers().size());
         List<ch.uzh.ifi.hase.soprafs24.model.Player> newPlayers = game.getPlayers();
         for (ch.uzh.ifi.hase.soprafs24.model.Player activePlayer : newPlayers) {

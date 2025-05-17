@@ -33,9 +33,6 @@ public class Player {
         this.totalBet = 0;
     }
 
-    public void setIsActive(boolean isActive) {
-        this.isActive = isActive;
-    }
     public EvaluationResult getEvaluationResult() {
         return evaluationResult;
     }
@@ -104,12 +101,7 @@ public class Player {
     public void setIsOnline(boolean isOnline) {
         this.isOnline = isOnline;
     }
-
-    public void startNewRound() {
-        roundBet = 0;
-        hand = new Card[2];
-        isActive = true;
-    }
+    
 
     public void fold() {
         isActive = false;
@@ -130,6 +122,11 @@ public class Player {
         roundBet = 0;
         totalBet = 0;
         isActive = true;
+        hand = new Card[3];
         evaluationResult = null;
+    }
+
+    protected void resetAfterRound(){
+        roundBet = 0;
     }
 }
