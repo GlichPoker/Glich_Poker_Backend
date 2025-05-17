@@ -324,6 +324,28 @@ class GameControllerTest {
     }
 
     @Test
+    void testForceFoldGame() throws Exception {
+        addPlayersToGame(testGame, testUser, testUser2);
+        when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
+
+        new ch.uzh.ifi.hase.soprafs24.model.Game(testGame, true);
+
+        // First start the game
+        mockMvc.perform(MockMvcRequestBuilders.post("/game/start")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(gameActionRequest)))
+                .andExpect(status().isOk()).andReturn();
+
+        // Then test fold
+        mockMvc.perform(MockMvcRequestBuilders.post("/game/forceFold")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(gameActionRequest)))
+                .andExpect(status().isOk());
+        verify(modelPusher, times(1)).pushModel(any(), any(), any(), any());
+
+    }
+
+    @Test
     void testFoldGameGameNotStarted() throws Exception {
         gameActionRequest = new GameActionRequest(12341,13,2134);
         mockMvc.perform(MockMvcRequestBuilders.post("/game/fold")

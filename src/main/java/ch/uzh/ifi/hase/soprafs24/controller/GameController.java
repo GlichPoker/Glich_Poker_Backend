@@ -152,6 +152,21 @@ public class GameController {
         modelPusher.pushModel(round, game, wsHandler, gameService);
     }
 
+    @PostMapping("/forceFold")
+    @ResponseStatus(HttpStatus.OK)
+    public void forceFoldGame(@RequestBody GameActionRequest request) {
+        ch.uzh.ifi.hase.soprafs24.model.Game game = activeGames.get(request.sessionId());
+        if (game == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
+        }
+        Round round = game.getRound();
+        round.handleFold(request.userId());
+        Game gameEntity = gameService.getGameBySessionId(request.sessionId());
+        gameService.setPlayerOffline(gameEntity, request.userId());
+
+        modelPusher.pushModel(round, game, wsHandler, gameService);
+    }
+
     @PostMapping("/roundComplete")
     @ResponseStatus(HttpStatus.OK)
     public ch.uzh.ifi.hase.soprafs24.model.Game completeRound(@RequestBody GameActionRequest request) {
@@ -285,7 +300,6 @@ public class GameController {
         ch.uzh.ifi.hase.soprafs24.entity.GameSettings savedSettings = gameSettingsService
                 .updateSettings(game.getSettings(), request.gameSettings());
 
-        // TODO: push to all clients which are in the game
         Map<String, Object> weatherUpdateMessage = new HashMap<>();
         weatherUpdateMessage.put("event", "WEATHER_UPDATED");
         weatherUpdateMessage.put("weatherType", savedSettings.getWeatherType().toString());

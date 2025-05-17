@@ -11,6 +11,7 @@ public record EvaluationResult(@JsonProperty("handRank")HandRank handRank, @Json
     @Override
     public int compareTo(EvaluationResult other) {
         // Compare HandRank first
+        if(other == null) return -1;
         int rankComparison = -Integer.compare(this.evaluationRank.ordinal(), other.evaluationRank.ordinal()) ;
         rankComparison = descending ? rankComparison : -rankComparison;
         if (rankComparison != 0) {
