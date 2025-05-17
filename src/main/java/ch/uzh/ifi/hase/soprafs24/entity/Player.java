@@ -45,16 +45,9 @@ public class Player {
     public void setIsActive(boolean isActive) { this.isActive = isActive; }
     public void setBalance(double balance) { this.balance = balance; }
     public Player setIsOnline(boolean isOnline) { this.isOnline = isOnline; return this; }
-    public void increaseBalance(double amount) { this.balance += amount; }
-
-    public void fold() { isActive = false; }
 
     public User getUser() {
         return user;
     }
 
-    public void reset() {
-        isActive = true;
-        this.balance = 0;
-    }
 }
