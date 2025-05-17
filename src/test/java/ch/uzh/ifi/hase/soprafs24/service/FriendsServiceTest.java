@@ -98,9 +98,9 @@ class FriendsServiceTest {
         friends.setUser1(user1);
         friends.setUser2(user2);
         friends.setRequestStatus(FriendRequestState.PENDING);
-        when(friendsRepository.findByUser1IdAndUser2IdAndStatus(1L, 2L, FriendRequestState.PENDING)).thenReturn(friends);
+        when(friendsRepository.findByUser1IdAndUser2IdAndStatus(2L, 1L, FriendRequestState.PENDING)).thenReturn(friends);
 
-        boolean success = friendsService.acceptFriendRequest(1L, 2L);
+        boolean success = friendsService.acceptFriendRequest(2L, 1L);
         verify(friendsRepository, times(1)).save(any(Friends.class));
         assertTrue(success);
         assertEquals(FriendRequestState.ACCEPTED,friends.getRequestStatus());
@@ -121,9 +121,9 @@ class FriendsServiceTest {
         friends.setUser1(user1);
         friends.setUser2(user2);
         friends.setRequestStatus(FriendRequestState.PENDING);
-        when(friendsRepository.findByUser1IdAndUser2IdAndStatus(1L, 2L, FriendRequestState.PENDING)).thenReturn(friends);
+        when(friendsRepository.findByUser1IdAndUser2IdAndStatus(2L, 1L, FriendRequestState.PENDING)).thenReturn(friends);
 
-        boolean success = friendsService.denyFriendRequest(1L, 2L);
+        boolean success = friendsService.denyFriendRequest(2L, 1L);
         verify(friendsRepository, times(1)).save(any(Friends.class));
         assertTrue(success);
         assertEquals(FriendRequestState.DECLINED,friends.getRequestStatus());

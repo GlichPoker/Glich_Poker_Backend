@@ -40,6 +40,10 @@ public class Round {
         // notify update
     }
 
+    public Round(List<Player> players, int startPlayer, GameSettings gameSettings, int dealCount) {
+        this(players, startPlayer, false, gameSettings, dealCount);
+    }
+
 
     public int getBetState(){
         return betState;
@@ -54,11 +58,6 @@ public class Round {
 
     public void setHaveNotRaiseCount(int count) {
         haveNotRaiseCount = count;
-    }
-
-
-    public Round(List<Player> players, int startPlayer, GameSettings gameSettings, int dealCount) {
-        this(players, startPlayer, false, gameSettings, dealCount);
     }
 
     public Map<Long, Double> onRoundCompletion(GameSettings settings) {
@@ -174,8 +173,8 @@ public class Round {
     public void progressRound() {
         haveNotRaiseCount = 0;
         playersTurn = startPlayer;
-        while (!players.get(playersTurn).isActive()){
-            playersTurn++;
+        while (!players.get(playersTurn ).isActive()){
+            playersTurn = (playersTurn + 1) % players.size();
         }
         betState++;
         switch (betState) {
@@ -225,7 +224,6 @@ public class Round {
         long activePlayers = players.stream().filter(Player::isActive).count();
         if(players.size() < 2 || activePlayers < 2){
             roundOver = true;
-            return;
         }
         if (shouldProgressRound()) {
             progressRound();

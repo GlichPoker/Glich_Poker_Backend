@@ -118,7 +118,7 @@ public class Game {
         }
 
         int dealCount = settings.weatherType() == WeatherType.SNOWY ? 3 : 2;
-        this.round = new Round(players, this.currentRoundStartPlayer, this.settings, dealCount);
+        this.round = new Round(players, this.currentRoundStartPlayer % players.size(), this.settings, dealCount);
     }
 
     public boolean containsUser(long userId) {

@@ -50,7 +50,7 @@ public class FriendsService {
     public boolean acceptFriendRequest(Long userId, Long friendId) {
         Friends friendship = friendsRepository.findByUser1IdAndUser2IdAndStatus(userId, friendId, FriendRequestState.PENDING);
 
-        if (friendship != null) {
+        if (friendship != null && friendship.getUser1().getId().equals(friendId)) {
             friendship.setRequestStatus(FriendRequestState.ACCEPTED); // Change status to ACCEPTED
             friendsRepository.save(friendship);
             return true;
@@ -62,7 +62,7 @@ public class FriendsService {
     public boolean denyFriendRequest(Long userId, Long friendId) {
         Friends friendship = friendsRepository.findByUser1IdAndUser2IdAndStatus(userId, friendId, FriendRequestState.PENDING);
 
-        if (friendship != null) {
+        if (friendship != null && friendship.getUser1().getId().equals(friendId)) {
             friendship.setRequestStatus(FriendRequestState.DECLINED);
             friendsRepository.save(friendship);
             return true;
