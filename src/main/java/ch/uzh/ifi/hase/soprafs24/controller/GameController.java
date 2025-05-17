@@ -34,7 +34,7 @@ public class GameController {
 
     @Autowired
     public GameController(GameService gameService, GameSettingsService gameSettingsService, UserService userService,
-                          WS_Handler wsHandler, ModelPusher modelPusher, PlayerStatisticsService playerStatisticsService) {
+            WS_Handler wsHandler, ModelPusher modelPusher, PlayerStatisticsService playerStatisticsService) {
         this.gameService = gameService;
         this.gameSettingsService = gameSettingsService;
         this.userService = userService;
@@ -121,7 +121,6 @@ public class GameController {
             game = gameService.getGameBySessionId(request.sessionId());
         }
 
-
         ch.uzh.ifi.hase.soprafs24.model.Game newGame = new ch.uzh.ifi.hase.soprafs24.model.Game(game, true);
         gameService.startRound(game);
 
@@ -154,6 +153,8 @@ public class GameController {
     @PostMapping("/forceFold")
     @ResponseStatus(HttpStatus.OK)
     public void forceFoldGame(@RequestBody GameActionRequest request) {
+        System.out.printf("[FORCE_FOLD] Request received from userId=%d, sessionId=%d%n", request.userId(),
+                request.sessionId());
         ch.uzh.ifi.hase.soprafs24.model.Game game = activeGames.get(request.sessionId());
         if (game == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
@@ -161,7 +162,9 @@ public class GameController {
         Round round = game.getRound();
         round.handleFold(request.userId());
         Game gameEntity = gameService.getGameBySessionId(request.sessionId());
-        gameService.setPlayerOffline(gameEntity, request.userId());
+        if (!gameEntity.isRoundRunning()) {
+            gameService.setPlayerOffline(gameEntity, request.userId());
+        }
 
         modelPusher.pushModel(round, game, wsHandler, gameService);
     }
@@ -387,7 +390,8 @@ public class GameController {
         stats.put("gamesPlayed", playerStatisticsService.getPlayer_games_played(user));
         stats.put("roundsPlayed", playerStatisticsService.getPlayer_round_played(user));
         stats.put("bb100", playerStatisticsService.getPlayer_BB_100(user));
-        double bb_won = playerStatisticsService.getPlayer_BB_100(user) * (playerStatisticsService.getPlayer_BB_100_count(user) / 100.0);
+        double bb_won = playerStatisticsService.getPlayer_BB_100(user)
+                * (playerStatisticsService.getPlayer_BB_100_count(user) / 100.0);
         stats.put("bbWon", bb_won);
         stats.put("bankrupts", playerStatisticsService.getPlayer_bankrupt(user));
         return stats;
