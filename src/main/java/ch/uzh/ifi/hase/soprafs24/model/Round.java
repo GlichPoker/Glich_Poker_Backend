@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Round {
-    private final List<Player> players;
+    private List<Player> players;
     protected long potSize;
     protected long roundBet;
     private final Dealer dealer;
@@ -173,7 +173,7 @@ public class Round {
     public void progressRound() {
         haveNotRaiseCount = 0;
         playersTurn = startPlayer;
-        while (!players.get(playersTurn ).isActive()){
+        while (!players.get(playersTurn).isActive()){
             playersTurn = (playersTurn + 1) % players.size();
         }
         betState++;
@@ -244,6 +244,8 @@ public class Round {
         if (!player.isActive())
             throw new ResponseStatusException(HttpStatus.CONFLICT, "user already folded");
         player.setIsActive(false);
+        players = players.stream().filter(Player::isActive).toList();
+        playersTurn = ((playersTurn - 1) + players.size()) % players.size();
         progressPlayer();
     }
 
@@ -289,7 +291,7 @@ public class Round {
 
     private boolean shouldProgressRound() {
         long activePlayers = players.stream().filter(Player::isActive).count();
-        return (haveNotRaiseCount == activePlayers);
+        return (haveNotRaiseCount >= activePlayers);
     }
 
     public GameSettings getGameSettings() {
