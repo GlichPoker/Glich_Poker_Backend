@@ -1,7 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Invite;
-import ch.uzh.ifi.hase.soprafs24.entity.AllowedUserId;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.GameInvitesRepository;
@@ -20,7 +19,15 @@ public class InviteGameService {
     private final GameInvitesRepository gameinvitesRepository;
 
     @Autowired
-    public InviteGameService(GameInvitesRepository gameinvitesRepository) {
+    private final PlayerService playerService;
+
+    @Autowired
+    private final GameService gameService;
+
+    @Autowired
+    public InviteGameService(GameInvitesRepository gameinvitesRepository, PlayerService playerService, GameService gameService) {
+        this.playerService = playerService;
+        this.gameService = gameService;
         this.gameinvitesRepository = gameinvitesRepository;
     }
 
@@ -30,6 +37,28 @@ public class InviteGameService {
             gameinvitesRepository.save(allowedUser);
             gameinvitesRepository.flush();
         }
+    }
+
+    public void acceptInvite(Game game, User user) {
+        if (isUserAllowed(game.getSessionId(), user.getId())) {
+            if (!game.containsPlayer(user.getId())) {
+                gameService.createAndAddPlayerToGame(game, user, game.getSettings().getInitialBalance());
+            }
+            removeAllowedUser(game.getSessionId(), user.getId());
+        }
+    }
+    
+    public void rejectInvite(Game game, User user) {
+        if (isUserAllowed(game.getSessionId(), user.getId())) {
+            removeAllowedUser(game.getSessionId(), user.getId());
+        }
+    }
+
+    public List<Game> getOpenInvitations(Long userId) {
+        List<Invite> allowedGames = gameinvitesRepository.findById_UserId(userId);
+        return allowedGames.stream()
+                .map(Invite::getGame)
+                .collect(Collectors.toList());
     }
 
     public boolean isUserAllowed(Long gameId, Long userId) {

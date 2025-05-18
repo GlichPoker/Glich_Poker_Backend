@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
+import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
@@ -7,14 +8,24 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.UserProfileUpdatePutDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserLoginGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
+import ch.uzh.ifi.hase.soprafs24.service.InviteGameService;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import javax.persistence.criteria.CriteriaBuilder.In;
+
+import org.checkerframework.checker.units.qual.A;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+
+
 
 /**
  * User Controller
@@ -27,9 +38,14 @@ import org.springframework.http.HttpHeaders;
 @RestController
 public class UserController {
 
+  @Autowired
   private final UserService userService;
 
-  UserController(UserService userService) {
+  @Autowired
+  private final InviteGameService inviteGameService;
+
+  UserController(UserService userService, InviteGameService inviteGameService) {
+    this.inviteGameService = inviteGameService;
     this.userService = userService;
   }
 
@@ -100,4 +116,14 @@ public class UserController {
       return DTOMapper.INSTANCE.convertEntityToUserGetDTO(updatedUser);
   }
 
+  @GetMapping("/users/openInvitations")
+  @ResponseStatus(HttpStatus.OK)
+  public List<Long> getOpenInvitations(@RequestParam("userId") Long userId) {
+    List<Game> openInvitations = inviteGameService.getOpenInvitations(userId);
+
+    List<Long> gameIds = openInvitations.stream()
+                                        .map(Game::getSessionId)
+                                        .collect(Collectors.toList());
+    return gameIds;
+  }
 }

@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Embeddable
-public class AllowedUserId implements Serializable {
+public class InviteId implements Serializable {
 
     @Column(name = "game_id")
     private Long gameId;
@@ -14,9 +14,9 @@ public class AllowedUserId implements Serializable {
     @Column(name = "user_id")
     private Long userId;
 
-    public AllowedUserId() {}
+    public InviteId() {}
 
-    public AllowedUserId(Long gameId, Long userId) {
+    public InviteId(Long gameId, Long userId) {
         this.gameId = gameId;
         this.userId = userId;
     }
@@ -41,7 +41,7 @@ public class AllowedUserId implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AllowedUserId that = (AllowedUserId) o;
+        InviteId that = (InviteId) o;
         return Objects.equals(gameId, that.gameId) && Objects.equals(userId, that.userId);
     }
 

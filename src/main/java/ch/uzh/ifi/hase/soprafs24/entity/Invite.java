@@ -9,7 +9,7 @@ import java.util.Objects;
 public class Invite {
 
     @EmbeddedId
-    private AllowedUserId id;
+    private InviteId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("gameId") // Maps the gameId field of the embedded ID
@@ -27,15 +27,15 @@ public class Invite {
     public Invite(Game game, User user) {
         this.game = game;
         this.user = user;
-        this.id = new AllowedUserId(game.getSessionId(), user.getId());
+        this.id = new InviteId(game.getSessionId(), user.getId());
     }
 
     // Standard getters and setters
-    public AllowedUserId getId() {
+    public InviteId getId() {
         return id;
     }
 
-    public void setId(AllowedUserId id) {
+    public void setId(InviteId id) {
         this.id = id;
     }
 

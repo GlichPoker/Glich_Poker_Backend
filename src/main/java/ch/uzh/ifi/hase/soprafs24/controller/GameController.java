@@ -59,19 +59,54 @@ public class GameController {
 
     @PostMapping("/invite")
     @ResponseStatus(HttpStatus.CREATED)
-    public boolean invitePlayer(@RequestBody GameActionRequest request) {
+    public boolean invitePlayer(@RequestBody InvitationRequest request) {
         Game game = gameService.getGameBySessionId(request.sessionId());
         User user = userService.getUserById(request.userId());
+        User sendingUser = userService.getUserById(request.senderId());
+        if (game == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
+        }
+        if (game.getOwner().getId() != sendingUser.getId()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not the owner of this game");
+        }
         allowedUserService.addAllowedUser(game, user);
-        gameService.addPlayerToGame(game, user, game.getSettings().getInitialBalance());
+        //happens only after the invitation is accepted:
+        //gameService.addPlayerToGame(game, user, game.getSettings().getInitialBalance());
         return true;
     }
 
-    @PostMapping("/denyInvitation")
+    @PostMapping("/acceptInvitation")
     @ResponseStatus(HttpStatus.OK)
-    public boolean denyInvitation(@RequestBody DenyInvitationRequest request) {
+    public boolean acceptInvitation(@RequestBody InvitationRequest request) {
         Game game = gameService.getGameBySessionId(request.sessionId());
-        gameService.removePlayerFromGame(game, request.userId());
+        User user = userService.getUserById(request.userId());
+        allowedUserService.acceptInvite(game, user);
+        System.out.println("Invitation accepted");
+
+        return true;
+    }
+
+    @PostMapping("/declineInvitation")
+    @ResponseStatus(HttpStatus.OK)
+    public boolean declineInvitation(@RequestBody InvitationRequest request) {
+        Game game = gameService.getGameBySessionId(request.sessionId());
+        User user = userService.getUserById(request.userId());
+        User sendingUser = userService.getUserById(request.senderId());
+
+        if (!game.getOwner().getId().equals(sendingUser.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not the owner of this game");
+        }
+
+        allowedUserService.rejectInvite(game, user);
+        return true;
+    }
+
+    @PostMapping("/removePlayer")
+    @ResponseStatus(HttpStatus.OK)
+    public boolean removePlayer(@RequestBody GameActionRequest request) {
+        Game game = gameService.getGameBySessionId(request.sessionId());
+        User user = userService.getUserById(request.userId());
+        gameService.removePlayerFromGame(game, user.getId());
         return true;
     }
 

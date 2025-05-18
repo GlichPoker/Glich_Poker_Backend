@@ -19,15 +19,13 @@ public class GameService {
     private final GameRepository gameRepository;
     private final PlayerService playerService;
     private final GameSettingsService gameSettingsService;
-    private final InviteGameService allowedUserService;
 
     @Autowired
     public GameService(GameRepository gameRepository, PlayerService playerService,
-            GameSettingsService gameSettingsService, InviteGameService allowedUserService) {
+            GameSettingsService gameSettingsService) {
         this.gameRepository = gameRepository;
         this.playerService = playerService;
         this.gameSettingsService = gameSettingsService;
-        this.allowedUserService = allowedUserService;
     }
 
     // Create a new game with a player as the owner
@@ -70,6 +68,7 @@ public class GameService {
     public void createAndAddPlayerToGame(Game game, User user, long startBalance) {
         Player player = playerService.createPlayer(user, startBalance, game);
         game.addPlayer(player);
+        System.out.println("Player added to game: " + player);
         gameRepository.save(game);
     }
 
@@ -77,7 +76,7 @@ public class GameService {
     public boolean handlePlayerJoinOrRejoin(Game game, User user, String password) {
         password = (password == null) ? "" : password;
 
-        if (!game.isPublic() && !allowedUserService.isUserAllowed(game.getSessionId(), user.getId()) && !game.getSettings().getPassword().equals(password)) {
+        if (!game.isPublic() && !game.containsPlayer(user.getId()) && !game.getSettings().getPassword().equals(password)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "password does not match and you are not on the allowed list");
         }
 
