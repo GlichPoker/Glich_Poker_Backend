@@ -19,11 +19,11 @@ public class GameService {
     private final GameRepository gameRepository;
     private final PlayerService playerService;
     private final GameSettingsService gameSettingsService;
-    private final AllowedUserService allowedUserService;
+    private final InviteGameService allowedUserService;
 
     @Autowired
     public GameService(GameRepository gameRepository, PlayerService playerService,
-            GameSettingsService gameSettingsService, AllowedUserService allowedUserService) {
+            GameSettingsService gameSettingsService, InviteGameService allowedUserService) {
         this.gameRepository = gameRepository;
         this.playerService = playerService;
         this.gameSettingsService = gameSettingsService;

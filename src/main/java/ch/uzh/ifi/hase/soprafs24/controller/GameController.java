@@ -6,10 +6,7 @@ import ch.uzh.ifi.hase.soprafs24.constant.WeatherType;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.model.*;
-import ch.uzh.ifi.hase.soprafs24.service.GameService;
-import ch.uzh.ifi.hase.soprafs24.service.GameSettingsService;
-import ch.uzh.ifi.hase.soprafs24.service.PlayerStatisticsService;
-import ch.uzh.ifi.hase.soprafs24.service.UserService;
+import ch.uzh.ifi.hase.soprafs24.service.*;
 import ch.uzh.ifi.hase.soprafs24.websockets.WS_Handler;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +21,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequestMapping("/game")
 public class GameController {
 
+    private final InviteGameService allowedUserService;
+
     private final ConcurrentHashMap<Long, ch.uzh.ifi.hase.soprafs24.model.Game> activeGames = new ConcurrentHashMap<>();
     private final GameService gameService;
     private final GameSettingsService gameSettingsService;
@@ -34,13 +33,14 @@ public class GameController {
 
     @Autowired
     public GameController(GameService gameService, GameSettingsService gameSettingsService, UserService userService,
-            WS_Handler wsHandler, ModelPusher modelPusher, PlayerStatisticsService playerStatisticsService) {
+            WS_Handler wsHandler, ModelPusher modelPusher, PlayerStatisticsService playerStatisticsService, InviteGameService allowedUserService) {
         this.gameService = gameService;
         this.gameSettingsService = gameSettingsService;
         this.userService = userService;
         this.wsHandler = wsHandler;
         this.modelPusher = modelPusher;
         this.playerStatisticsService = playerStatisticsService;
+        this.allowedUserService = allowedUserService;
     }
 
     @PostMapping("/create")
@@ -62,6 +62,7 @@ public class GameController {
     public boolean invitePlayer(@RequestBody GameActionRequest request) {
         Game game = gameService.getGameBySessionId(request.sessionId());
         User user = userService.getUserById(request.userId());
+        allowedUserService.addAllowedUser(game, user);
         gameService.addPlayerToGame(game, user, game.getSettings().getInitialBalance());
         return true;
     }

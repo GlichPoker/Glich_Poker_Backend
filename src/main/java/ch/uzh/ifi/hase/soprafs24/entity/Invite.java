@@ -6,7 +6,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "allowed_user") // Defines the table name
-public class AllowedUser {
+public class Invite {
 
     @EmbeddedId
     private AllowedUserId id;
@@ -21,10 +21,10 @@ public class AllowedUser {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
-    public AllowedUser() {
+    public Invite() {
     }
 
-    public AllowedUser(Game game, User user) {
+    public Invite(Game game, User user) {
         this.game = game;
         this.user = user;
         this.id = new AllowedUserId(game.getSessionId(), user.getId());
@@ -59,7 +59,7 @@ public class AllowedUser {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AllowedUser that = (AllowedUser) o;
+        Invite that = (Invite) o;
         return Objects.equals(id, that.id);
     }
 
