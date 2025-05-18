@@ -1,5 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -7,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.repository.GameRepository;
+import ch.uzh.ifi.hase.soprafs24.service.UserService;
 
 @Service
 @Transactional
@@ -14,6 +18,14 @@ public class PlayerStatisticsService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private GameRepository gameRepository;
+
+    public PlayerStatisticsService(UserService userService, GameRepository gameRepository) {
+        this.userService = userService;
+        this.gameRepository = gameRepository;
+    }
 
     public void updateUser_BB_100_record(User user, Game game, Player player){
         float bb100_record = user.getBB_100_record();
@@ -32,15 +44,47 @@ public class PlayerStatisticsService {
 
     public float getPlayer_BB_100(User user){
         float bb100_record = user.getBB_100_record();
+        long bb_100_count_record = user.getBB_100_count();
+        float bbwon_record = bb100_record * (bb_100_count_record / 100.0f);
 
-        //*Some of these variables would be needid if we want to include the currently running games
-        //int bb_100_count = user.getBB_100_count();
-        //int round_count = user.getRoundCount();
-        //int starting_balance;
-        //int current_balance;
-        //int game_count = ;
+        List<Game> activeGames = gameRepository.findActiveGamesByUser(user);
+        double totalBBWon = 0.0;
+        long totalRoundsPlayed = 0;
 
-        return bb100_record;
+        for (Game activeGame : activeGames) {
+            // Find the specific player object for the user in this active game
+            Player currentPlayerInGame = null;
+            for (Player p : activeGame.getPlayers()) {
+                if (p.getUser() != null && p.getUser().getId().equals(user.getId())) {
+                    currentPlayerInGame = p;
+                    break;
+                }
+            }
+
+            if (currentPlayerInGame != null && activeGame.getSettings() != null) {
+                double initialBalance = activeGame.getSettings().getInitialBalance();
+                double bigBlind = activeGame.getSettings().getBigBlind();
+                double currentBalance = currentPlayerInGame.getBalance();
+                long roundsInThisGame = activeGame.getRoundCount();
+
+                if (bigBlind > 0) { // Avoid division by zero
+                    double profitsInActiveGame = currentBalance - initialBalance;
+                    double bbWonInActiveGame = profitsInActiveGame / bigBlind;
+
+                    totalBBWon += bbWonInActiveGame;
+                    totalRoundsPlayed += roundsInThisGame;
+                }
+            }
+        }
+
+        if (totalRoundsPlayed == 0) {
+            return 0.0f; // Or handle as per your application's logic (e.g., NaN, throw exception)
+        }
+
+        totalBBWon += bbwon_record;
+        totalRoundsPlayed += bb_100_count_record;
+
+        return (float) ((totalBBWon / totalRoundsPlayed) * 100.0);
     }
 
     public void incrementUser_BB_100_count(User user, int additional_round){
