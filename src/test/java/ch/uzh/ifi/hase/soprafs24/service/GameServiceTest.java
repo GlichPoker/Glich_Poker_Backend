@@ -35,7 +35,7 @@ class GameServiceTest {
     @InjectMocks
     private GameService gameService;
     @Mock
-    private AllowedUserService allowedUserService;
+    private InviteGameService allowedUserService;
 
     private User owner;
     private GameSettings gameSettings;

@@ -6,10 +6,7 @@ import ch.uzh.ifi.hase.soprafs24.constant.WeatherType;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.model.*;
-import ch.uzh.ifi.hase.soprafs24.service.GameService;
-import ch.uzh.ifi.hase.soprafs24.service.GameSettingsService;
-import ch.uzh.ifi.hase.soprafs24.service.PlayerStatisticsService;
-import ch.uzh.ifi.hase.soprafs24.service.UserService;
+import ch.uzh.ifi.hase.soprafs24.service.*;
 import ch.uzh.ifi.hase.soprafs24.websockets.WS_Handler;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +21,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequestMapping("/game")
 public class GameController {
 
+    private final InviteGameService allowedUserService;
+
     private final ConcurrentHashMap<Long, ch.uzh.ifi.hase.soprafs24.model.Game> activeGames = new ConcurrentHashMap<>();
     private final GameService gameService;
     private final GameSettingsService gameSettingsService;
@@ -34,13 +33,14 @@ public class GameController {
 
     @Autowired
     public GameController(GameService gameService, GameSettingsService gameSettingsService, UserService userService,
-                          WS_Handler wsHandler, ModelPusher modelPusher, PlayerStatisticsService playerStatisticsService) {
+            WS_Handler wsHandler, ModelPusher modelPusher, PlayerStatisticsService playerStatisticsService, InviteGameService allowedUserService) {
         this.gameService = gameService;
         this.gameSettingsService = gameSettingsService;
         this.userService = userService;
         this.wsHandler = wsHandler;
         this.modelPusher = modelPusher;
         this.playerStatisticsService = playerStatisticsService;
+        this.allowedUserService = allowedUserService;
     }
 
     @PostMapping("/create")
@@ -59,18 +59,54 @@ public class GameController {
 
     @PostMapping("/invite")
     @ResponseStatus(HttpStatus.CREATED)
-    public boolean invitePlayer(@RequestBody GameActionRequest request) {
+    public boolean invitePlayer(@RequestBody InvitationRequest request) {
         Game game = gameService.getGameBySessionId(request.sessionId());
         User user = userService.getUserById(request.userId());
-        gameService.addPlayerToGame(game, user, game.getSettings().getInitialBalance());
+        User sendingUser = userService.getUserById(request.senderId());
+        if (game == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
+        }
+        if (game.getOwner().getId() != sendingUser.getId()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not the owner of this game");
+        }
+        allowedUserService.addAllowedUser(game, user);
+        //happens only after the invitation is accepted:
+        //gameService.addPlayerToGame(game, user, game.getSettings().getInitialBalance());
         return true;
     }
 
-    @PostMapping("/denyInvitation")
+    @PostMapping("/acceptInvitation")
     @ResponseStatus(HttpStatus.OK)
-    public boolean denyInvitation(@RequestBody DenyInvitationRequest request) {
+    public boolean acceptInvitation(@RequestBody InvitationRequest request) {
         Game game = gameService.getGameBySessionId(request.sessionId());
-        gameService.removePlayerFromGame(game, request.userId());
+        User user = userService.getUserById(request.userId());
+        allowedUserService.acceptInvite(game, user);
+        System.out.println("Invitation accepted");
+
+        return true;
+    }
+
+    @PostMapping("/declineInvitation")
+    @ResponseStatus(HttpStatus.OK)
+    public boolean declineInvitation(@RequestBody InvitationRequest request) {
+        Game game = gameService.getGameBySessionId(request.sessionId());
+        User user = userService.getUserById(request.userId());
+        User sendingUser = userService.getUserById(request.senderId());
+
+        if (!game.getOwner().getId().equals(sendingUser.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not the owner of this game");
+        }
+
+        allowedUserService.rejectInvite(game, user);
+        return true;
+    }
+
+    @PostMapping("/removePlayer")
+    @ResponseStatus(HttpStatus.OK)
+    public boolean removePlayer(@RequestBody GameActionRequest request) {
+        Game game = gameService.getGameBySessionId(request.sessionId());
+        User user = userService.getUserById(request.userId());
+        gameService.removePlayerFromGame(game, user.getId());
         return true;
     }
 
@@ -121,7 +157,6 @@ public class GameController {
             game = gameService.getGameBySessionId(request.sessionId());
         }
 
-
         ch.uzh.ifi.hase.soprafs24.model.Game newGame = new ch.uzh.ifi.hase.soprafs24.model.Game(game, true);
         gameService.startRound(game);
 
@@ -154,6 +189,8 @@ public class GameController {
     @PostMapping("/forceFold")
     @ResponseStatus(HttpStatus.OK)
     public void forceFoldGame(@RequestBody GameActionRequest request) {
+        System.out.printf("[FORCE_FOLD] Request received from userId=%d, sessionId=%d%n", request.userId(),
+                request.sessionId());
         ch.uzh.ifi.hase.soprafs24.model.Game game = activeGames.get(request.sessionId());
         if (game == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
@@ -161,7 +198,9 @@ public class GameController {
         Round round = game.getRound();
         round.handleFold(request.userId());
         Game gameEntity = gameService.getGameBySessionId(request.sessionId());
-        gameService.setPlayerOffline(gameEntity, request.userId());
+        if (!gameEntity.isRoundRunning()) {
+            gameService.setPlayerOffline(gameEntity, request.userId());
+        }
 
         modelPusher.pushModel(round, game, wsHandler, gameService);
     }
@@ -387,7 +426,8 @@ public class GameController {
         stats.put("gamesPlayed", playerStatisticsService.getPlayer_games_played(user));
         stats.put("roundsPlayed", playerStatisticsService.getPlayer_round_played(user));
         stats.put("bb100", playerStatisticsService.getPlayer_BB_100(user));
-        double bb_won = playerStatisticsService.getPlayer_BB_100(user) * (playerStatisticsService.getPlayer_BB_100_count(user) / 100.0);
+        double bb_won = playerStatisticsService.getPlayer_BB_100(user)
+                * (playerStatisticsService.getPlayer_BB_100_count(user) / 100.0);
         stats.put("bbWon", bb_won);
         stats.put("bankrupts", playerStatisticsService.getPlayer_bankrupt(user));
         return stats;

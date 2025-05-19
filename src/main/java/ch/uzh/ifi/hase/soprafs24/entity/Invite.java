@@ -6,10 +6,10 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "allowed_user") // Defines the table name
-public class AllowedUser {
+public class Invite {
 
     @EmbeddedId
-    private AllowedUserId id;
+    private InviteId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("gameId") // Maps the gameId field of the embedded ID
@@ -21,21 +21,21 @@ public class AllowedUser {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
-    public AllowedUser() {
+    public Invite() {
     }
 
-    public AllowedUser(Game game, User user) {
+    public Invite(Game game, User user) {
         this.game = game;
         this.user = user;
-        this.id = new AllowedUserId(game.getSessionId(), user.getId());
+        this.id = new InviteId(game.getSessionId(), user.getId());
     }
 
     // Standard getters and setters
-    public AllowedUserId getId() {
+    public InviteId getId() {
         return id;
     }
 
-    public void setId(AllowedUserId id) {
+    public void setId(InviteId id) {
         this.id = id;
     }
 
@@ -59,7 +59,7 @@ public class AllowedUser {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AllowedUser that = (AllowedUser) o;
+        Invite that = (Invite) o;
         return Objects.equals(id, that.id);
     }
 
