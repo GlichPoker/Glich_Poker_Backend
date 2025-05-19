@@ -13,7 +13,4 @@ public interface GameRepository extends JpaRepository<Game, Long> {
     Optional<Game> findById(long id);
     List<Game> getGamesByOwnerId(long id);
     List<Game> findAll();
-
-    @Query("SELECT DISTINCT g FROM Game g JOIN g.players p WHERE p.user = :user")
-    List<Game> findActiveGamesByUser(@Param("user") User user);
 }

@@ -31,6 +31,10 @@ public class PlayerService {
         return p.get();
     }
 
+    public List<Player> getPlayersByUserId(long userId) {
+        return playerRepository.findByUserId(userId);
+    }
+
     public void savePlayer(Player player) {
         playerRepository.save(player);
         playerRepository.flush();

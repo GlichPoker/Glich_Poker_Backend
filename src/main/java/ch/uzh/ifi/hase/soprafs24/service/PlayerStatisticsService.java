@@ -22,9 +22,16 @@ public class PlayerStatisticsService {
     @Autowired
     private GameRepository gameRepository;
 
-    public PlayerStatisticsService(UserService userService, GameRepository gameRepository) {
+    @Autowired
+    private PlayerService playerService;
+
+    @Autowired
+    private GameService gameService;
+
+    public PlayerStatisticsService(UserService userService, GameRepository gameRepository, PlayerService playerService) {
         this.userService = userService;
         this.gameRepository = gameRepository;
+        this.playerService = playerService;
     }
 
     public void updateUser_BB_100_record(User user, Game game, Player player){
@@ -47,38 +54,32 @@ public class PlayerStatisticsService {
         long bb_100_count_record = user.getBB_100_count();
         float bbwon_record = bb100_record * (bb_100_count_record / 100.0f);
 
-        List<Game> activeGames = gameRepository.findActiveGamesByUser(user);
+        List<Player> players = playerService.getPlayersByUserId(user.getId());
+
         double totalBBWon = 0.0;
         long totalRoundsPlayed = 0;
 
-        for (Game activeGame : activeGames) {
-            // Find the specific player object for the user in this active game
-            Player currentPlayerInGame = null;
-            for (Player p : activeGame.getPlayers()) {
-                if (p.getUser() != null && p.getUser().getId().equals(user.getId())) {
-                    currentPlayerInGame = p;
-                    break;
-                }
+        for (Player player : players) {
+            Long sessionId = player.getSessionId();
+            Game game = gameService.getGameBySessionId(sessionId);
+
+            if (game == null) {
+                System.err.println("Game not found for sessionId: " + sessionId);
+                continue;
             }
 
-            if (currentPlayerInGame != null && activeGame.getSettings() != null) {
-                double initialBalance = activeGame.getSettings().getInitialBalance();
-                double bigBlind = activeGame.getSettings().getBigBlind();
-                double currentBalance = currentPlayerInGame.getBalance();
-                long roundsInThisGame = activeGame.getRoundCount();
+            double initialBalance = game.getSettings().getInitialBalance();
+            double bigBlind = game.getSettings().getBigBlind();
+            double currentBalance = player.getBalance();
 
-                if (bigBlind > 0) { // Avoid division by zero
-                    double profitsInActiveGame = currentBalance - initialBalance;
-                    double bbWonInActiveGame = profitsInActiveGame / bigBlind;
-
-                    totalBBWon += bbWonInActiveGame;
-                    totalRoundsPlayed += roundsInThisGame;
-                }
+            if(bigBlind == 0){
+                System.err.println("Big blind is 0 for game with sessionId: " + sessionId);
+                continue;
             }
-        }
 
-        if (totalRoundsPlayed == 0) {
-            return 0.0f; // Or handle as per your application's logic (e.g., NaN, throw exception)
+            double profitsInActiveGame = currentBalance - initialBalance;
+            totalBBWon += profitsInActiveGame / bigBlind;
+            totalRoundsPlayed += game.getRoundCount();
         }
 
         totalBBWon += bbwon_record;
