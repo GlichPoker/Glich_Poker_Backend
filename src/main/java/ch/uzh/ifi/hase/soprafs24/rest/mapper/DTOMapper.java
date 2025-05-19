@@ -32,6 +32,8 @@ public interface DTOMapper {
   @Mapping(source = "status", target = "status")
   @Mapping(source = "creationDate", target = "creationDate")
   @Mapping(source = "birthDate", target = "birthDate")
+  @Mapping(source = "userLobbyStatus", target = "userLobbyStatus")
+  @Mapping(source = "currentLobbyId", target = "currentLobbyId")
   UserGetDTO convertEntityToUserGetDTO(User user);
   
   @Mapping(source = "id", target = "id")
@@ -44,6 +46,8 @@ public interface DTOMapper {
   @Mapping(source = "birthDate", target = "birthDate")
   @Mapping(source = "status", target = "status")
   @Mapping(source = "id", target = "id")
+  @Mapping(source = "userLobbyStatus", target = "userLobbyStatus")
+  @Mapping(source = "currentLobbyId", target = "currentLobbyId")
   @BeanMapping(ignoreByDefault = true)
   User convertUserPutDTOToEntity(UserProfileUpdatePutDTO userProfileUpdatePutDTO);
 }

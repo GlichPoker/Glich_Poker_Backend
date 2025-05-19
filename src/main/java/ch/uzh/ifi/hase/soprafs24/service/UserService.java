@@ -45,6 +45,7 @@ public class UserService {
   public User createUser(User newUser) {
     newUser.setToken(UUID.randomUUID().toString());
     newUser.setStatus(UserStatus.OFFLINE);
+    newUser.setUserLobbyStatus(ch.uzh.ifi.hase.soprafs24.constant.UserLobbyStatus.IDLE); // Set default lobby status
     newUser.setCreationDate();
     checkIfUserExists(newUser);
     // saves the given entity but data is only persisted in the database once
@@ -116,22 +117,43 @@ public class UserService {
   }
 
   public User updateUserProfile(User updatedData, Long userId) {
-    User existingUser = findUserById(userId);
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
-    // Only update fields that are not null in the input
     if (updatedData.getUsername() != null) {
-      existingUser.setUsername(updatedData.getUsername());
+      // Check if username is already taken by another user
+      User userByUsername = userRepository.findByUsername(updatedData.getUsername());
+      if (userByUsername != null && !userByUsername.getId().equals(userId)) {
+        throw new ResponseStatusException(HttpStatus.CONFLICT, "Username is already taken");
+      }
+      user.setUsername(updatedData.getUsername());
     }
 
     if (updatedData.getBirthDate() != null) {
-      existingUser.setBirthDate(updatedData.getBirthDate());
+      user.setBirthDate(updatedData.getBirthDate());
     }
 
+    // It's not typical to update status directly via this method, usually it's part of login/logout
+    // However, if it's a requirement:
     if (updatedData.getStatus() != null) {
-      existingUser.setStatus(updatedData.getStatus());
+        user.setStatus(updatedData.getStatus());
     }
-    userRepository.save(existingUser);
-    return existingUser;
+
+    // Add these lines to update lobby status and current lobby ID
+    if (updatedData.getUserLobbyStatus() != null) {
+        user.setUserLobbyStatus(updatedData.getUserLobbyStatus());
+    }
+
+    if (updatedData.getCurrentLobbyId() != null) {
+        user.setCurrentLobbyId(updatedData.getCurrentLobbyId());
+    } else if (updatedData.getUserLobbyStatus() == ch.uzh.ifi.hase.soprafs24.constant.UserLobbyStatus.IDLE) {
+        user.setCurrentLobbyId(null); // Clear lobby ID if idle
+    }
+
+    User savedUser = userRepository.save(user);
+    userRepository.flush();
+    log.debug("Updated user profile for user: {}", savedUser);
+    return savedUser;
   }
 
   public List<User> getAllUsersExceptSelf(long userId) {

@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
 
+import ch.uzh.ifi.hase.soprafs24.constant.UserLobbyStatus;
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs24.model.UserModel;
 
@@ -42,6 +43,12 @@ public class User implements Serializable {
 
     @Column(nullable = false)
     private UserStatus status;
+
+    @Column(nullable = true)
+    private UserLobbyStatus userLobbyStatus;
+
+    @Column(nullable = true)
+    private Long currentLobbyId;
 
     @Column
     private LocalDateTime creationDate;
@@ -165,5 +172,30 @@ public class User implements Serializable {
     }
 
     public List<Game> getGames() {return games;}
-    public UserModel toUserModel(){return new UserModel(this);}
+
+    public UserLobbyStatus getUserLobbyStatus() {
+    return userLobbyStatus;
+    }
+
+    public void setUserLobbyStatus(UserLobbyStatus userLobbyStatus) {
+    this.userLobbyStatus = userLobbyStatus;
+    }
+
+    public Long getCurrentLobbyId() {
+    return currentLobbyId;
+    }
+
+    public void setCurrentLobbyId(Long currentLobbyId) {
+    this.currentLobbyId = currentLobbyId;
+    }
+
+    public UserModel toUserModel(){
+        UserModel model = new UserModel();
+        model.setId(this.getId());
+        model.setUsername(this.getUsername());
+        model.setStatus(this.getStatus());
+        model.setUserLobbyStatus(this.getUserLobbyStatus());
+        model.setCurrentLobbyId(this.getCurrentLobbyId());
+        return model;
+    }
 }

@@ -9,6 +9,8 @@ public class UserProfileUpdatePutDTO {
   private String username;
   private UserStatus status;
   private LocalDate birthDate;
+  private ch.uzh.ifi.hase.soprafs24.constant.UserLobbyStatus userLobbyStatus;
+  private Long currentLobbyId;
 
   public Long getId() {
     return id;
@@ -40,5 +42,21 @@ public class UserProfileUpdatePutDTO {
 
   public LocalDate getBirthDate(){
     return this.birthDate;
+  }
+
+  public ch.uzh.ifi.hase.soprafs24.constant.UserLobbyStatus getUserLobbyStatus() {
+    return userLobbyStatus;
+  }
+
+  public void setUserLobbyStatus(ch.uzh.ifi.hase.soprafs24.constant.UserLobbyStatus userLobbyStatus) {
+    this.userLobbyStatus = userLobbyStatus;
+  }
+
+  public Long getCurrentLobbyId() {
+    return currentLobbyId;
+  }
+
+  public void setCurrentLobbyId(Long currentLobbyId) {
+    this.currentLobbyId = currentLobbyId;
   }
 }

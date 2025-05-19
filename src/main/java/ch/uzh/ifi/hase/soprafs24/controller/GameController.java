@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs24.controller;
 import ch.uzh.ifi.hase.soprafs24.constant.HandRank;
 import ch.uzh.ifi.hase.soprafs24.constant.Model;
 import ch.uzh.ifi.hase.soprafs24.constant.WeatherType;
+import ch.uzh.ifi.hase.soprafs24.constant.UserLobbyStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.model.*;
@@ -116,6 +117,9 @@ public class GameController {
         Game game = gameService.getGameBySessionId(request.sessionId());
         User user = userService.getUserById(request.userId());
         gameService.handlePlayerJoinOrRejoin(game, user, request.password());
+        user.setUserLobbyStatus(UserLobbyStatus.IN_LOBBY);
+        user.setCurrentLobbyId(game.getSessionId());
+        userService.saveUser(user);
         Game updatedGame = gameService.getGameBySessionId(request.sessionId());
 
         ch.uzh.ifi.hase.soprafs24.model.Game gameModel = new ch.uzh.ifi.hase.soprafs24.model.Game(updatedGame, false);
