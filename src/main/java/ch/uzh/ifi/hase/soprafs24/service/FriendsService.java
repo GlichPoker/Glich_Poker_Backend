@@ -76,7 +76,7 @@ public class FriendsService {
     }
 
     public List<UserModel> getAllPendingFriendRequests(long userId) {
-        return convertUsersToModels(friendsRepository.findAllPendingRequests(userId));
+        return convertUsersToModels(friendsRepository.findAllPendingRequestsUniDirectional(userId));
     }
 
     public List<UserModel> getAllUsersWhichAreNotFriends(long userId) {
