@@ -75,22 +75,33 @@ public class UserService {
     }
   }
 
-  public User loginUser(User userInput){
+  public User loginUser(User userInput) {
     User existingUser = userRepository.findByUsername(userInput.getUsername());
-    if (userInput.getPassword().equals(existingUser.getPassword())){
-      return existingUser;
-    } else {
-      return userInput;
+    if (existingUser == null) {
+      throw new RuntimeException("User not found.");
+    }
+
+    if (!userInput.getPassword().equals(existingUser.getPassword())) {
+      throw new RuntimeException("Invalid credentials.");
+    }
+
+    existingUser.setStatus(UserStatus.ONLINE);
+    return userRepository.save(existingUser);
+  }
+
+  public void logoutUser(String username) {
+    User user = userRepository.findByUsername(username);
+    if (user != null) {
+      user.setStatus(UserStatus.OFFLINE);
+      userRepository.save(user);
     }
   }
 
-  public User getUserById(Long userId){
+  public User getUserById(Long userId) {
     User user = userRepository.findById(userId)
-      .orElseThrow(() -> new ResponseStatusException(
-        HttpStatus.NOT_FOUND, 
-        "User not found with ID: " + userId
-      )
-    );
+        .orElseThrow(() -> new ResponseStatusException(
+            HttpStatus.NOT_FOUND,
+            "User not found with ID: " + userId));
     List<Game> games = gameService.getGamesOwnedByUser(userId);
     user.setGames(games);
     return user;
@@ -100,34 +111,34 @@ public class UserService {
     return userRepository.findById(userId).orElse(null);
   }
 
-  public User findUserByToken(String token){
+  public User findUserByToken(String token) {
     return userRepository.findByToken(token);
   }
 
   public User updateUserProfile(User updatedData, Long userId) {
     User existingUser = findUserById(userId);
-    
+
     // Only update fields that are not null in the input
     if (updatedData.getUsername() != null) {
-        existingUser.setUsername(updatedData.getUsername());
+      existingUser.setUsername(updatedData.getUsername());
     }
-    
+
     if (updatedData.getBirthDate() != null) {
-        existingUser.setBirthDate(updatedData.getBirthDate());
+      existingUser.setBirthDate(updatedData.getBirthDate());
     }
-    
+
     if (updatedData.getStatus() != null) {
-        existingUser.setStatus(updatedData.getStatus());
+      existingUser.setStatus(updatedData.getStatus());
     }
     userRepository.save(existingUser);
     return existingUser;
   }
 
   public List<User> getAllUsersExceptSelf(long userId) {
-      return userRepository.getAllUsers(userId);
+    return userRepository.getAllUsers(userId);
   }
 
   public void saveUser(User user) {
-      userRepository.save(user);
+    userRepository.save(user);
   }
 }

@@ -6,11 +6,13 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserProfileUpdatePutDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserLoginGetDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserLogoutDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import ch.uzh.ifi.hase.soprafs24.service.InviteGameService;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -21,11 +23,9 @@ import java.util.stream.Collectors;
 
 import javax.persistence.criteria.CriteriaBuilder.In;
 
-import org.checkerframework.checker.units.qual.A;
+// import org.checkerframework.checker.units.qual;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-
-
 
 /**
  * User Controller
@@ -87,6 +87,12 @@ public class UserController {
     return DTOMapper.INSTANCE.convertEntityToUserLoginGetDTO(logedInUser);
   }
 
+  @PostMapping("/users/logout")
+  public ResponseEntity<Void> logoutUser(@RequestBody UserLogoutDTO logoutDTO) {
+    userService.logoutUser(logoutDTO.getUsername());
+    return ResponseEntity.ok().build();
+  }
+
   @GetMapping("/users/{userId}")
   @ResponseStatus(HttpStatus.OK)
   public UserGetDTO getUser(@PathVariable("userId") Long userId) {
@@ -97,23 +103,23 @@ public class UserController {
   @PutMapping("/users/{userId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public UserGetDTO updateUserProfile(
-      @PathVariable("userId") Long userId, 
+      @PathVariable("userId") Long userId,
       @RequestBody UserProfileUpdatePutDTO userProfileUpdatePutDTO,
       @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authHeader) {
-      
-      String token = null;
-      if (authHeader != null && authHeader.startsWith("Bearer ")) {
-          token = authHeader.substring(7); // Remove "Bearer " prefix
-      }
 
+    String token = null;
+    if (authHeader != null && authHeader.startsWith("Bearer ")) {
+      token = authHeader.substring(7); // Remove "Bearer " prefix
+    }
 
-      if (token == null || !token.equals(userService.findUserById(userId).getToken())) {
-        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not authorized to update this user's profile");
-      }
-      
-      User payload = DTOMapper.INSTANCE.convertUserPutDTOToEntity(userProfileUpdatePutDTO);
-      User updatedUser = userService.updateUserProfile(payload, userId);
-      return DTOMapper.INSTANCE.convertEntityToUserGetDTO(updatedUser);
+    if (token == null || !token.equals(userService.findUserById(userId).getToken())) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+          "You are not authorized to update this user's profile");
+    }
+
+    User payload = DTOMapper.INSTANCE.convertUserPutDTOToEntity(userProfileUpdatePutDTO);
+    User updatedUser = userService.updateUserProfile(payload, userId);
+    return DTOMapper.INSTANCE.convertEntityToUserGetDTO(updatedUser);
   }
 
   @GetMapping("/users/openInvitations")
@@ -122,8 +128,8 @@ public class UserController {
     List<Game> openInvitations = inviteGameService.getOpenInvitations(userId);
 
     List<Long> gameIds = openInvitations.stream()
-                                        .map(Game::getSessionId)
-                                        .collect(Collectors.toList());
+        .map(Game::getSessionId)
+        .collect(Collectors.toList());
     return gameIds;
   }
 }
