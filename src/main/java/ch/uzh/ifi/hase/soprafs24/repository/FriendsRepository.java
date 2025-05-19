@@ -27,10 +27,9 @@ public interface FriendsRepository extends JpaRepository<Friends, Long> {
             "AND u.id <> :userId")
     List<User> findAllPendingRequests(@Param("userId") long userId);
     @Query(value = "SELECT u FROM User u " +
-            "JOIN Friends f ON u.id = f.user1.id OR u.id = f.user2.id " +
+            "JOIN Friends f ON  u.id = f.user1.id " +
             "WHERE (f.user2.id = :userId ) " +
-            "AND f.status = 0 " +
-            "AND u.id <> :userId")
+            "AND f.status = 0 ")
     List<User> findAllPendingRequestsUniDirectional(@Param("userId") long userId);
     @Query("SELECT f FROM Friends f " +
             "WHERE (f.user1.id = :userId AND f.user2.id = :friendId OR f.user1.id = :friendId AND f.user2.id = :userId)" +
