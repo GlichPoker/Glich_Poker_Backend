@@ -32,8 +32,8 @@ public class FriendsService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One of the two users was not found");
         }
 
-        if (friendsRepository.existsByUser1IdAndUser2IdAndStatus(userId, friendId, FriendRequestState.ACCEPTED)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Users are already friends");
+        if (friendsRepository.existsByUser1IdAndUser2IdAndStatus(userId, friendId, FriendRequestState.ACCEPTED) || friendsRepository.existsByUser1IdAndUser2IdAndStatus(userId, friendId, FriendRequestState.PENDING) ) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Users already have pending request");
         }
 
         // Create a new friend request
@@ -51,23 +51,24 @@ public class FriendsService {
         Friends friendship = friendsRepository.findByUser1IdAndUser2IdAndStatus(userId, friendId, FriendRequestState.PENDING);
 
         if (friendship != null && friendship.getUser1().getId().equals(friendId)) {
-            friendship.setRequestStatus(FriendRequestState.ACCEPTED); // Change status to ACCEPTED
+            friendship.setRequestStatus(FriendRequestState.ACCEPTED);
             friendsRepository.save(friendship);
+            friendsRepository.flush();
             return true;
         }
-        return false;  // If no pending request found
+        throw new ResponseStatusException(HttpStatus.CONFLICT, "Cannot accept friend request");
     }
 
-    // Deny a friend request (change status to REJECTED)
     public boolean denyFriendRequest(Long userId, Long friendId) {
         Friends friendship = friendsRepository.findByUser1IdAndUser2IdAndStatus(userId, friendId, FriendRequestState.PENDING);
 
         if (friendship != null && friendship.getUser1().getId().equals(friendId)) {
             friendship.setRequestStatus(FriendRequestState.DECLINED);
             friendsRepository.save(friendship);
+            friendsRepository.flush();
             return true;
         }
-        return false;
+        throw new ResponseStatusException(HttpStatus.CONFLICT, "Cannot accept friend request");
     }
 
     public List<UserModel> getAllFriends(long userId) {

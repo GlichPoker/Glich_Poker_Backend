@@ -110,9 +110,7 @@ class FriendsServiceTest {
     void acceptFriendAlreadyFriends() {
         when(friendsRepository.findByUser1IdAndUser2IdAndStatus(1L, 2L, FriendRequestState.PENDING)).thenReturn(null);
 
-        boolean success = friendsService.acceptFriendRequest(1L, 2L);
-        verify(friendsRepository, times(0)).save(any(Friends.class));
-        assertFalse(success);
+        assertThrows(ResponseStatusException.class, () -> friendsService.acceptFriendRequest(1L, 2L));
     }
 
     @Test
@@ -133,9 +131,8 @@ class FriendsServiceTest {
     void denyFriendAlreadyFriends() {
         when(friendsRepository.findByUser1IdAndUser2IdAndStatus(1L, 2L, FriendRequestState.PENDING)).thenReturn(null);
 
-        boolean success = friendsService.denyFriendRequest(1L, 2L);
-        verify(friendsRepository, times(0)).save(any(Friends.class));
-        assertFalse(success);
+        assertThrows(ResponseStatusException.class, () -> friendsService.denyFriendRequest(1L, 2L));
+
     }
 
     @Test
