@@ -426,9 +426,7 @@ public class GameController {
         stats.put("gamesPlayed", playerStatisticsService.getPlayer_games_played(user));
         stats.put("roundsPlayed", playerStatisticsService.getPlayer_round_played(user));
         stats.put("bb100", playerStatisticsService.getPlayer_BB_100(user));
-        double bb_won = playerStatisticsService.getPlayer_BB_100(user)
-                * (playerStatisticsService.getPlayer_BB_100_count(user) / 100.0);
-        stats.put("bbWon", bb_won);
+        stats.put("bbWon", playerStatisticsService.getPlayer_BB(user));
         stats.put("bankrupts", playerStatisticsService.getPlayer_bankrupt(user));
         return stats;
     }

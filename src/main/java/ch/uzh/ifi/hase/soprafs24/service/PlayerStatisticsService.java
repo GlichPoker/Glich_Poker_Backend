@@ -28,6 +28,24 @@ public class PlayerStatisticsService {
     @Autowired
     private GameService gameService;
 
+    public static class ActivePlayerStats {
+        private final double totalBBWon;
+        private final long totalRoundsPlayed;
+
+        public ActivePlayerStats(double totalBBWon, long totalRoundsPlayed) {
+            this.totalBBWon = totalBBWon;
+            this.totalRoundsPlayed = totalRoundsPlayed;
+        }
+
+        public double getTotalBBWon() {
+            return totalBBWon;
+        }
+
+        public long getTotalRoundsPlayed() {
+            return totalRoundsPlayed;
+        }
+    }
+
     public PlayerStatisticsService(UserService userService, GameRepository gameRepository, PlayerService playerService) {
         this.userService = userService;
         this.gameRepository = gameRepository;
@@ -53,11 +71,43 @@ public class PlayerStatisticsService {
         float bb100_record = user.getBB_100_record();
         long bb_100_count_record = user.getBB_100_count();
         float bbwon_record = bb100_record * (bb_100_count_record / 100.0f);
-
-        List<Player> players = playerService.getPlayersByUserId(user.getId());
-
         double totalBBWon = 0.0;
         long totalRoundsPlayed = 0;
+
+        totalBBWon += bbwon_record;
+        totalRoundsPlayed += bb_100_count_record;
+
+        ActivePlayerStats activePlayerStats = getActivePlayerStats(user);
+
+        totalBBWon += activePlayerStats.getTotalBBWon();
+        totalRoundsPlayed += activePlayerStats.getTotalRoundsPlayed();
+
+        return (float) ((totalBBWon / totalRoundsPlayed) * 100.0);
+    }
+
+    public float getPlayer_BB(User user){
+        float bb100_record = user.getBB_100_record();
+        long bb_100_count_record = user.getBB_100_count();
+        float bbwon_record = bb100_record * (bb_100_count_record / 100.0f);
+        double totalBBWon = 0.0;
+        long totalRoundsPlayed = 0;
+
+        totalBBWon += bbwon_record;
+        totalRoundsPlayed += bb_100_count_record;
+
+        ActivePlayerStats activePlayerStats = getActivePlayerStats(user);
+
+        totalBBWon += activePlayerStats.getTotalBBWon();
+        totalRoundsPlayed += activePlayerStats.getTotalRoundsPlayed();
+
+        return (float) (totalBBWon / totalRoundsPlayed);
+    }
+
+    public ActivePlayerStats getActivePlayerStats(User user){
+        double totalBBWon = 0.0;
+        long totalRoundsPlayed = 0;
+
+        List<Player> players = playerService.getPlayersByUserId(user.getId());
 
         for (Player player : players) {
             Long sessionId = player.getSessionId();
@@ -82,17 +132,16 @@ public class PlayerStatisticsService {
             totalRoundsPlayed += game.getRoundCount();
         }
 
-        totalBBWon += bbwon_record;
-        totalRoundsPlayed += bb_100_count_record;
-
-        return (float) ((totalBBWon / totalRoundsPlayed) * 100.0);
+        return new ActivePlayerStats(totalBBWon, totalRoundsPlayed);
     }
 
+    // With "count" I mean the number of rounds played that have been considered for the BB_100 record
     public void incrementUser_BB_100_count(User user, int additional_round){
         user.setBB_100_count(user.getBB_100_count() + additional_round);
         userService.saveUser(user);
     }
 
+    // With "count" I mean the number of rounds played that have been considered for the BB_100 record
     public long getPlayer_BB_100_count(User user){
         return user.getBB_100_count();
     }
@@ -117,7 +166,8 @@ public class PlayerStatisticsService {
     }
 
     public long getPlayer_round_played(User user){
-        return user.getRoundCount();
+        ActivePlayerStats activePlayerStats = getActivePlayerStats(user);
+        return user.getRoundCount() + activePlayerStats.getTotalRoundsPlayed();
     }
 
     public void incrementUser_games_played(User user){
@@ -126,7 +176,8 @@ public class PlayerStatisticsService {
     }
 
     public int getPlayer_games_played(User user){
-        return user.getGameCount();
+        ActivePlayerStats activePlayerStats = getActivePlayerStats(user);
+        return user.getGameCount() + (int) activePlayerStats.getTotalRoundsPlayed();
     }
 
 }
