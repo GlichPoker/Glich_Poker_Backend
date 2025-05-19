@@ -66,7 +66,7 @@ public class GameController {
         if (game == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
         }
-        if (game.getOwner().getId() != sendingUser.getId()) {
+        if (!game.getOwner().getId().equals(sendingUser.getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not the owner of this game");
         }
         allowedUserService.addAllowedUser(game, user);

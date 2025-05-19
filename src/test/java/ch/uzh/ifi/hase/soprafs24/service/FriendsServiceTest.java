@@ -56,7 +56,7 @@ class FriendsServiceTest {
         when(userService.getUserById(1L)).thenReturn(user1);
         when(userService.getUserById(2L)).thenReturn(user2);
         when(friendsRepository.existsByUser1IdAndUser2IdAndStatus(1L, 2L, FriendRequestState.ACCEPTED)).thenReturn(false);
-        when(friendsRepository.findAllPendingRequests(1L)).thenReturn(new ArrayList<>(){{add(user2);}});
+        when(friendsRepository.findAllPendingRequestsUniDirectional(1L)).thenReturn(new ArrayList<>(){{add(user2);}});
 
         boolean success = friendsService.addFriend(1L, 2L);
         verify(friendsRepository, times(1)).save(any(Friends.class));
@@ -110,9 +110,7 @@ class FriendsServiceTest {
     void acceptFriendAlreadyFriends() {
         when(friendsRepository.findByUser1IdAndUser2IdAndStatus(1L, 2L, FriendRequestState.PENDING)).thenReturn(null);
 
-        boolean success = friendsService.acceptFriendRequest(1L, 2L);
-        verify(friendsRepository, times(0)).save(any(Friends.class));
-        assertFalse(success);
+        assertThrows(ResponseStatusException.class, () -> friendsService.acceptFriendRequest(1L, 2L));
     }
 
     @Test
@@ -133,9 +131,8 @@ class FriendsServiceTest {
     void denyFriendAlreadyFriends() {
         when(friendsRepository.findByUser1IdAndUser2IdAndStatus(1L, 2L, FriendRequestState.PENDING)).thenReturn(null);
 
-        boolean success = friendsService.denyFriendRequest(1L, 2L);
-        verify(friendsRepository, times(0)).save(any(Friends.class));
-        assertFalse(success);
+        assertThrows(ResponseStatusException.class, () -> friendsService.denyFriendRequest(1L, 2L));
+
     }
 
     @Test
@@ -149,7 +146,7 @@ class FriendsServiceTest {
 
     @Test
     void getAllPendingRequests() {
-        when(friendsRepository.findAllPendingRequests(1L)).thenReturn(new ArrayList<>(){{add(user2);}});
+        when(friendsRepository.findAllPendingRequestsUniDirectional(1L)).thenReturn(new ArrayList<>(){{add(user2);}});
 
         List<UserModel> friends = friendsService.getAllPendingFriendRequests(1L);
         verify(friendsRepository, times(0)).save(any(Friends.class));

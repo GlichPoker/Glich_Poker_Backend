@@ -140,12 +140,13 @@ public class Round {
     public List<Player> roundComplete(GameSettings settings) {
         List<Player> winners = new ArrayList<>();
         EvaluationResult winner = null;
-        for (Player player : players.stream().filter(Player::isActive).toList()) {
-            List<Card> mergedCards = mergeHands(player.getHand());
+        for (Player player : players) {
+            List<Card> cleanedCards = Arrays.stream(player.getHand()).filter(Objects::nonNull).toList();
+            List<Card> mergedCards = mergeHands(cleanedCards);
 
             EvaluationResult res = HandEvaluator.evaluateHand(mergedCards, settings);
             player.setEvaluationResult(res);
-
+            if(!player.isActive()) continue;
             if (winner == null || res.compareTo(winner) < 0) {
                 winners.clear();
                 winner = res;
@@ -157,12 +158,12 @@ public class Round {
         return winners;
     }
 
-    private List<Card> mergeHands(Card[] hand) {
+    private List<Card> mergeHands(List<Card> hand) {
         ArrayList<Card> handCards = new ArrayList<>();
         for (int i = 0; i < communityCards.size(); i++) {
             if (i < 2) {
                 handCards.add(communityCards.get(i));
-                handCards.add(hand[i]);
+                handCards.add(hand.get(i));
             } else {
                 handCards.add(communityCards.get(i));
             }
