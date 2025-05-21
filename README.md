@@ -148,6 +148,6 @@ This project was initially based on a [Spring Boot template](https://github.com/
 
 ## License
 
-This project is licensed under the terms of the `GNU General Public License v3.0`. It includes material originally licensed under the `Apache License, Version 2.0` from [HASEL-UZH / sopra-fs25-template-server](https://github.com/HASEL-UZH/sopra-fs25-template-server).
+This project is licensed under the `GNU General Public License v3.0`. It includes material originally licensed under the `Apache License, Version 2.0` from [HASEL-UZH / sopra-fs25-template-server](https://github.com/HASEL-UZH/sopra-fs25-template-server).
 
 See [GPL-3.0-LICENSE.md](GPL-3.0-LICENSE.md) and [APACHE-2.0-LICENSE.md](APACHE-2.0-LICENSE.md) for details.

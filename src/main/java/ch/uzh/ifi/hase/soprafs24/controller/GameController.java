@@ -450,6 +450,7 @@ public class GameController {
 
             Map<String, Object> playerStat = new HashMap<>();
             playerStat.put("userId", user.getId());
+            playerStat.put("username", user.getUsername());
             playerStat.put("totalBBWon", totalBBWon);
             playerStat.put("totalRoundsPlayed", totalRoundsPlayed);
             playerStat.put("bb100", bb100);
