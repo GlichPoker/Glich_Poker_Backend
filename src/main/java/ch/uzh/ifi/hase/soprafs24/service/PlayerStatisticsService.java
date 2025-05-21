@@ -101,7 +101,7 @@ public class PlayerStatisticsService {
         totalBBWon += activePlayerStats.getTotalBBWon();
         totalRoundsPlayed += activePlayerStats.getTotalRoundsPlayed();
 
-        return (float) (totalBBWon / totalRoundsPlayed);
+        return (float) (totalBBWon);
     }
 
     public ActivePlayerStats getActivePlayerStats(User user){
@@ -161,7 +161,7 @@ public class PlayerStatisticsService {
         userService.saveUser(user);
     }
 
-    public void updateUser_round_played(User user, long additional_round){
+    public void incrementUser_round_played(User user, long additional_round){
         user.setRoundCount(user.getRoundCount() + additional_round);
         userService.saveUser(user);
     }

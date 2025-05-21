@@ -292,7 +292,7 @@ public class GameController {
         for (ch.uzh.ifi.hase.soprafs24.entity.Player player : game.getAllPlayers()) {
             User user = player.getUser();
             playerStatisticsService.incrementUser_games_played(user);
-            playerStatisticsService.updateUser_round_played(user, game.getRoundCount());
+            playerStatisticsService.incrementUser_round_played(user, game.getRoundCount());
             playerStatisticsService.updateUser_BB_100_record(user, game, player);
         }
 
