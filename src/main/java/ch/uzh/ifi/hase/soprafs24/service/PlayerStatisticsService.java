@@ -1,6 +1,8 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -63,7 +65,12 @@ public class PlayerStatisticsService {
         bb_won = bb_won + bb_won_new;
         bb_100_count = bb_100_count + game.getRoundCount();
 
-        bb100_record = (float) (bb_won * (100.0 / bb_100_count));
+        // Handle division by zero for bb_100_count if it's 0 after updates
+        if (bb_100_count == 0) {
+            bb100_record = 0.0f;
+        } else {
+            bb100_record = (float) (bb_won * (100.0 / bb_100_count));
+        }
         user.setBB_100_record(bb100_record);
         user.setBB_100_count(bb_100_count);
     }
@@ -82,6 +89,10 @@ public class PlayerStatisticsService {
 
         totalBBWon += activePlayerStats.getTotalBBWon();
         totalRoundsPlayed += activePlayerStats.getTotalRoundsPlayed();
+
+        if (totalRoundsPlayed == 0) {
+            return 0.0f;
+        }
 
         return (float) ((totalBBWon / totalRoundsPlayed) * 100.0);
     }
@@ -134,6 +145,19 @@ public class PlayerStatisticsService {
         }
 
         return new ActivePlayerStats(totalBBWon, totalRoundsPlayed);
+    }
+
+    public Map<Long, Float> getAllPlayersBB100(){
+        Map<Long, Float> playerBB100Map = new HashMap<>();
+
+        List<User> users = userService.getAllUsers();
+        
+        for (User user : users) {
+            float bb100 = getPlayer_BB_100(user);
+            playerBB100Map.put(user.getId(), bb100);
+        }
+
+        return playerBB100Map;
     }
 
     // With "count" I mean the number of rounds played that have been considered for the BB_100 record

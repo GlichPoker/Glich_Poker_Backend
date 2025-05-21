@@ -430,4 +430,10 @@ public class GameController {
         stats.put("bankrupts", playerStatisticsService.getPlayer_bankrupt(user));
         return stats;
     }
+
+    @GetMapping("/stats/all")
+    @ResponseStatus(HttpStatus.OK)
+    public Map<Long, Float> getAllPlayersBB100() {
+        return playerStatisticsService.getAllPlayersBB100();
+    }
 }
