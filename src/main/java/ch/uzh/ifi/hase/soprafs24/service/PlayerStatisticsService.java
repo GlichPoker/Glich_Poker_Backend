@@ -46,7 +46,8 @@ public class PlayerStatisticsService {
         }
     }
 
-    public PlayerStatisticsService(UserService userService, GameRepository gameRepository, PlayerService playerService) {
+    public PlayerStatisticsService(UserService userService, GameRepository gameRepository, PlayerService playerService, GameService gameService) {
+        this.gameService = gameService;
         this.userService = userService;
         this.gameRepository = gameRepository;
         this.playerService = playerService;
