@@ -147,17 +147,15 @@ public class PlayerStatisticsService {
         return new ActivePlayerStats(totalBBWon, totalRoundsPlayed);
     }
 
-    public Map<Long, Float> getAllPlayersBB100(){
-        Map<Long, Float> playerBB100Map = new HashMap<>();
-
+    public Map<User, ActivePlayerStats> getAllPlayersBB100(){
         List<User> users = userService.getAllUsers();
+        Map<User, ActivePlayerStats> userStatmap = new HashMap<>();
         
         for (User user : users) {
-            float bb100 = getPlayer_BB_100(user);
-            playerBB100Map.put(user.getId(), bb100);
+            ActivePlayerStats activePlayerStats = getActivePlayerStats(user);
+            userStatmap.put(user, activePlayerStats);
         }
-
-        return playerBB100Map;
+        return userStatmap;
     }
 
     // With "count" I mean the number of rounds played that have been considered for the BB_100 record

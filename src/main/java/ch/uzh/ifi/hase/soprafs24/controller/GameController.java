@@ -7,6 +7,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.model.*;
 import ch.uzh.ifi.hase.soprafs24.service.*;
+import ch.uzh.ifi.hase.soprafs24.service.PlayerStatisticsService.ActivePlayerStats;
 import ch.uzh.ifi.hase.soprafs24.websockets.WS_Handler;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -433,7 +434,31 @@ public class GameController {
 
     @GetMapping("/stats/all")
     @ResponseStatus(HttpStatus.OK)
-    public Map<Long, Float> getAllPlayersBB100() {
-        return playerStatisticsService.getAllPlayersBB100();
+    public List<Map<String, Object>> getAllPlayersBB100() {
+        Map<User, ActivePlayerStats> activePlayerStats = playerStatisticsService.getAllPlayersBB100();
+        List<Map<String, Object>> resultList = new ArrayList<>();
+
+
+        for (Map.Entry<User, ActivePlayerStats> entry : activePlayerStats.entrySet()) {
+            User user = entry.getKey();
+            ActivePlayerStats stats = entry.getValue();
+            float totalBBWon = (float) stats.getTotalBBWon();
+            float totalRoundsPlayed = (float) stats.getTotalRoundsPlayed();
+            float bb100 = (totalRoundsPlayed == 0) ? 0 : (totalBBWon / totalRoundsPlayed) * 100.0f;
+            int totalGamesPlayed = playerStatisticsService.getPlayer_games_played(user);
+            int bankrupts = playerStatisticsService.getPlayer_bankrupt(user);
+
+            Map<String, Object> playerStat = new HashMap<>();
+            playerStat.put("userId", user.getId());
+            playerStat.put("totalBBWon", totalBBWon);
+            playerStat.put("totalRoundsPlayed", totalRoundsPlayed);
+            playerStat.put("bb100", bb100);
+            playerStat.put("totalGamesPlayed", totalGamesPlayed);
+            playerStat.put("bankrupts", bankrupts);
+
+            resultList.add(playerStat);
+        }
+
+        return resultList;
     }
 }
