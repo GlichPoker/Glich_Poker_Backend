@@ -16,5 +16,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
   User findByToken(String token);
   Optional<User> findById(@NonNull Long id);
   @Query(value = "SELECT u FROM User u WHERE u.id != :userId ")
-  List<User> getAllUsers(@Param("userId") long userId);
+  List<User> getAllUsersExceptSelf(@Param("userId") long userId);
 }

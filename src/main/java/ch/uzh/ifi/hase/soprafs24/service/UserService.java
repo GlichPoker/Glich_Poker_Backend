@@ -135,7 +135,11 @@ public class UserService {
   }
 
   public List<User> getAllUsersExceptSelf(long userId) {
-    return userRepository.getAllUsers(userId);
+    return userRepository.getAllUsersExceptSelf(userId);
+  }
+
+  public List<User> getAllUsers() {
+    return userRepository.findAll();
   }
 
   public void saveUser(User user) {
