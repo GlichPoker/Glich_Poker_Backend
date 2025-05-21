@@ -9,6 +9,10 @@ runtime_config:
   runtime_version: "17"
 manual_scaling:
   instances: 1
+resources:
+  cpu: 0.5
+  memory_gb: 0.5
+  disk_size_gb: 10
 vpc_access_connector:
   name: projects/automatic-bond-454109-v8/locations/europe-west6/connectors/database-connector
 env_variables:
