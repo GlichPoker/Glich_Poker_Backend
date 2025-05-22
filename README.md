@@ -39,8 +39,7 @@ The backend is structured into several key components that work together to deli
     *   **Key Classes**:
         *   [`UserService.java`](src/main/java/ch/uzh/ifi/hase/soprafs24/service/UserService.java): Implements logic for user management.
         *   [`GameService.java`](src/main/java/ch/uzh/ifi/hase/soprafs24/service/GameService.java): Manages the lifecycle of poker games, including creation, player management, and settings.
-        *   [`GameLoopService.java`](src/main/java/ch/uzh/ifi/hase/soprafs24/service/GameLoopService.java): Contains the core poker game engine, handling rounds, turns, hand evaluations, and pot distribution.
-        *   [`WebSocketService.java`](src/main/java/ch/uzh/ifi/hase/soprafs24/service/WebSocketService.java): Facilitates sending real-time updates and game state changes to connected clients.
+        *   [`PlayerService.java`](src/main/java/ch/uzh/ifi/hase/soprafs24/service/PlayerService.java): Manages players and their current state in the game.
         *   [`PlayerStatisticsService.java`](src/main/java/ch/uzh/ifi/hase/soprafs24/service/PlayerStatisticsService.java): Calculates and manages player statistics.
         *   [`InviteGameService.java`](src/main/java/ch/uzh/ifi/hase/soprafs24/service/InviteGameService.java): Handles game invitations.
 
@@ -54,10 +53,10 @@ The backend is structured into several key components that work together to deli
 4.  **Real-time Communication (WebSockets)**
     *   **Role**: Enables bi-directional, real-time communication between the server and clients for instant game updates and player actions.
     *   **Key Components**:
-        *   `WebSocketConfig.java` (typically in a `config` package): Configures WebSocket endpoints and message brokers.
-        *   [`WebSocketController.java`](src/main/java/ch/uzh/ifi/hase/soprafs24/controller/WebSocketController.java) and [`WebSocketService.java`](src/main/java/ch/uzh/ifi/hase/soprafs24/service/WebSocketService.java): Handle receiving messages from clients and broadcasting messages to clients.
+        *   `WebSocketConfig.java`: Configures WebSocket endpoints and message brokers.
+        *   [`WebSocketHander.java`](src/main/java/ch/uzh/ifi/hase/soprafs24/controller/WebSocketHandler.java): Handle receiving messages from clients and broadcasting messages to clients.
 
-These components are interconnected: Controllers receive requests and call Services. Services use Repositories to interact with Entities (data) and may also use other services to fulfill requests. For real-time aspects, WebSocket messages are handled by the `WebSocketController`, which delegates to services like `GameLoopService` and `WebSocketService` to update game state and notify clients.
+These components are interconnected: Controllers receive requests and call Services. Services use Repositories to interact with Entities (data) and may also use other services to fulfill requests. For real-time aspects, WebSocket messages are handled by the `WebsocketHandler` to notify clients.
 
 ## Launch & Deployment
 
