@@ -4,9 +4,7 @@ import ch.uzh.ifi.hase.soprafs24.constant.*;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.model.*;
-import ch.uzh.ifi.hase.soprafs24.service.GameService;
-import ch.uzh.ifi.hase.soprafs24.service.GameSettingsService;
-import ch.uzh.ifi.hase.soprafs24.service.UserService;
+import ch.uzh.ifi.hase.soprafs24.service.*;
 import ch.uzh.ifi.hase.soprafs24.websockets.WS_Handler;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
@@ -14,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -60,6 +59,12 @@ class GameControllerTest {
     @MockBean
     private WS_Handler wsHandler;
 
+    @MockBean
+    private InviteGameService inviteGameService;
+
+    @MockBean
+    private PlayerStatisticsService playerStatisticsService;
+
     private GameActionRequest gameActionRequest;
     private JoinGameRequest joinGameRequest;
     private CreateGameRequest createGameRequest;
@@ -71,6 +76,7 @@ class GameControllerTest {
     private GameSettings gameSettingsModel;
     private Game testGame;
     private List<HandRank> order;
+
 
     @BeforeEach
     void setup() {
@@ -155,43 +161,92 @@ class GameControllerTest {
                         .content(objectMapper.writeValueAsString(createGameRequest)))
                 .andExpect(status().isNotFound());
     }
-/*
+
     @Test
     void testInvitePlayer() throws Exception {
-        when(userService.getUserById(anyLong())).thenReturn(testUser);
+        InvitationRequest req = new InvitationRequest(1, 1, 2);
+        when(userService.getUserById(req.userId())).thenReturn(testUser2);
+        when(userService.getUserById(req.senderId())).thenReturn(testUser);
         when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
-
+        Mockito.doNothing().when(inviteGameService).addAllowedUser(testGame, testUser2);
         mockMvc.perform(MockMvcRequestBuilders.post("/game/invite")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(gameActionRequest)))
+                        .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isCreated())
                 .andExpect(result -> assertTrue(Boolean.parseBoolean(result.getResponse().getContentAsString())));
     }
-*/
-    @Test
-    void testInvitePlayer_GameNotFound() throws Exception {
-        when(gameService.getGameBySessionId(anyLong())).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
 
+    @Test
+    void testInvitePlayerNotOwner() throws Exception {
+        InvitationRequest req = new InvitationRequest(1, 1, 2);
+        when(userService.getUserById(req.userId())).thenReturn(testUser);
+        when(userService.getUserById(req.senderId())).thenReturn(testUser2);
+        when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
         mockMvc.perform(MockMvcRequestBuilders.post("/game/invite")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(gameActionRequest)))
-                .andExpect(status().isNotFound());
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isForbidden());
     }
-/*
-    @Test
-    void testDenyInvitation() throws Exception {
-        addPlayersToGame(testGame, testUser);
-        when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/game/denyInvitation")
+    @Test
+    void testAcceptInvite() throws Exception {
+        InvitationRequest req = new InvitationRequest(1, 1, 2);
+        when(userService.getUserById(req.userId())).thenReturn(testUser);
+        when(gameService.getGameBySessionId(req.sessionId())).thenReturn(testGame);
+        Mockito.doNothing().when(inviteGameService).acceptInvite(testGame, testUser);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/game/acceptInvitation")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(denyInvitationRequest)))
+                        .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isOk())
                 .andExpect(result -> assertTrue(Boolean.parseBoolean(result.getResponse().getContentAsString())));
-
-        verify(gameService, times(1)).removePlayerFromGame(testGame, denyInvitationRequest.userId());
+        ;
     }
-*/
+
+
+    @Test
+    void testDeclineInvititation() throws Exception {
+        InvitationRequest req = new InvitationRequest(1, 1, 2);
+        when(userService.getUserById(req.userId())).thenReturn(testUser2);
+        when(userService.getUserById(req.senderId())).thenReturn(testUser);
+        when(gameService.getGameBySessionId(req.sessionId())).thenReturn(testGame);
+        Mockito.doNothing().when(inviteGameService).rejectInvite(testGame, testUser2);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/game/declineInvitation")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isOk())
+                .andExpect(result -> assertTrue(Boolean.parseBoolean(result.getResponse().getContentAsString())));
+        ;
+    }
+
+    @Test
+    void testDeclineInvititationNotOwner() throws Exception {
+        InvitationRequest req = new InvitationRequest(1, 1, 2);
+        when(userService.getUserById(req.userId())).thenReturn(testUser);
+        when(userService.getUserById(req.senderId())).thenReturn(testUser2);
+        when(gameService.getGameBySessionId(req.sessionId())).thenReturn(testGame);
+        Mockito.doNothing().when(inviteGameService).rejectInvite(testGame, testUser2);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/game/declineInvitation")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void testRemovePlayer() throws Exception {
+        when(userService.getUserById(gameActionRequest.userId())).thenReturn(testUser);
+        when(gameService.getGameBySessionId(gameActionRequest.sessionId())).thenReturn(testGame);
+        when(gameService.removePlayerFromGame(testGame, testUser.getId())).thenReturn(true);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/game/removePlayer")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(gameActionRequest)))
+                .andExpect(status().isOk())
+                .andExpect(result -> assertTrue(Boolean.parseBoolean(result.getResponse().getContentAsString())));;
+    }
+
     @Test
     void testDenyInvitationGame() throws Exception {
         when(gameService.getGameBySessionId(anyLong())).thenReturn(testGame);
@@ -702,5 +757,52 @@ class GameControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void testStatsOfUser() throws Exception {
+        when(userService.getUserById(1L)).thenReturn(testUser);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/game/stats/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.gamesPlayed").value(0))
+                .andExpect(jsonPath("$.roundsPlayed").value(0))
+                .andExpect(jsonPath("$.bb100").value(0))
+                .andExpect(jsonPath("$.bbWon").value(0))
+                .andExpect(jsonPath("$.bankrupts").value(0));
+    }
+
+
+    @Test
+    void testStatsOfUserNotFound() throws Exception {
+        when(userService.getUserById(1L)).thenReturn(null);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/game/stats/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void testAllStats() throws Exception {
+        PlayerStatisticsService.ActivePlayerStats stats = new PlayerStatisticsService.ActivePlayerStats(100f, 1000L); // totalBBWon=100, totalRoundsPlayed=1000
+
+        when(playerStatisticsService.getAllPlayersBB100()).thenReturn(new HashMap<>() {{
+            put(testUser, stats);
+        }});
+
+        when(playerStatisticsService.getPlayer_games_played(testUser)).thenReturn(50);
+        when(playerStatisticsService.getPlayer_bankrupt(testUser)).thenReturn(2);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/game/stats/all")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].userId").value(1))
+                .andExpect(jsonPath("$[0].username").value("testUsername"))
+                .andExpect(jsonPath("$[0].totalBBWon").value(100.0))
+                .andExpect(jsonPath("$[0].totalRoundsPlayed").value(1000))
+                .andExpect(jsonPath("$[0].bb100").value(10.0))
+                .andExpect(jsonPath("$[0].totalGamesPlayed").value(50))
+                .andExpect(jsonPath("$[0].bankrupts").value(2));
     }
 }
