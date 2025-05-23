@@ -221,30 +221,31 @@ class GameControllerTest {
     }
 
     @Test
-    void testDeclineInvititationNotOwner() throws Exception {
+    void testRemoveNotOwner() throws Exception {
         InvitationRequest req = new InvitationRequest(1, 1, 2);
         when(userService.getUserById(req.userId())).thenReturn(testUser);
         when(userService.getUserById(req.senderId())).thenReturn(testUser2);
         when(gameService.getGameBySessionId(req.sessionId())).thenReturn(testGame);
-        Mockito.doNothing().when(inviteGameService).rejectInvite(testGame, testUser2);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/game/declineInvitation")
+        mockMvc.perform(MockMvcRequestBuilders.post("/game/removePlayer")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void testRemovePlayer() throws Exception {
-        when(userService.getUserById(gameActionRequest.userId())).thenReturn(testUser);
-        when(gameService.getGameBySessionId(gameActionRequest.sessionId())).thenReturn(testGame);
-        when(gameService.removePlayerFromGame(testGame, testUser.getId())).thenReturn(true);
+    void testRemove() throws Exception {
+        InvitationRequest req = new InvitationRequest(1, 1, 2);
+        when(userService.getUserById(req.userId())).thenReturn(testUser2);
+        when(userService.getUserById(req.senderId())).thenReturn(testUser);
+        when(gameService.getGameBySessionId(req.sessionId())).thenReturn(testGame);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/game/removePlayer")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(gameActionRequest)))
+                        .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isOk())
-                .andExpect(result -> assertTrue(Boolean.parseBoolean(result.getResponse().getContentAsString())));;
+                .andExpect(result -> assertTrue(Boolean.parseBoolean(result.getResponse().getContentAsString())));
+        ;
     }
 
     @Test
