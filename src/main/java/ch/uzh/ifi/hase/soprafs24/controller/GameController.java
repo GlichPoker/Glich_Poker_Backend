@@ -311,6 +311,9 @@ public class GameController {
     @ResponseStatus(HttpStatus.OK)
     public List<GameModel> getAllGames() {
         List<Game> games = gameService.getAllGames();
+        List<Game> orderedGames = games.stream()
+                .sorted(Comparator.comparing(Game::getSessionId))
+                .toList();
         List<GameModel> gameModels = new ArrayList<>();
         for (Game game : games) {
             gameModels.add(new GameModel(game.toGameModel(), -1));
