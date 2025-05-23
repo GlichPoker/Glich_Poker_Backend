@@ -119,6 +119,7 @@ public class HandEvaluator {
 
     private static Card[] getHighCardFourKind(List<Card> cards) {
         Card pair = findHighPairOfSize(cards, 4);
+        if(pair == null) return new Card[0];
         Card[] high = getRemainingHighCards(cards, 1, pair.rank());
         return new Card[]{pair, high[0]};
     }
@@ -182,7 +183,9 @@ public class HandEvaluator {
         res[0] = card;
         int adder = gameSettings.descending() ? -1 : 1;
         int c = 1;
-        for(int i = card.rank().value + adder; i >= card.rank().value + (adder * 4); i+=adder) {
+        int start = card.rank().value + adder;
+        int end = card.rank().value + (adder * 4);
+        for (int i = start; adder > 0 ? i <= end : i >= end; i += adder) {
             res[c] = new Card(Rank.fromValue(i), card.suit());
         }
         return res;
@@ -190,6 +193,7 @@ public class HandEvaluator {
 
     private static Card[] getHighCardThreeKind(List<Card> cards) {
         Card pair = findHighPairOfSize(cards, 3);
+        if(pair == null) return new Card[0];
         Card[] high = getRemainingHighCards(cards, 2, pair.rank());
         return new Card[]{pair, high[0], high[1]};
     }
@@ -211,6 +215,8 @@ public class HandEvaluator {
 
     private static Card[] getHighCardTwoKind(List<Card> cards) {
         Card pair = findHighPairOfSize(cards, 2);
+        if(pair == null) return new Card[0];
+
         Card[] high = getRemainingHighCards(cards, 3, pair.rank());
         return new Card[]{pair, high[0], high[1], high[2]};
     }
@@ -246,7 +252,7 @@ public class HandEvaluator {
             else if(c == 3 && tripsR == null && (pairR == null || pairR.rank() != cards.get(i).rank())) {
                 tripsR = cards.get(i);
             }
-            else if(c == 3 && pairR.rank() == cards.get(i).rank() && tripsR == null){
+            else if(c == 3 && pairR != null && pairR.rank() == cards.get(i).rank() && tripsR == null){
                 tripsR = cards.get(i);
                 pairR = null;
             }
@@ -335,6 +341,7 @@ public class HandEvaluator {
 
     private static Card[] getActualPairs(List<Card> cards, int size, int take) {
         Card pair = findHighPairOfSize(cards, size);
+        if(pair == null) return new Card[0];
         Card[] pairs = cards.stream().filter(x -> x.rank() == pair.rank()).toArray(Card[]::new);
         Card[] high = getRemainingHighCards(cards, take, pair.rank());
         return mergeArrays(pairs, high);
