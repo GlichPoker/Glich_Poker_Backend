@@ -130,10 +130,9 @@ public class Round {
         }
 
         for (Player winner : winners) {
-            double amount = (double) winner.getTotalBet() / totalWinningBets * potSize;
+            double amount = (long) Math.ceil((double) winner.getTotalBet() / totalWinningBets * potSize);
             winnings.put(winner, amount);
         }
-
         return winnings;
     }
 
@@ -254,7 +253,11 @@ public class Round {
     }
 
     public void handleCall(long userId, long balance) {
-        handleCallOrRaise(userId, balance, false);
+        Boolean isRaise = balance > roundBet;
+        if (isRaise) {
+            haveNotRaiseCount = 0;
+        }
+        handleCallOrRaise(userId, balance, isRaise);
         progressPlayer();
     }
 
@@ -276,7 +279,7 @@ public class Round {
         progressPlayer();
     }
 
-    private void handleCallOrRaise(long userId, long balance, boolean raise) {
+    private void handleCallOrRaise(long userId, long bet, boolean raise) {
         Player player = findPlayerById(userId);
         if (player == null)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "player not found");
@@ -286,15 +289,15 @@ public class Round {
             // player is all in so continue
             return;
         }
-        if(player.getBalance() < balance && player.getBalance() != balance){
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "cannot call or raise if balance less than amount to be called except if you are allin");
+        if(player.getBalance() < bet && player.getBalance() != bet){
+            bet = (long) Math.floor(player.getBalance());
         }
 
-        boolean successful = player.call(balance);
+        boolean successful = player.call(bet);
 
-        if (successful || player.getBalance() == balance) {
-            potSize += balance;
-            roundBet = raise ? roundBet + balance : Math.max(roundBet, balance);
+        if (successful || player.getBalance() == bet) {
+            potSize += bet;
+            roundBet = raise ? roundBet + bet : Math.max(roundBet, bet);
         }
     }
 
