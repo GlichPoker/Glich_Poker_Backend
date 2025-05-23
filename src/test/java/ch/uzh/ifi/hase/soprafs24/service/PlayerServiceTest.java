@@ -109,4 +109,14 @@ class PlayerServiceTest {
         playerService.deletePlayers(players);
         verify(playerRepository, times(1)).deleteAll(players);
     }
+
+    @Test
+    void testFindByUserId() {
+        when(playerRepository.findByUserId(1L)).thenReturn(new ArrayList<>(){{add(player);}});
+
+        List<Player> p = playerService.getPlayersByUserId(1L);
+
+        assertEquals(1, p.size());
+        assertEquals(player, p.get(0));
+    }
 }

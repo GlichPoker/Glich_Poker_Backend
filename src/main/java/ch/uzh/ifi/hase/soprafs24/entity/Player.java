@@ -38,6 +38,7 @@ public class Player {
 
     public long getSessionId(){return this.game.getSessionId();}
     public long getUserId() { return userId; }
+
     public String getName() { return name; }
     public double getBalance() { return balance; }
     public boolean isActive() { return isActive; }
@@ -45,9 +46,4 @@ public class Player {
     public void setIsActive(boolean isActive) { this.isActive = isActive; }
     public void setBalance(double balance) { this.balance = balance; }
     public Player setIsOnline(boolean isOnline) { this.isOnline = isOnline; return this; }
-
-    public User getUser() {
-        return user;
-    }
-
 }

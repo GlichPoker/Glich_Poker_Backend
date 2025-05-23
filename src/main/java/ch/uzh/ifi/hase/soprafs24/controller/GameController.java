@@ -291,7 +291,8 @@ public class GameController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Game is still running");
         // add the statistics to the user
         for (ch.uzh.ifi.hase.soprafs24.entity.Player player : game.getAllPlayers()) {
-            User user = player.getUser();
+            long playerUserId = player.getUserId();
+            User user = userService.getUserById(playerUserId);
             playerStatisticsService.incrementUser_games_played(user);
             playerStatisticsService.incrementUser_round_played(user, game.getRoundCount());
             playerStatisticsService.updateUser_BB_100_record(user, game, player);
