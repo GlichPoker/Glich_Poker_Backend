@@ -110,7 +110,6 @@ public class Game {
 
         for (Player player : players) {
             player.reset();
-            player.setIsOnline(true);
         }
 
         if (players.size() < 2) {

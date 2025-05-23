@@ -253,7 +253,7 @@ public class Round {
     }
 
     public void handleCall(long userId, long balance) {
-        Boolean isRaise = balance > roundBet;
+        boolean isRaise = balance > roundBet;
         if (isRaise) {
             haveNotRaiseCount = 0;
         }
@@ -273,6 +273,12 @@ public class Round {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "player not found");
         if (!player.isActive())
             throw new ResponseStatusException(HttpStatus.CONFLICT, "player already folded");
+        if(player.getBalance() == 0){
+            // player is all in so continue
+            progressPlayer();
+
+            return;
+        }
         if (player.getRoundBet() < roundBet)
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                     "cannot check if the player has bet less than the current bet amount");

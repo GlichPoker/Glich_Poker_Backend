@@ -29,12 +29,13 @@ public class GameController {
     private final GameSettingsService gameSettingsService;
     private final UserService userService;
     private final WS_Handler wsHandler;
+    private final PlayerService playerService;
     private final ModelPusher modelPusher;
     private final PlayerStatisticsService playerStatisticsService;
 
     @Autowired
     public GameController(GameService gameService, GameSettingsService gameSettingsService, UserService userService,
-            WS_Handler wsHandler, ModelPusher modelPusher, PlayerStatisticsService playerStatisticsService, InviteGameService allowedUserService) {
+            WS_Handler wsHandler, ModelPusher modelPusher, PlayerStatisticsService playerStatisticsService, InviteGameService allowedUserService, PlayerService playerService ) {
         this.gameService = gameService;
         this.gameSettingsService = gameSettingsService;
         this.userService = userService;
@@ -42,6 +43,7 @@ public class GameController {
         this.modelPusher = modelPusher;
         this.playerStatisticsService = playerStatisticsService;
         this.allowedUserService = allowedUserService;
+        this.playerService = playerService;
     }
 
     @PostMapping("/create")
@@ -205,6 +207,10 @@ public class GameController {
         Game gameEntity = gameService.getGameBySessionId(request.sessionId());
         if (!gameEntity.isRoundRunning()) {
             gameService.setPlayerOffline(gameEntity, request.userId());
+        }else{
+            ch.uzh.ifi.hase.soprafs24.entity.Player player = playerService.getPlayer(request.userId(), request.sessionId());
+            player.setIsOnline(false);
+            playerService.savePlayer(player);
         }
 
         modelPusher.pushModel(round, game, wsHandler, gameService);
