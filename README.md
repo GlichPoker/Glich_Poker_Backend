@@ -130,7 +130,6 @@ A typical release process might involve:
 Here are a few features that new developers could contribute to:
 
 1.  **Customizable Game Rules**: Allow game hosts to customize more aspects of the game, such as blind structures, antes, or special game variants.
-2.  more?
 
 ## Authors and Acknowledgment
 
