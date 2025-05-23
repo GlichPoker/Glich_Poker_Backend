@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Arrays;
 
-public record EvaluationResult(@JsonProperty("handRank")HandRank handRank, @JsonProperty("highCards")Card[] highCards, @JsonProperty EvaluationRank evaluationRank, boolean descending) implements Comparable<EvaluationResult> {
+public record EvaluationResult(@JsonProperty("handRank")HandRank handRank, @JsonProperty("highCards")Card[] highCards, @JsonProperty EvaluationRank evaluationRank, boolean descending, @JsonProperty("actualHand")Card[] actualHand) implements Comparable<EvaluationResult> {
 
     @Override
     public int compareTo(EvaluationResult other) {

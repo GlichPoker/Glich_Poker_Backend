@@ -7,6 +7,7 @@ import ch.uzh.ifi.hase.soprafs24.constant.Suit;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class HandEvaluator {
 
@@ -24,42 +25,42 @@ public class HandEvaluator {
             switch (rank) {
                 case ROYALFLUSH:
                     if (isRoyalFlush(cards))
-                        return new EvaluationResult(HandRank.ROYALFLUSH, new Card[]{new Card(settings.descending()? Rank.ACE : Rank.TWO, Suit.SPADES)}, EvaluationRank.fromValue(first), settings.descending()); // high card trivially ace
+                        return new EvaluationResult(HandRank.ROYALFLUSH, getHighCardsRoyalStraight(cards), EvaluationRank.fromValue(first), settings.descending(), getActualRoyalStraight(cards, settings)); // high card trivially ace
                     break;
                 case STRAIGHTFLUSH:
                     if (isStraightFlush(cards))
-                        return new EvaluationResult(HandRank.STRAIGHTFLUSH, getHighCardsStraight(cards), EvaluationRank.fromValue(first), settings.descending()); // only high card of straight matters
+                        return new EvaluationResult(HandRank.STRAIGHTFLUSH, getHighCardsRoyalStraight(cards), EvaluationRank.fromValue(first), settings.descending(), getActualRoyalStraight(cards, settings)); // only high card of straight matters
                     break;
                 case FOUROFKIND:
                     if(isFourOfAKind(cards))
-                        return new EvaluationResult(HandRank.FOUROFKIND, getHighCardFourKind(cards), EvaluationRank.fromValue(first), settings.descending()); // high card of fours and high card of general hand
+                        return new EvaluationResult(HandRank.FOUROFKIND, getHighCardFourKind(cards), EvaluationRank.fromValue(first), settings.descending(), getActualHandFourKind(cards)); // high card of fours and high card of general hand
                     break;
                 case FULLHOUSE:
                     if(isFullHouse(cards))
-                        return new EvaluationResult(HandRank.FULLHOUSE, getHighCardsFullHouse(cards), EvaluationRank.fromValue(first), settings.descending()); // high card are trips and doubles
+                        return new EvaluationResult(HandRank.FULLHOUSE, getHighCardsFullHouse(cards), EvaluationRank.fromValue(first), settings.descending(), getActualFullHouse(cards)); // high card are trips and doubles
                     break;
                 case FLUSH:
                     if(isFlush(cards))
-                        return new EvaluationResult(HandRank.FLUSH, getHighCardsFlush(cards), EvaluationRank.fromValue(first), settings.descending()); // high cards are just first 5 flush cards
+                        return new EvaluationResult(HandRank.FLUSH, getHighCardsFlush(cards), EvaluationRank.fromValue(first), settings.descending(), getHighCardsFlush(cards)); // high cards are just first 5 flush cards
                     break;
                 case STRAIGHT:
                     if(isStraight(cards))
-                        return new EvaluationResult(HandRank.STRAIGHT, getHighCardsStraight(cards), EvaluationRank.fromValue(first), settings.descending()); // highest hard of straight
+                        return new EvaluationResult(HandRank.STRAIGHT, getHighCardsStraight(cards), EvaluationRank.fromValue(first), settings.descending(), getActualStraight(cards, settings)); // highest hard of straight
                     break;
                 case THREEOFKIND:
                     if(isThreeOfAKind(cards))
-                        return new EvaluationResult(HandRank.THREEOFKIND, getHighCardThreeKind(cards), EvaluationRank.fromValue(first), settings.descending()); // value of trips and two high cards must be considered
+                        return new EvaluationResult(HandRank.THREEOFKIND, getHighCardThreeKind(cards), EvaluationRank.fromValue(first), settings.descending(), getActualHandThreeOfAKind(cards)); // value of trips and two high cards must be considered
                     break;
                 case TWOPAIR:
                     if(isTwoPair(cards))
-                        return new EvaluationResult(HandRank.TWOPAIR, getHighCardsTwoPair(cards), EvaluationRank.fromValue(first), settings.descending()); // value of both pairs and one additional high card must be considered
+                        return new EvaluationResult(HandRank.TWOPAIR, getHighCardsTwoPair(cards), EvaluationRank.fromValue(first), settings.descending(), getActualHandTwoPair(cards)); // value of both pairs and one additional high card must be considered
                     break;
                 case ONEPAIR:
                     if(isPair(cards))
-                        return new EvaluationResult(HandRank.ONEPAIR, getHighCardTwoKind(cards), EvaluationRank.fromValue(first), settings.descending()); //value of pair and three high cards must be considered
+                        return new EvaluationResult(HandRank.ONEPAIR, getHighCardTwoKind(cards), EvaluationRank.fromValue(first), settings.descending(), getActualHandPair(cards)); //value of pair and three high cards must be considered
                     break;
                 case HIGHCARD:
-                    return new EvaluationResult(HandRank.HIGHCARD, getHighCards(cards), EvaluationRank.fromValue(first), settings.descending()); // 5 highest cards need to be considered
+                    return new EvaluationResult(HandRank.HIGHCARD, getHighCards(cards), EvaluationRank.fromValue(first), settings.descending(), getHighCards(cards)); // 5 highest cards need to be considered
             }
             first--;
         }
@@ -85,7 +86,7 @@ public class HandEvaluator {
     }
 
     private static boolean isFullHouse(List<Card> cards) {
-        Rank[] ranks = getFullHouseRanks(cards);
+        Card[] ranks = getFullHouseRanks(cards);
         return ranks[0] != null && ranks[1] != null;
     }
 
@@ -94,8 +95,8 @@ public class HandEvaluator {
     }
 
     private static boolean isStraight(List<Card> cards) {
-        Rank rank = getStraightRank(cards);
-        return rank != null;
+        Card card = getStraightRank(cards);
+        return card.rank() != null;
     }
 
     private static boolean isThreeOfAKind(List<Card> cards) {
@@ -103,8 +104,8 @@ public class HandEvaluator {
     }
 
     private static boolean isTwoPair(List<Card> cards) {
-        Rank[] ranks = findTwoPairRanks(cards);
-        return ranks[0] != null && ranks[1] != null;
+        Card[] ranks = findTwoPairRanks(cards);
+        return ranks[0]!= null && ranks[1] != null;
     }
 
     private static boolean isPair(List<Card> cards) {
@@ -112,86 +113,145 @@ public class HandEvaluator {
     }
 
     private static boolean countPairOfSize(List<Card> cards, int count) {
-        Rank high = findHighPairOfSize(cards, count);
+        Card high = findHighPairOfSize(cards, count);
         return high != null;
     }
 
     private static Card[] getHighCardFourKind(List<Card> cards) {
-        Rank pair = findHighPairOfSize(cards, 4);
-        Rank[] high = getRemainingHighCards(cards, 1, pair);
-        return new Card[]{new Card(pair, Suit.SPADES), new Card(high[0], Suit.SPADES)};
+        Card pair = findHighPairOfSize(cards, 4);
+        Card[] high = getRemainingHighCards(cards, 1, pair.rank());
+        return new Card[]{pair, high[0]};
+    }
+
+    private static Card[] getActualHandFourKind(List<Card> cards) {
+        return getActualPairs(cards, 4, 1);
+    }
+
+    private static Card[] getActualHandThreeOfAKind(List<Card> cards) {
+        return getActualPairs(cards, 3, 2);
+    }
+
+    private static Card[] getActualHandPair(List<Card> cards) {
+        return getActualPairs(cards, 2, 3);
     }
 
     private static Card[] getHighCardsFullHouse(List<Card> cards) {
-        Rank[] ranks = getFullHouseRanks(cards);
-        return new Card[]{new Card(ranks[0], Suit.SPADES), new Card(ranks[1], Suit.SPADES)};
+        return getFullHouseRanks(cards);
     }
 
+    private static Card[] getActualFullHouse(List<Card> cards) {
+        Card[] ranks = getFullHouseRanks(cards);
+        Card[] trips = cards.stream().filter(x -> x.rank() == ranks[0].rank()).toArray(Card[]::new);
+        Card[] doubles = cards.stream().filter(x -> x.rank() == ranks[1].rank()).toArray(Card[]::new);
+        Card[] newArr = new Card[2];
+
+        if (doubles.length > 2) {
+            newArr[0] = doubles[0];
+            newArr[1] = doubles[1];
+        }
+        return mergeArrays(trips, newArr);
+    }
     private static Card[] getHighCardsFlush(List<Card> cards){
         Suit suit = getFlush(cards);
         return cards.stream().filter(x -> x.suit() == suit).limit(5).toArray(Card[]::new);
     }
 
     private static Card[] getHighCardsStraight(List<Card> cards) {
-        Rank rank = getStraightRank(cards);
-        return new Card[]{new Card(rank, Suit.SPADES)};
+        Card card = getStraightRank(cards);
+        return new Card[]{card};
+    }
+
+    private static Card[] getHighCardsRoyalStraight(List<Card> cards) {
+        Card card = getRoyalStraightRank(cards);
+        return new Card[]{card};
+    }
+
+    private static Card[] getActualStraight(List<Card> cards, GameSettings gameSettings) {
+        Card card = getStraightRank(cards);
+        Set<Rank> seenRanks = new HashSet<>();
+        return cards.stream()
+                .filter(x -> x.rank().value <= card.rank().value)
+                .filter(x -> seenRanks.add(x.rank())) // keeps only first card of each rank
+                .limit(5)
+                .toArray(Card[]::new);
+    }
+
+    private static Card[] getActualRoyalStraight(List<Card> cards, GameSettings gameSettings) {
+        Card card = getRoyalStraightRank(cards);
+        Card[] res = new Card[5];
+        res[0] = card;
+        int adder = gameSettings.descending() ? -1 : 1;
+        int c = 1;
+        for(int i = card.rank().value + adder; i >= card.rank().value + (adder * 4); i+=adder) {
+            res[c] = new Card(Rank.fromValue(i), card.suit());
+        }
+        return res;
     }
 
     private static Card[] getHighCardThreeKind(List<Card> cards) {
-        Rank pair = findHighPairOfSize(cards, 3);
-        Rank[] high = getRemainingHighCards(cards, 2, pair);
-        return new Card[]{new Card(pair, Suit.SPADES), new Card(high[0], Suit.SPADES), new Card(high[1], Suit.SPADES)};
+        Card pair = findHighPairOfSize(cards, 3);
+        Card[] high = getRemainingHighCards(cards, 2, pair.rank());
+        return new Card[]{pair, high[0], high[1]};
     }
 
     private static Card[] getHighCardsTwoPair(List<Card> cards) {
-        Rank[] ranks = findTwoPairRanks(cards);
-        Optional<Card> highCardRankCard = cards.stream().filter(x -> x.rank() != ranks[0] && x.rank() != ranks[1]).findFirst();
-        return highCardRankCard.map(card -> new Card[]{new Card(ranks[0], Suit.SPADES), new Card(ranks[1], Suit.SPADES), new Card(card.rank(), Suit.SPADES)}).orElseGet(() -> new Card[]{new Card(ranks[0], Suit.SPADES), new Card(ranks[1], Suit.SPADES)});
+        Card[] ranks = findTwoPairRanks(cards);
+        Optional<Card> highCardRankCard = cards.stream().filter(x -> x.rank() != ranks[0].rank() && x.rank() != ranks[1].rank()).findFirst();
+        return highCardRankCard.map(card -> new Card[]{ranks[0], ranks[1], card})
+                .orElseGet(() -> ranks);
+    }
+
+    private static Card[] getActualHandTwoPair(List<Card> cards) {
+        Card[] ranks = findTwoPairRanks(cards);
+
+        Card[] actualRanks = cards.stream().filter(x -> x.rank() == ranks[1].rank() || x.rank() == ranks[0].rank()).toArray(Card[]::new);
+        Optional<Card> highCardRankCard = cards.stream().filter(x -> x.rank() != ranks[0].rank() && x.rank() != ranks[1].rank()).findFirst();
+        return highCardRankCard.map(card -> mergeArrays(actualRanks, new Card[]{card})).orElse(actualRanks);
     }
 
     private static Card[] getHighCardTwoKind(List<Card> cards) {
-        Rank pair = findHighPairOfSize(cards, 2);
-        Rank[] high = getRemainingHighCards(cards, 3, pair);
-        return new Card[]{new Card(pair, Suit.SPADES), new Card(high[0], Suit.SPADES), new Card(high[1], Suit.SPADES), new Card(high[2], Suit.SPADES)};
+        Card pair = findHighPairOfSize(cards, 2);
+        Card[] high = getRemainingHighCards(cards, 3, pair.rank());
+        return new Card[]{pair, high[0], high[1], high[2]};
     }
 
     private static Card[] getHighCards(List<Card> cards) {
         return cards.stream().limit(5).toArray(Card[]::new);
     }
 
-    private static Rank findHighPairOfSize(List<Card> cards, int size) {
+    private static Card findHighPairOfSize(List<Card> cards, int size) {
         int c = 1;
-        Rank high = null;
+        Card card = null;
         for(int i = 1; i < cards.size(); i++) {
             if(cards.get(i).rank() == cards.get(i - 1).rank()) c++;
             else c = 1;
             if(c == size) {
-                high = cards.get(i).rank();
+                card = cards.get(i);
                 break;
             }
         }
-        return high;
+        return card;
     }
 
-    private static Rank[] getFullHouseRanks(List<Card> cards) {
+    private static Card[] getFullHouseRanks(List<Card> cards) {
         int c = 1;
-        Rank pairR = null;
-        Rank tripsR = null;
+        Card pairR = null;
+        Card tripsR = null;
         for(int i = 1; i < cards.size(); i++) {
             if(cards.get(i).rank() == cards.get(i - 1).rank()) c++;
             else c = 1;
             if(c == 2 && pairR == null) {
-                pairR = cards.get(i).rank();
+                pairR = cards.get(i);
             }
-            else if(c == 3 && tripsR == null && (pairR == null || pairR != cards.get(i).rank())) {
-                tripsR = cards.get(i).rank();
+            else if(c == 3 && tripsR == null && (pairR == null || pairR.rank() != cards.get(i).rank())) {
+                tripsR = cards.get(i);
             }
-            else if(c == 3 && pairR == cards.get(i).rank() && tripsR == null){
-                tripsR = cards.get(i).rank();
+            else if(c == 3 && pairR.rank() == cards.get(i).rank() && tripsR == null){
+                tripsR = cards.get(i);
                 pairR = null;
             }
         }
-        return new Rank[]{tripsR, pairR};
+        return new Card[]{tripsR, pairR};
     }
 
     private static Suit getFlush(List<Card> cards) {
@@ -205,9 +265,27 @@ public class HandEvaluator {
         }
         return flush;
     }
-
-    private static Rank getStraightRank(List<Card> cards) {
+    private static Card getRoyalStraightRank(List<Card> cards) {
         Rank rank = null;
+        Suit suit = null;
+        int consecutive = 1;
+        Suit flush = getFlush(cards);
+        List<Rank> distinctRanks = cards.stream().filter(x -> x.suit() == flush).map(Card::rank).distinct().toList();
+        for(int i = 1; i < distinctRanks.size(); i++) {
+            consecutive = distinctRanks.get(i).value + 1 == distinctRanks.get(i - 1).value ?
+                    consecutive + 1 : 1;
+            if(consecutive == 5) {
+                rank = distinctRanks.get(i - 4);
+                suit = getFlush(cards);
+                break;
+            }
+        }
+        return new Card(rank, suit);
+    }
+
+    private static Card getStraightRank(List<Card> cards) {
+        Rank rank = null;
+        Suit suit = null;
         int consecutive = 1;
         List<Rank> distinctRanks = cards.stream().map(Card::rank).distinct().toList();
         for(int i = 1; i < distinctRanks.size(); i++) {
@@ -215,21 +293,27 @@ public class HandEvaluator {
                     consecutive + 1 : 1;
             if(consecutive == 5) {
                 rank = distinctRanks.get(i - 4);
+                Rank finalRank = rank;
+                suit = cards.stream()
+                        .filter(x -> x.rank().value == finalRank.value)
+                        .map(Card::suit)
+                        .findFirst()
+                        .orElse(Suit.SPADES);
                 break;
             }
         }
-        return rank;
+        return new Card(rank, suit);
     }
 
-    private static Rank[] findTwoPairRanks(List<Card> cards) {
+    private static Card[] findTwoPairRanks(List<Card> cards) {
         int c = 1;
         int currentIdx = 0;
-        Rank[] ranks = new Rank[2];
+        Card[] ranks = new Card[2];
         for(int i = 1; i < cards.size(); i++) {
             if(cards.get(i).rank() == cards.get(i - 1).rank()) c++;
             else c = 1;
             if(c == 2) {
-                ranks[currentIdx] = cards.get(i).rank();
+                ranks[currentIdx] = cards.get(i);
                 currentIdx++;
             }
             if(currentIdx > 1) break;
@@ -237,11 +321,22 @@ public class HandEvaluator {
         return ranks;
     }
 
-    private static Rank[] getRemainingHighCards(List<Card> cards, int take, Rank pair) {
-        return cards.stream().map(Card::rank).filter(x -> x != pair).limit(take).toArray(Rank[]::new);
+    private static Card[] getRemainingHighCards(List<Card> cards, int take, Rank pair) {
+        return cards.stream().filter(x -> x.rank() != pair).limit(take).toArray(Card[]::new);
     }
 
     private static void orderCards(List<Card> cards, boolean descending) {
         cards.sort(descending ? Comparator.comparing(Card::rank).reversed(): Comparator.comparing(Card::rank));
+    }
+
+    private static Card[] mergeArrays(Card[] first, Card[] second) {
+        return Stream.concat(Arrays.stream(first), Arrays.stream(second)).toArray(Card[]::new);
+    }
+
+    private static Card[] getActualPairs(List<Card> cards, int size, int take) {
+        Card pair = findHighPairOfSize(cards, size);
+        Card[] pairs = cards.stream().filter(x -> x.rank() == pair.rank()).toArray(Card[]::new);
+        Card[] high = getRemainingHighCards(cards, take, pair.rank());
+        return mergeArrays(pairs, high);
     }
 }
