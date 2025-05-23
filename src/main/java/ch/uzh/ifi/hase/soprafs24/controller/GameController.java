@@ -90,6 +90,19 @@ public class GameController {
     @PostMapping("/declineInvitation")
     @ResponseStatus(HttpStatus.OK)
     public boolean declineInvitation(@RequestBody InvitationRequest request) {
+        System.out.println("Declining invitation");
+        System.out.println(request);
+        System.out.println("declining invitation");
+        Game game = gameService.getGameBySessionId(request.sessionId());
+        User user = userService.getUserById(request.userId());
+
+        allowedUserService.rejectInvite(game, user);
+        return true;
+    }
+
+    @PostMapping("/removePlayer")
+    @ResponseStatus(HttpStatus.OK)
+    public boolean removePlayer(@RequestBody InvitationRequest request) {
         Game game = gameService.getGameBySessionId(request.sessionId());
         User user = userService.getUserById(request.userId());
         User sendingUser = userService.getUserById(request.senderId());
@@ -98,15 +111,6 @@ public class GameController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not the owner of this game");
         }
 
-        allowedUserService.rejectInvite(game, user);
-        return true;
-    }
-
-    @PostMapping("/removePlayer")
-    @ResponseStatus(HttpStatus.OK)
-    public boolean removePlayer(@RequestBody GameActionRequest request) {
-        Game game = gameService.getGameBySessionId(request.sessionId());
-        User user = userService.getUserById(request.userId());
         gameService.removePlayerFromGame(game, user.getId());
         return true;
     }
