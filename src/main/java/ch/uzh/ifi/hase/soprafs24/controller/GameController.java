@@ -310,6 +310,10 @@ public class GameController {
 
         activeGames.remove(sessionId);
         gameService.deleteSession(game);
+
+        Map<String, Object> deleteMessage = new HashMap<>();
+        deleteMessage.put("event", "LEAVE");
+        wsHandler.sendGenericToAll(String.valueOf(sessionId), deleteMessage);
         return true;
     }
 
@@ -318,10 +322,10 @@ public class GameController {
     public List<GameModel> getAllGames() {
         List<Game> games = gameService.getAllGames();
         List<Game> orderedGames = games.stream()
-                .sorted(Comparator.comparing(Game::getSessionId))
+                .sorted(Comparator.comparing(Game::getSessionId).reversed())
                 .toList();
         List<GameModel> gameModels = new ArrayList<>();
-        for (Game game : games) {
+        for (Game game : orderedGames) {
             gameModels.add(new GameModel(game.toGameModel(), -1));
         }
         return gameModels;
