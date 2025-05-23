@@ -282,12 +282,16 @@ public class Round {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "player not found");
         if (!player.isActive())
             throw new ResponseStatusException(HttpStatus.CONFLICT, "player already folded");
-        if(player.getBalance() < balance){
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "cannot call or raise if balance less than amount to be called");
+        if(player.getBalance() < balance && player.getBalance() != balance){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "cannot call or raise if balance less than amount to be called except if you are allin");
+        }
+        if(player.getBalance() == 0){
+            // player is all in so continue
+            return;
         }
         boolean successful = player.call(balance);
 
-        if (successful) {
+        if (successful || player.getBalance() == balance) {
             potSize += balance;
             roundBet = raise ? roundBet + balance : Math.max(roundBet, balance);
         }
