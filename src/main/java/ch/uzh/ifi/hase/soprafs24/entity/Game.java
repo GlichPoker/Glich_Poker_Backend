@@ -64,6 +64,7 @@ public class Game {
     public boolean containsPlayer(long userId) {
         return this.players.stream().anyMatch(x -> x.getUserId() == userId);
     }
+    public void setId(long id) { this.id = id; }
     public int getStartPlayer() { return startPlayer; }
     public void setStartPlayer(int startPlayer) { this.startPlayer = startPlayer; }
     public boolean isRoundRunning() { return roundRunning; }

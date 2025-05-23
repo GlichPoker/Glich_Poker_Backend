@@ -1,9 +1,15 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
+import ch.uzh.ifi.hase.soprafs24.constant.HandRank;
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
+import ch.uzh.ifi.hase.soprafs24.constant.WeatherType;
+import ch.uzh.ifi.hase.soprafs24.entity.Game;
+import ch.uzh.ifi.hase.soprafs24.entity.GameSettings;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserLogoutDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs24.service.InviteGameService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,8 +25,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.server.ResponseStatusException;
-import java.util.Collections;
-import java.util.List;
+
+import java.util.*;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -59,8 +65,10 @@ class UserControllerTest {
 
   @MockBean
   private UserRepository userRepository;
+    @MockBean
+    private InviteGameService inviteGameService;
 
-  @Test
+    @Test
   void givenUsers_whenGetUsers_thenReturnJsonArray() throws Exception {
     // given
     User user = new User();
@@ -251,7 +259,90 @@ class UserControllerTest {
           .andExpect(status().isNotFound());
   }
 
-  /**
+
+    @Test
+    void testLoginUser() throws Exception {
+        // given
+        User user = new User();
+        user.setId(1L);
+        user.setPassword("securePassword");
+        user.setUsername("testUsername");
+        user.setToken("1");
+        user.setStatus(UserStatus.ONLINE);
+
+        UserPostDTO userPostDTO = new UserPostDTO();
+        userPostDTO.setPassword("securePassword");
+        userPostDTO.setUsername("testUsername");
+
+
+        given(userService.loginUser(Mockito.any())).willReturn(user);
+
+        // when/then -> do the request + validate the result
+        MockHttpServletRequestBuilder postRequest = post("/users/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(userPostDTO));
+
+        // then
+        mockMvc.perform(postRequest)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(user.getId().intValue())))
+                .andExpect(jsonPath("$.username", is(user.getUsername())))
+                .andExpect(jsonPath("$.status", is(user.getStatus().toString())))
+                .andExpect(jsonPath("$.token", is(user.getToken())));
+    }
+
+    @Test
+    void testLogoutUser() throws Exception {
+        // given
+        User user = new User();
+        user.setId(1L);
+        user.setPassword("securePassword");
+        user.setUsername("testUsername");
+        user.setToken("1");
+        user.setStatus(UserStatus.ONLINE);
+
+        UserLogoutDTO userPostDTO = new UserLogoutDTO();
+        userPostDTO.setUsername("testUsername");
+
+        // when/then -> do the request + validate the result
+        MockHttpServletRequestBuilder postRequest = post("/users/logout")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(userPostDTO));
+
+        // then
+        mockMvc.perform(postRequest)
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void testOpenInvitations() throws Exception {
+        // given
+        User user = new User();
+        user.setId(1L);
+
+
+        List<HandRank> revorder = new ArrayList<>(Arrays.stream(HandRank.values()).sorted(Comparator.reverseOrder()).toList());
+
+        Game game =new Game(user, new GameSettings(1000,10,20, revorder, true, WeatherType.RAINY, ""), true);
+        game.setId(1);
+        Game game2 =new Game(user, new GameSettings(1000,10,20, revorder, true, WeatherType.RAINY, ""), true);
+        game2.setId(2);
+
+        // Setup service to return user when getUserById is called
+        given(inviteGameService.getOpenInvitations(user.getId())).willReturn(new ArrayList<>(){{add(game);add(game2);}});
+
+        // when/then
+        MockHttpServletRequestBuilder getRequest = get("/users/openInvitations").contentType(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, "Bearer 1").param("userId", String.valueOf(1));
+
+
+        // then
+        mockMvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$.[0]", is(1)))
+                .andExpect(jsonPath("$.[1]", is(2)));
+    }
+    /**
    * Helper Method to convert userPostDTO into a JSON string such that the input
    * can be processed
    * Input will look like this: {"name": "Test User", "username": "testUsername"}
