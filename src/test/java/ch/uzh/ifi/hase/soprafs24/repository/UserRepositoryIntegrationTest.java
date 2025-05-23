@@ -98,7 +98,7 @@ class UserRepositoryIntegrationTest {
         entityManager.persist(user2);
         entityManager.flush();
 
-        List<User> users = userRepository.getAllUsers(user.getId());
+        List<User> users = userRepository.getAllUsersExceptSelf(user.getId());
 
         assertNotNull(users);
         assertEquals(1, users.size());
@@ -107,7 +107,7 @@ class UserRepositoryIntegrationTest {
 
     @Test
     void testGetAllUsersNoUsers() {
-        List<User> users = userRepository.getAllUsers(user.getId());
+        List<User> users = userRepository.getAllUsersExceptSelf(user.getId());
 
         assertTrue(users.isEmpty());
     }

@@ -75,7 +75,9 @@ public class InviteGameService {
 
     public void removeAllowedUser(Long gameId, Long userId) {
         Optional<Invite> allowedUser = gameinvitesRepository.findById_GameIdAndId_UserId(gameId, userId);
-        allowedUser.ifPresent(gameinvitesRepository::delete);
-        gameinvitesRepository.flush();
+        allowedUser.ifPresent(invite -> {
+            gameinvitesRepository.delete(invite);
+            gameinvitesRepository.flush(); // Move flush() inside the lambda
+        });
     }
 }

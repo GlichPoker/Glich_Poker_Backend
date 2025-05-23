@@ -7,6 +7,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.model.*;
 import ch.uzh.ifi.hase.soprafs24.service.*;
+import ch.uzh.ifi.hase.soprafs24.service.PlayerStatisticsService.ActivePlayerStats;
 import ch.uzh.ifi.hase.soprafs24.websockets.WS_Handler;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -292,7 +293,7 @@ public class GameController {
         for (ch.uzh.ifi.hase.soprafs24.entity.Player player : game.getAllPlayers()) {
             User user = player.getUser();
             playerStatisticsService.incrementUser_games_played(user);
-            playerStatisticsService.updateUser_round_played(user, game.getRoundCount());
+            playerStatisticsService.incrementUser_round_played(user, game.getRoundCount());
             playerStatisticsService.updateUser_BB_100_record(user, game, player);
         }
 
@@ -426,10 +427,39 @@ public class GameController {
         stats.put("gamesPlayed", playerStatisticsService.getPlayer_games_played(user));
         stats.put("roundsPlayed", playerStatisticsService.getPlayer_round_played(user));
         stats.put("bb100", playerStatisticsService.getPlayer_BB_100(user));
-        double bb_won = playerStatisticsService.getPlayer_BB_100(user)
-                * (playerStatisticsService.getPlayer_BB_100_count(user) / 100.0);
-        stats.put("bbWon", bb_won);
+        stats.put("bbWon", playerStatisticsService.getPlayer_BB(user));
         stats.put("bankrupts", playerStatisticsService.getPlayer_bankrupt(user));
         return stats;
+    }
+
+    @GetMapping("/stats/all")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Map<String, Object>> getAllPlayersBB100() {
+        Map<User, ActivePlayerStats> activePlayerStats = playerStatisticsService.getAllPlayersBB100();
+        List<Map<String, Object>> resultList = new ArrayList<>();
+
+
+        for (Map.Entry<User, ActivePlayerStats> entry : activePlayerStats.entrySet()) {
+            User user = entry.getKey();
+            ActivePlayerStats stats = entry.getValue();
+            float totalBBWon = (float) stats.getTotalBBWon();
+            float totalRoundsPlayed = (float) stats.getTotalRoundsPlayed();
+            float bb100 = (totalRoundsPlayed == 0) ? 0 : (totalBBWon / totalRoundsPlayed) * 100.0f;
+            int totalGamesPlayed = playerStatisticsService.getPlayer_games_played(user);
+            int bankrupts = playerStatisticsService.getPlayer_bankrupt(user);
+
+            Map<String, Object> playerStat = new HashMap<>();
+            playerStat.put("userId", user.getId());
+            playerStat.put("username", user.getUsername());
+            playerStat.put("totalBBWon", totalBBWon);
+            playerStat.put("totalRoundsPlayed", totalRoundsPlayed);
+            playerStat.put("bb100", bb100);
+            playerStat.put("totalGamesPlayed", totalGamesPlayed);
+            playerStat.put("bankrupts", bankrupts);
+
+            resultList.add(playerStat);
+        }
+
+        return resultList;
     }
 }

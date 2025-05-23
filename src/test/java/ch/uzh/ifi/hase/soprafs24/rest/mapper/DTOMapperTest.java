@@ -4,6 +4,7 @@ import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserLogoutDTO;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -44,5 +45,19 @@ class DTOMapperTest {
     assertEquals(user.getId(), userGetDTO.getId());
     assertEquals(user.getUsername(), userGetDTO.getUsername());
     assertEquals(user.getStatus(), userGetDTO.getStatus());
+  }
+
+  // Test for UserLogoutDTO
+  @Test
+  void testUserLogoutDTO_setAndGetUsername() {
+    // create UserLogoutDTO
+    UserLogoutDTO userLogoutDTO = new UserLogoutDTO();
+    String testUsername = "logoutUser";
+
+    // set username
+    userLogoutDTO.setUsername(testUsername);
+
+    // check content
+    assertEquals(testUsername, userLogoutDTO.getUsername());
   }
 }
